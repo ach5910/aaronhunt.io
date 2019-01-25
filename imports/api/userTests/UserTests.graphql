@@ -1,0 +1,15 @@
+type UserTest {
+    _id: String!
+    userId: String!
+    score: Int
+    userQuestions: [UserQuestion]
+}
+
+extend type Mutation {
+    createUserTest(testOutlineId: String!): UserTest
+    submitUserTest(userTestId: String!, score: Int): UserTest
+}
+
+extend type Query {
+    userTests: [UserTest]
+}

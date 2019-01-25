@@ -1,0 +1,32 @@
+{
+    "plugins": ["babel-plugin-inline-import","import-graphql"]
+}
+// {
+//     "plugins": [
+//       "syntax-dynamic-import",
+//       "transform-class-properties",
+//       "transform-react-jsx",
+//       "babel-plugin-inline-import",
+//       "import-graphql"
+//     ],
+//     "presets": [
+//       ["env", {
+//         "targets": {
+//           "browsers": ["last 3 versions"],
+//           "uglify": true
+//         },
+//         "loose": true,
+//         "modules": false
+//       }],
+//       ["react"]
+//     ],
+//     "env": {
+//       "development": {
+//         "plugins": ["transform-es2015-modules-commonjs"]
+//       },
+//       "test": {
+//         "presets": ["react"],
+//         "plugins": ["transform-es2015-modules-commonjs"]
+//       }
+//     }
+// }

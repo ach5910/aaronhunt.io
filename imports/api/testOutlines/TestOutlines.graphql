@@ -1,0 +1,15 @@
+type TestOutline {
+    _id: String!
+    userIds: [String!]
+    questions: [Question]
+    userTests: [UserTest]
+}
+
+extend type Query{
+    testOutlines: [TestOutline]
+    testOutline(testOutlineId: String!): TestOutline
+}
+
+extend type Mutation {
+    createTestOutline: TestOutline
+}

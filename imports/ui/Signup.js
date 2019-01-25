@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Accounts } from 'meteor/accounts-base';
+import { Meteor } from 'meteor/meteor';
 
 export default class Signup extends React.Component {
   constructor(props) {
@@ -23,7 +24,14 @@ export default class Signup extends React.Component {
       if (err) {
         this.setState({error: err.reason});
       } else {
-        this.setState({error: ''});
+        Meteor.loginWithPassword({email}, password, (err) => {
+          if (err) {
+            this.setState({error: 'Unable to login. Check email and password.'});
+          } else {
+            this.setState({error: ''});
+            this.props.history.replace('/dashboard');
+          }
+        })
       }
     });
   }

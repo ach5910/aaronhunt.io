@@ -1,0 +1,15 @@
+type UserQuestion {
+    _id: String!
+    userId: String!
+    question: Question
+    answer: Answer
+    score: Int
+}
+
+extend type Query {
+    userQuestions: [UserQuestion]
+}
+
+extend type Mutation {
+    createUserQuestion(userTestId: String!, questionId: String!, answerId: String!, score: Int): UserQuestion
+}

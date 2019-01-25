@@ -10,20 +10,25 @@ html {
 body {
   font-family: Helvetica, Arial, sans-serif;
   font-size: $base-font-size;
+  background-color: $background-gray;
 }
 
 h1 {
   font-weight: 300;
   margin-bottom: $space;
+  color: $brand-primary;
 }
 
 h2 {
   font-size: $large-font-size;
   margin-bottom: $space;
+  color: $title-text;
+  font-weight: 500;
 }
 
 p {
   margin-bottom: $space;
+  color: $secondary-text;
 }
 
 a {

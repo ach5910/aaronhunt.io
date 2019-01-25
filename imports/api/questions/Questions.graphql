@@ -1,0 +1,14 @@
+type Question {
+    _id: String!
+    text: String!
+    userId: String!
+    answers: [Answer]
+}
+
+type Mutation {
+    createQuestion(text: String!): Question
+}
+
+type Query {
+    questions: [Question]
+}

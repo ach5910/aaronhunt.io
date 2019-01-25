@@ -1,0 +1,29 @@
+.answer-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: stretch;
+    
+  }
+.answer-container__radio{
+    background: $light-grey;
+    color: $brand-primary;
+    height: 100%;
+    margin-bottom: $space;
+    font-size: $base-font-size;
+    margin-bottom: $space;
+    padding: $input-spacing;
+    border: 1px solid $input-border;
+    &:hover{
+      background: darken($light-grey, 5%);
+      cursor: pointer;
+    }
+    &.selected{
+      background: $brand-primary;
+      color: $light-grey;
+      &:hover{
+        cursor: pointer;
+        background: lighten($brand-primary, 5%);
+      }
+    }
+}

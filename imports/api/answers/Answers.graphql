@@ -1,0 +1,13 @@
+type Answer {
+    _id: String!
+    text: String!
+    isAnswer: Boolean
+}
+
+extend type Query {
+    answers: [Answer]
+}
+
+extend type Mutation {
+    createAnswer(text: String!, questionId: String!, isAnswer: Boolean): Answer
+}

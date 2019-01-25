@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 
 export default class Login extends React.Component {
@@ -20,6 +20,7 @@ export default class Login extends React.Component {
         this.setState({error: 'Unable to login. Check email and password.'});
       } else {
         this.setState({error: ''});
+        this.props.history.replace('/dashboard');
       }
     });
   }

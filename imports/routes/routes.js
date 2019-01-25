@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
-import { Router, Route, browserHistory } from 'react-router';
+import { Switch, Router, Route } from 'react-router-dom';
 
 import Signup from '../ui/Signup';
 import Dashboard from '../ui/Dashboard';
@@ -9,32 +9,57 @@ import Login from '../ui/Login';
 
 const unauthenticatedPages = ['/', '/signup'];
 const authenticatedPages = ['/dashboard'];
-const onEnterPublicPage = () => {
-  if (Meteor.userId()) {
-    browserHistory.replace('/dashboard');
-  }
-};
-const onEnterPrivatePage = () => {
-  if (!Meteor.userId()) {
-    browserHistory.replace('/');
-  }
-};
-export const onAuthChange = (isAuthenticated) => {
-  const pathname = browserHistory.getCurrentLocation().pathname;
-  const isUnauthenticatedPage = unauthenticatedPages.includes(pathname);
-  const isAuthenticatedPage = authenticatedPages.includes(pathname);
 
-  if (isUnauthenticatedPage && isAuthenticated) {
-    browserHistory.replace('/dashboard');
-  } else if (isAuthenticatedPage && !isAuthenticated) {
-    browserHistory.replace('/');
+export default class Routes extends React.Component{
+  constructor(props){
+    super(props);
   }
-};
-export const routes = (
-  <Router history={browserHistory}>
-    <Route path="/" component={Login} onEnter={onEnterPublicPage}/>
-    <Route path="/signup" component={Signup} onEnter={onEnterPublicPage}/>
-    <Route path="/dashboard" component={Dashboard} onEnter={onEnterPrivatePage}/>
-    <Route path="*" component={NotFound}/>
-  </Router>
-);
+
+  componentDidMount = () => {
+    this.onAuthChange(this.props.isAuthenticated);
+  }
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.isAuthenticated !== this.props.isAuthenticated){
+      this.onAuthChange(this.props.isAuthenticated);
+    }
+  }
+  
+  onEnterPublicPage = () => {
+    if (Meteor.userId()) {
+      this.props.history.replace('/dashboard');
+    }
+  };
+  
+  onEnterPrivatePage = () => {
+    if (!Meteor.userId()) {
+      this.props.history.replace('/');
+    }
+  };
+
+  onAuthChange = (isAuthenticated) => {
+    const pathname = this.props.history.location.pathname;
+    const isUnauthenticatedPage = unauthenticatedPages.includes(pathname);
+    const isAuthenticatedPage = authenticatedPages.includes(pathname);
+  
+    if (isUnauthenticatedPage && isAuthenticated) {
+      this.props.history.replace('/dashboard');
+    } else if (isAuthenticatedPage && !isAuthenticated) {
+      this.props.history.replace('/');
+    }
+  };
+
+  render(){
+    return (
+      <Router history={this.props.history}>
+        <Switch >
+          <Route path="/" exact component={Login} onEnter={this.onEnterPublicPage}/>
+          <Route path="/signup" exact component={Signup} onEnter={this.onEnterPublicPage}/>
+          <Route path="/dashboard" exact component={Dashboard} onEnter={this.onEnterPrivatePage}/>
+          {/* <Route path="*" component={NotFound}/> */}
+        </Switch>
+      </Router>
+    )
+  }
+}
+
