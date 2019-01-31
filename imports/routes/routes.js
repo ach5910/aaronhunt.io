@@ -15,15 +15,15 @@ export default class Routes extends React.Component{
     super(props);
   }
 
-  componentDidMount = () => {
-    this.onAuthChange(this.props.isAuthenticated);
-  }
+  // componentDidMount = () => {
+  //   this.onAuthChange(this.props.isAuthenticated);
+  // }
 
-  componentDidUpdate = (prevProps) => {
-    if (prevProps.isAuthenticated !== this.props.isAuthenticated){
-      this.onAuthChange(this.props.isAuthenticated);
-    }
-  }
+  // componentDidUpdate = (prevProps) => {
+  //   if (prevProps.isAuthenticated !== this.props.isAuthenticated){
+  //     this.onAuthChange(this.props.isAuthenticated);
+  //   }
+  // }
   
   onEnterPublicPage = () => {
     if (Meteor.userId()) {
@@ -37,17 +37,17 @@ export default class Routes extends React.Component{
     }
   };
 
-  onAuthChange = (isAuthenticated) => {
-    const pathname = this.props.history.location.pathname;
-    const isUnauthenticatedPage = unauthenticatedPages.includes(pathname);
-    const isAuthenticatedPage = authenticatedPages.includes(pathname);
+  // onAuthChange = (isAuthenticated) => {
+  //   const pathname = this.props.history.location.pathname;
+  //   const isUnauthenticatedPage = unauthenticatedPages.includes(pathname);
+  //   const isAuthenticatedPage = authenticatedPages.includes(pathname);
   
-    if (isUnauthenticatedPage && isAuthenticated) {
-      this.props.history.replace('/dashboard');
-    } else if (isAuthenticatedPage && !isAuthenticated) {
-      this.props.history.replace('/');
-    }
-  };
+  //   if (isUnauthenticatedPage && isAuthenticated) {
+  //     this.props.history.replace('/dashboard');
+  //   } else if (isAuthenticatedPage && !isAuthenticated) {
+  //     this.props.history.replace('/');
+  //   }
+  // };
 
   render(){
     return (

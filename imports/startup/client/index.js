@@ -1,6 +1,5 @@
 import React from 'react';
 import {Meteor} from 'meteor/meteor';
-import { Tracker } from 'meteor/tracker';
 import { render } from 'react-dom';
 // import Answers from '../../api/answers/answers;'
 import { ApolloLink, from } from 'apollo-link';
@@ -17,7 +16,6 @@ const httpLink = new HttpLink({
 
 // const answers = Answers.find({}).fetch();
 // console.log(answers);
-let isAuthenticated;
 const history = createBrowserHistory();
 const cache = new InMemoryCache();
 
@@ -36,14 +34,10 @@ const client = new ApolloClient({
     cache
 });
 
-// Tracker.autorun(() => {
-//     isAuthenticated = !!Meteor.userId();
-//     // onAuthChange(isAuthenticated);
-// });
 
 const ApolloApp = () => (
     <ApolloProvider client={client}>
-        <Routes isAuthenticated={!!Meteor.userId()} history={history}/>
+        <Routes history={history}/>
     </ApolloProvider>
 )
 
