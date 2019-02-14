@@ -9,6 +9,7 @@
 .header__content {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   max-width: $header-content-width;
   margin: 0 auto;
   padding: $space;

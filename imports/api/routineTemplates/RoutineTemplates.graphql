@@ -1,0 +1,16 @@
+type RoutineTemplate {
+    _id: String!
+    createBy: String!
+    name: String!
+    exerciseTemplates: [ExerciseTemplate]
+    routines: [Routine]
+}
+
+extend type Query {
+    routineTemplates: [RoutineTemplate]
+}
+
+extend type Mutation {
+    createRoutineTemplate(name: String, exerciseTemplateIds: [String]): RoutineTemplate
+    updateRoutineTemplate(name: String!, oldExerciseTemplateIds: [String], newExerciseTemplateIds: [String]): RoutineTemplate
+}

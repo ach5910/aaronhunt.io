@@ -7,7 +7,7 @@ import { ApolloProvider} from 'react-apollo';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import Routes from '../../routes/routes';
+import Routes from '../../routes/liftRoutes';
 import { createBrowserHistory } from 'history';
 // import App from '../../ui/App';
 const httpLink = new HttpLink({

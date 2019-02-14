@@ -1,0 +1,17 @@
+type Routine {
+    _id: String!
+    user: String!
+    startTime: Int!
+    endTime: Int!
+    exercises: [Exercise]
+}
+
+extend type Query {
+    routines: [Routine]
+}
+
+extend type Mutation {
+    createRoutine(templateId: String!): Routine
+    startRoutine(_id: String!): Routine
+    endRoutine(_id: String!): Routine
+}

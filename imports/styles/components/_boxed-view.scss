@@ -3,8 +3,8 @@
   background: $boxed-view-overlay-bg;
   display: flex;
   justify-content: center;
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
 }
 
 .boxed-view--modal {
@@ -14,14 +14,23 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 5;
 }
 
 .boxed-view__box {
   background-color: $boxed-view-bg;
   padding: 2.4rem;
   text-align: center;
-  width: 51rem;
   border: 1px solid $gray;
+  &.boxed-view__box--vert{
+    flex-direction: column;
+    margin-bottom: $space;
+  }
+  &.boxed-view__box--container{
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 50%;
+  }
 }
 
 .boxed-view__form {

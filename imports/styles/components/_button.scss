@@ -8,7 +8,11 @@
   margin-bottom: $space;
   padding: $input-spacing;
   text-transform: uppercase;
+  &.button--margin-top{
+    margin-top: $space;
+  }
 }
+
 
 .button--link {
   display: inline-block;

@@ -1,0 +1,16 @@
+type ExerciseTemplate {
+    _id: String!
+    createBy: String!
+    name: String!
+    exercises: Exercise
+    tags: [Tag]
+}
+
+extend type Query{
+    exerciseTemplates: [ExerciseTemplate]
+}
+
+extend type Mutation {
+    createExerciseTemplate(name: String!, tagIds: [String!]): ExerciseTemplate
+    updateExerciseTemplate(_id: String!, name: String!, tagIds: [String!]): ExerciseTemplate
+}
