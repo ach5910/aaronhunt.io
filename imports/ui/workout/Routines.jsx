@@ -66,17 +66,20 @@ class Routines extends React.Component{
                     </button>
                 </form>
                 <div className="boxed-view boxed-view--modal" style={{display: open && !exerciseModal ? "flex" : "none"}}>
-                    <div className="boxed-view__box">
-                        <form onSubmit={this.saveRoutine} noValidate className="boxed-view__form" style={{zIndex: 6}}>
-                            <input type="text" ref={el => this.name = el} placeholder="Enter Routine Name"/>
-                            <h2>Exercises</h2>
-                                {this.state.exercises.map(exercise => (
-                                    <h3>{exercise.name}</h3>
-                                ))}
-                            <button onClick={this.addExercise} className="button button--pill">Add Exercise</button>
-                            <button type="submit" className="button">Save Routine</button>
-                        </form>
-                    </div>
+                        <div className="boxed-view__box">
+                            <h1>Create Routine</h1>
+                            <form onSubmit={this.saveRoutine} noValidate className="boxed-view__form" style={{zIndex: 6}}>
+                                <input type="text" ref={el => this.name = el} placeholder="Enter Routine Name"/>
+                                <h2>Exercises</h2>
+                                    {this.state.exercises.map(exercise => (
+                                        <div className="item">
+                                            <h3>{exercise.name}</h3>
+                                        </div>
+                                    ))}
+                                <button onClick={this.addExercise} className="button button--pill">Add Exercise</button>
+                                <button type="submit" className="button">Save Routine</button>
+                            </form>
+                        </div>
                 </div>
                 <div className="boxed-view boxed-view--modal" style={{display: exerciseModal ? "flex" : "none"}}>
                     <div className="boxed-view__box">

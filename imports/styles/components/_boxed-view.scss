@@ -33,6 +33,13 @@
   }
 }
 
+@media screen and (max-width: 450px){
+  &.boxed-view__box  {
+    width: 100%;
+  }
+
+}
+
 .boxed-view__form {
   display: flex;
   flex-direction: column;
