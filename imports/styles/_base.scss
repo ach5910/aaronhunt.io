@@ -27,6 +27,10 @@ h2 {
   font-weight: 500;
 }
 
+h3 {
+  color: $brand-primary;
+}
+
 p {
   margin-bottom: $space;
   color: $secondary-text;
@@ -34,6 +38,26 @@ p {
 
 a {
   color: black;
+}
+
+ul {
+  list-style-type: none;
+  height: 300px;
+  overflow-y: auto;
+}
+
+li {
+  font-size: $medium-font-size;
+  padding: $space 0px;
+  border-bottom: 1px solid $item-border;
+  text-align: center;
+  &:hover {
+    background-color: darken(white, 5);
+    cursor: pointer;
+  }
+  &:first-child{
+    border-top: 1px solid $item-border;
+  }
 }
 
 input[type=text], input[type=email], input[type=password] {

@@ -33,6 +33,10 @@
   color: $button-secondary-color;
 }
 
+.button--margin {
+  margin: 0px $space;
+}
+
 .button--link-text {
   color: $brand-primary;
   background: none;
@@ -40,4 +44,10 @@
   padding: 0;
   text-decoration: underline;
   text-transform: none;
+}
+
+.button__container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }

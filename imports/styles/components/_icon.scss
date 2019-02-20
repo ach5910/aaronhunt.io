@@ -1,0 +1,7 @@
+.icon {
+    color: $icon-color;
+    &:hover{
+        cursor: pointer;
+    }
+    margin-left: $space;
+}

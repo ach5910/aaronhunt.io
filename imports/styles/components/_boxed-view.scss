@@ -26,18 +26,18 @@
     flex-direction: column;
     margin-bottom: $space;
   }
+  &.boxed-view__box--horiz {
+    display: flex;
+    text-align: left;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: $space;
+  }
   &.boxed-view__box--container{
     flex-direction: row;
     flex-wrap: wrap;
     width: 50%;
   }
-}
-
-@media screen and (max-width: 450px){
-  &.boxed-view__box  {
-    width: 100%;
-  }
-
 }
 
 .boxed-view__form {

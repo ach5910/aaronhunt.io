@@ -1,14 +1,13 @@
 import React from 'react';
-import Routine from './Routine';
 import gql from "graphql-tag";
-import { graphql } from "react-apollo";
-import Exercises from './Exercises';
+import { graphql } from 'react-apollo';
+import Routine from './Routine';
+import CreateRoutine from './CreateRoutine';
+import ConfirmationModal from './ConfirmationModal';
 
-const createRoutineTemplate = gql`
-  mutation createRoutineTemplate($name: String!, $exerciseTemplateIds: [String]) {
-    createRoutineTemplate(name: $name, exerciseTemplateIds: $exerciseTemplateIds) {
-      _id
-    }
+const deleteRoutineTemplate = gql`
+  mutation deleteRoutineTemplate($_id: String!) {
+    deleteRoutineTemplate(_id: $_id)
   }
 `;
 
@@ -16,89 +15,95 @@ class Routines extends React.Component{
     constructor(props){
         super(props)
         this.state ={
-            open: false,
-            exerciseModal: false,
-            exercises: []
+            addRoutine: false,
+            searchExercise: "",
+            deleteModalOpen: false,
+            routineTemplateToDelete: {},
+            editRoutineTemplate: null
         }
     }
 
     onSubmit = (e) => {
         e.preventDefault();
-        this.setState({open: true})
+        this.setState({addRoutine: true})
         console.log('clicked');
     }
 
-    saveRoutine = (e) => {
+    closeAddRoutineModal = () => {
+        this.setState({addRoutine: false, routineTemplateToEdit: null});
+    }
+
+    deleteRoutineTemplate = (routineTemplateToDelete) => (e) => {
         e.preventDefault();
-        this.props.createRoutineTemplate({
+        this.setState({routineTemplateToDelete, deleteModalOpen: true})
+    }
+
+    editRoutineTemplate = (routineTemplateToEdit) => (e) => {
+        this.setState({routineTemplateToEdit, addRoutine: true})
+    }
+
+    submitDeleteRoutineTemplate = (e) => {
+        e.preventDefault();
+        this.props.deleteRoutineTemplate({
             variables: {
-                name: this.name.value.trim(),
-                exerciseTemplateIds: this.state.exercises.filter(exer => exer._id)
+                _id: this.state.routineTemplateToDelete._id
             }
         }).then(({data}) => {
             console.log(data);
+            this.setState({routineTemplateToDelete: {}, deleteModalOpen: false})
+        }).catch((error) => {
+            console.log(error)
         })
-        this.setState({open: false})
-
     }
 
-    handleClick = (exercise) => (e) => {
-        e.preventDefault()
-        this.setState((prevState) => ({exercises: [...prevState.exercises, exercise], exerciseModal: false}))
-    }
-
-    addExercise = (e) => {
+    cancelDeleteRoutineTemplate = (e) => {
         e.preventDefault();
-        this.setState({exerciseModal: true})
+        this.setState({routineTemplateToDelete: {}, deleteModalOpen: false})
     }
 
     render(){
         const {loading, routineTemplates, exercises} = this.props;
-        const {open, exerciseModal} = this.state;
+        const {addRoutine, routineTemplateToDelete, deleteModalOpen, routineTemplateToEdit} = this.state;
         if (loading) return (<div>Loading</div>)
         return (
             <React.Fragment>
                 <h1>Routines</h1>
-                {routineTemplates && routineTemplates.map(routineTemplate => (<Routine routineTemplate={routineTemplate} />))}
+                {routineTemplates && routineTemplates.map(routineTemplate => (
+                    <Routine 
+                        routineTemplate={routineTemplate}
+                        deleteRoutineTemplate={this.deleteRoutineTemplate}
+                        editRoutineTemplate={this.editRoutineTemplate}
+                    />
+                    ))}
                 <form onSubmit={this.onSubmit} noValidate className="boxed-view__form">
                     <button className="button button--margin-top" type="submit">
                         Add Routine
                     </button>
                 </form>
-                <div className="boxed-view boxed-view--modal" style={{display: open && !exerciseModal ? "flex" : "none"}}>
-                        <div className="boxed-view__box">
-                            <h1>Create Routine</h1>
-                            <form onSubmit={this.saveRoutine} noValidate className="boxed-view__form" style={{zIndex: 6}}>
-                                <input type="text" ref={el => this.name = el} placeholder="Enter Routine Name"/>
-                                <h2>Exercises</h2>
-                                    {this.state.exercises.map(exercise => (
-                                        <div className="item">
-                                            <h3>{exercise.name}</h3>
-                                        </div>
-                                    ))}
-                                <button onClick={this.addExercise} className="button button--pill">Add Exercise</button>
-                                <button type="submit" className="button">Save Routine</button>
-                            </form>
-                        </div>
-                </div>
-                <div className="boxed-view boxed-view--modal" style={{display: exerciseModal ? "flex" : "none"}}>
-                    <div className="boxed-view__box">
-                        <form noValidate className="boxed-view__form" style={{zIndex: 8}}>
-                            <h2>Exercises</h2>
-                            {exercises && exercises.map(exercise => (
-                                <button onClick={this.handleClick(exercise)} className="button button--pill">{exercise.name}</button>
-                            ))}
-                        </form>
-                    </div>
-                </div>
+                {addRoutine &&
+                    <CreateRoutine 
+                        routineTemplates={routineTemplates}
+                        exercises={exercises}
+                        closeAddRoutineModal={this.closeAddRoutineModal}
+                        routineTemplateToEdit={routineTemplateToEdit}
+                    />
+                }
+                {deleteModalOpen &&
+                    <ConfirmationModal
+                        onSubmit={this.submitDeleteRoutineTemplate}
+                        onCancel={this.cancelDeleteRoutineTemplate}
+                        value={routineTemplateToDelete.name}
+                        action="delete"
+                    />
+                }
             </React.Fragment>
         )
     }
 }
 
 
-export default graphql(createRoutineTemplate, {
-    name: "createRoutineTemplate",
+export default graphql(deleteRoutineTemplate, {
+    name: "deleteRoutineTemplate",
     options: {
       refetchQueries: ["RoutineTemplates"]
     }

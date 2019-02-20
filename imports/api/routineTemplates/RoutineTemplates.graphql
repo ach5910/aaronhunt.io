@@ -12,5 +12,6 @@ extend type Query {
 
 extend type Mutation {
     createRoutineTemplate(name: String, exerciseTemplateIds: [String]): RoutineTemplate
-    updateRoutineTemplate(name: String!, oldExerciseTemplateIds: [String], newExerciseTemplateIds: [String]): RoutineTemplate
+    updateRoutineTemplate(_id: String!, name: String!, exerciseTemplateIds: [String]): RoutineTemplate
+    deleteRoutineTemplate(_id: String!): Int
 }

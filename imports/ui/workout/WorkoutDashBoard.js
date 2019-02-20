@@ -57,6 +57,10 @@ const routineTemplatesQuery = gql`
     routineTemplates {
         _id
         name
+        exerciseTemplates {
+          _id
+          name
+        }
     }
 }
 `;

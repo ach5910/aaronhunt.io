@@ -32,7 +32,7 @@ import TagsSchema from '../../api/tags/Tags.graphql';
 // import ResolutionsSchema from '../../api/resolutions/Resolutions.graphql';
 // import UsersSchema from '../../api/users/Users.graphql';
 
-////////dddd/asdfasfsssadfasdfasdasfdddsfsfsdddddddfdskk
+////////dddd/asddfasfsssadfasdddgsfasdasfdddsfsfsdddddddfdskk
 //////sfaddddddrsafassasdfdfasDsdfiiidfsdddddssdddddss
 const typeDefs = [
     QuestionsSchema,

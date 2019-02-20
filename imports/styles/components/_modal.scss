@@ -1,0 +1,13 @@
+.boxed-view--modal-item{
+    position: relative;
+    width: 100%;
+    text-align: left;
+}
+
+.modal__cancel-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(40%, -40%);
+    z-index: 10;
+}
