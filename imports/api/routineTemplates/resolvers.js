@@ -1,3 +1,4 @@
+import {Meteor} from 'meteor/meteor';
 import RoutineTemplates from './routineTemplates';
 import ExerciseTemplates from '../exerciseTemplates/exerciseTemplates';
 import Routines from '../routines/routines';
@@ -13,19 +14,24 @@ export default {
             // const routineTemplate = RoutineTemplates.findOne(rout)
             // console.log('routineTemplate', routineTemplate);
             if (routineTemplate.exerciseTemplateIds == null) return [];
-            var query = [
+            // var rawExerciseTemplates = ExerciseTemplates.rawCollection();
+            // var aggregateQuery = Meteor.wrapAsync(rawExerciseTemplates.aggregate, rawExerciseTemplates);
+            var pipeline = [
                 {$match: {_id: {$in: routineTemplate.exerciseTemplateIds}}},
                 {$addFields: {"__order": {$indexOfArray: [routineTemplate.exerciseTemplateIds, "$_id" ]}}},
                 {$sort: {"__order": 1}}
                ];
-            //    [{$match: {_id: {$in: routineTemplate.exerciseTemplateIds}}}],{ cursor: {}}
-            const cursor = ExerciseTemplates.aggregate(query, {cursor: {batchSize: 0}}, resultCallback(err, res){
-                return res
-            });
-            return cursor.resultCallback(function(err, res){
-                console.log('res', res);
-                return res;
-            })
+            var result = ExerciseTemplates.aggregate(pipeline);
+            return result;
+            // var query = 
+            // //    [{$match: {_id: {$in: routineTemplate.exerciseTemplateIds}}}],{ cursor: {}}
+            // const cursor = ExerciseTemplates.aggregate(query, {cursor: {batchSize: 0}}, resultCallback(err, res){
+            //     return res
+            // });
+            // return cursor.resultCallback(function(err, res){
+            //     console.log('res', res);
+            //     return res;
+            // })
             // console.log('toArrary', result.toArray())
             // console.log('result' ,result)
             // return result.toArray();

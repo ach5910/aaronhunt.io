@@ -49,6 +49,10 @@ const exerciseTemplatesQuery = gql`
     exerciseTemplates {
         _id
         name
+        tags{
+          name
+          _id
+        }
     }
 }
 `;

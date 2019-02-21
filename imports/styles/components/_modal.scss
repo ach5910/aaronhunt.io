@@ -4,10 +4,14 @@
     text-align: left;
 }
 
+.modal--center-text{
+    text-align: center;
+}
+
 .modal__cancel-box {
     position: absolute;
     top: 0;
     right: 0;
-    transform: translate(40%, -40%);
+    transform: translate(30%, -40%);
     z-index: 10;
 }

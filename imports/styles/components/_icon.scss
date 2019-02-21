@@ -4,4 +4,10 @@
         cursor: pointer;
     }
     margin-left: $space;
+    &.icon--disabled{
+        color: lighten($icon-color, 25);
+        &:hover{
+            cursor: default;
+        }
+    }
 }

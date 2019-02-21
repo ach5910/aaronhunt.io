@@ -12,8 +12,8 @@ export default {
         exercises: (templateId) => {
             return Exercises.find({templateId}).fetch()
         },
-        tags: (templateId) => {
-            const exerciseTemplate = ExerciseTemplates.findOne(templateId);
+        tags: (exerciseTemplate) => {
+            // const exerciseTemplate = ExerciseTemplates.findOne(templateId);
             return Tags.find({_id: {$in: exerciseTemplate.tagIds}}).fetch()
         }
     },

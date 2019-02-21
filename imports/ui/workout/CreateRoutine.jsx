@@ -49,17 +49,9 @@ class CreateRoutine extends React.Component {
         console.log('saveRoutine', e);
         e.preventDefault();
         const name = this.name.value.trim();
-        let unique = true;
-        if (this.state.routineTemplate == null || this.state.routineTemplate.name !== name){
-            for(let routineTemplate of this.props.routineTemplates){
-                if (routineTemplate.name === name){
-                    unique = false;
-                    break;
-                }
-            }
-        }
-
-        if (name !== "" && unique){
+        const editName = this.props.routineTemplateToEdit ? this.props.routineTemplateToEdit.name : "";
+        const unique = this.props.routineTemplates.reduce((accum, rout) => (accum && (rout.name !== name || editName === name)), true)
+        if (name.length > 2 && unique){
             const {routineTemplate} = this.state;
             if (routineTemplate){
                 this.props.updateRoutineTemplate({

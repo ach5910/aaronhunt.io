@@ -8,8 +8,11 @@
     padding: 5px 5px 5px 15px;
     margin-right: 5px;
     margin-top: 5px;
-    background-color: $secondary-text;
-    color: black;
+    font-size: $medium-font-size;
+    font-weight:400;
+    background-color: #FFFFFF;
+    border: 2px solid $secondary-text;
+    color: $secondary-text;
     border-radius: 20px;
     &:hover {
         cursor: pointer;
@@ -28,8 +31,9 @@
     line-height: 1;
     width: 20px;
     height: 20px;
-    background-color: black;
-    color: $secondary-text;
+    background-color: #FFFFFF;
+    color:black;
+    border: 2px solid $secondary-text;
     border-radius: 10px;
     &:hover {
         cursor: pointer;

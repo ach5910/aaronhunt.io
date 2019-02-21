@@ -19,7 +19,7 @@ class Routines extends React.Component{
             searchExercise: "",
             deleteModalOpen: false,
             routineTemplateToDelete: {},
-            editRoutineTemplate: null
+            routineTemplateToEdit: null
         }
     }
 
