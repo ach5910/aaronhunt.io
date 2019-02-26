@@ -23,11 +23,14 @@
   text-align: center;
   border: 1px solid $gray;
   &.boxed-view__box--vert{
+    display: flex;
+    text-align: left;
     flex-direction: column;
     margin-bottom: $space;
   }
   &.boxed-view__box--horiz {
     display: flex;
+    align-items: center;
     text-align: left;
     flex-direction: row;
     justify-content: space-between;

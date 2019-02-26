@@ -7,14 +7,16 @@ export default {
         }
     },
     Mutation: {
-        createSet(obj, {weight, reps}, {userId}){
+        createSet(obj, {weight, reps, setNumber, exerciseId}, {userId}){
             if (userId){
                 const orm = weight * (1 + (reps / 30))
                 const setId = Sets.insert({
                     user: userId,
                     weight,
                     reps,
-                    orm
+                    orm,
+                    exerciseId,
+                    setNumber
                 });
                 return Sets.findOne(setId);
             }

@@ -32,8 +32,8 @@ import TagsSchema from '../../api/tags/Tags.graphql';
 // import ResolutionsSchema from '../../api/resolutions/Resolutions.graphql';
 // import UsersSchema from '../../api/users/Users.graphql';
 
-////////dddd/asddfasfsssadfasdddgsfasdasfdddsfsfsdddddddfdskk
-//////sfaddddddrsafassasdfdfasDsdfiiidfsdddddssdddddss
+////////dddssd/asddfsasfsssadfasdddgsfasdasfdddsfsfsdddddddfdskk
+//////sfaddddddrsasdpppppssfasssxasdfdfasDsdfiiidfsdddddssdddddss
 const typeDefs = [
     QuestionsSchema,
     AnswersSchema,

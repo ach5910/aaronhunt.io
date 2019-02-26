@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from "graphql-tag";
 import { graphql, withApollo, compose } from "react-apollo";
-import Exercises from './Exercises';
+import ExerciseTemplates from './ExerciseTemplates';
 import Routines from './Routines';
 import PrivateHeader from './PrivateHeader';
 import Workout from './Workout';
@@ -23,20 +23,21 @@ class Dashboard extends React.Component{
   }
 
   render(){
-    const {exerciseTemplates, loading, routineTemplates, tags} = this.props;
+    const {exerciseTemplates, loading, routineTemplates, tags, routines} = this.props;
     const {page} = this.state;
+    if (loading) return <div>Loading</div>
     return (
       <div className="backdrop">
         <PrivateHeader {...this.props} onPageChange={this.onPageChange} title="Workout Dashboard"/>
         <div className="page-content">
           {page === WORKOUT_PAGE &&
-            <Workout />
+            <Workout routineTemplates={routineTemplates} routines={routines}/>
           }
           {page === ROUTINES_PAGE &&
             <Routines loading={loading} exercises={exerciseTemplates} routineTemplates={routineTemplates}/>
           }
           {page === EXERCISES_PAGE &&
-            <Exercises loading={loading} tags={tags} exerciseTemplates={exerciseTemplates}/>
+            <ExerciseTemplates loading={loading} tags={tags} exerciseTemplates={exerciseTemplates}/>
           }
         </div>
       </div>
@@ -69,6 +70,24 @@ const routineTemplatesQuery = gql`
 }
 `;
 
+const routinesQuery = gql`
+  query Routines {
+    routines {
+      _id
+      name
+      exercises {
+        _id
+        sets {
+          weight
+          reps
+          orm
+          setNumber
+        }
+      }
+    }
+  }
+`;
+
 const tagsQuery = gql`
   query Tags{
     tags {
@@ -83,5 +102,7 @@ export default compose (graphql(exerciseTemplatesQuery, {
   props: ({ data}) => ({...data})
 }), graphql(tagsQuery , {
   props: ({data}) => ({...data})
-}
-))(withApollo(Dashboard));
+}), graphql( routinesQuery, {
+  props: ({ data }) => ({ ...data })
+}) 
+)(withApollo(Dashboard));

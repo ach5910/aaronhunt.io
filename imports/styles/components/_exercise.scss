@@ -1,0 +1,28 @@
+.exercise--set {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 5px;
+    width: 100%;
+    align-items: center;
+    grid-template-rows: 45px;
+    grid-template-areas: "exerciseWeight exerciseReps exerciseORM"
+    
+}
+
+.exercise--weight{
+    grid-area: exerciseWeight;
+    width: 100%;
+    text-align: center;
+}
+
+.exercise--reps{
+    grid-area: exerciseReps;
+    width: 100%;
+    text-align: center;
+}
+
+.exercise--orm {
+    grid-area: exerciseORM;
+    width: 100%;
+    text-align: center;
+}

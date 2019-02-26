@@ -1,8 +1,8 @@
 import React from 'react';
-import Exercise from './Exercise';
+import ExerciseTemplate from './ExerciseTemplate';
 import CreateExercise from './CreateExercise';
 
-class Exercises extends React.Component{
+class ExerciseTemplates extends React.Component{
     constructor(props){
         super(props)
         this.state ={
@@ -33,7 +33,7 @@ class Exercises extends React.Component{
             <React.Fragment>
                 <h1>Exercises</h1>
                 {exerciseTemplates && exerciseTemplates.map(exerciseTemplate => (
-                    <Exercise editExerciseTemplate={this.editExerciseTemplate} exerciseTemplate={exerciseTemplate} />
+                    <ExerciseTemplate editExerciseTemplate={this.editExerciseTemplate} exerciseTemplate={exerciseTemplate} />
                     ))
                 }
                 <form noValidate className="boxed-view__form">
@@ -55,4 +55,4 @@ class Exercises extends React.Component{
 }
 
 
-export default Exercises;
+export default ExerciseTemplates;

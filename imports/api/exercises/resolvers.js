@@ -1,6 +1,8 @@
 import Exercises from './exercises';
 import Sets from '../sets/sets';
 import Routines from '../routines/routines';
+import ExerciseTemplates from '../exerciseTemplates/exerciseTemplates';
+import  moment, { unix } from 'moment';
 export default {
     Query: {
         exercises(obj, args, { userId }){
@@ -10,6 +12,10 @@ export default {
     Exercise: {
         sets: (exercise) => {
             return Sets.find({exerciseId: exercise._id}).fetch()
+        },
+        name: (exercise) => {
+            const exerciseTemplate = ExerciseTemplates.findOne(exercise.templateId);
+            return exerciseTemplate.name;
         }
     },
     Mutation: {

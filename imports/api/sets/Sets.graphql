@@ -4,6 +4,7 @@ type Set {
     reps: Int!
     orm: Float!
     user: String!
+    setNumber: Int!
 }
 
 extend type Query {
@@ -11,6 +12,6 @@ extend type Query {
 }
 
 extend type Mutation {
-    createSet(weight: Float!, reps: Int!): Set
+    createSet(weight: Float!, reps: Int!, setNumber: Int!, exerciseId: String!): Set
     addToExercise(_id: String!, exerciseId: String!): Set
 }

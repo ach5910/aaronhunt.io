@@ -2,6 +2,7 @@ type Exercise {
     _id: String!
     user: String!
     sets: [Set]
+    name: String!
     startTime: Int!
     endTime: Int!
 }

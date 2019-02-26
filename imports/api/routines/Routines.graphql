@@ -1,6 +1,7 @@
 type Routine {
     _id: String!
     user: String!
+    name: String!
     startTime: Int!
     endTime: Int!
     exercises: [Exercise]
@@ -8,10 +9,11 @@ type Routine {
 
 extend type Query {
     routines: [Routine]
+    routine(_id: String!): Routine
 }
 
 extend type Mutation {
-    createRoutine(templateId: String!): Routine
+    createRoutine(templateId: String!, exerciseTemplateIds: [String]): Routine
     startRoutine(_id: String!): Routine
     endRoutine(_id: String!): Routine
 }

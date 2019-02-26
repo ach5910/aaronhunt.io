@@ -42,7 +42,7 @@ a {
 
 ul {
   list-style-type: none;
-  height: 300px;
+  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -65,4 +65,22 @@ input[type=text], input[type=email], input[type=password] {
   font-size: $base-font-size;
   margin-bottom: $space;
   padding: $input-spacing;
+}
+
+.pseudo-input{
+  text-rendering: auto;
+  color: initial;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-transform: none;
+  text-indent: 0px;
+  text-shadow: none;
+  display: inline-block;
+  text-align: start;
+  border: 1px solid $input-border;
+  font-size: $base-font-size;
+  margin-bottom: $space;
+  padding: $input-spacing;
+  user-select: none;
+  background-color: white; 
 }
