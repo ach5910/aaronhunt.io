@@ -41,7 +41,7 @@ const Exercise = ({exercise, refetch, activeExercise, finishedExercises, onChang
                 </div>
             </div>
         }
-        {finishedExercises.includes(exercise._id) && 
+        {activeExercise === null && finishedExercises.includes(exercise._id) && 
             <div className='boxed-view__box boxed-view__box--vert'>
                 <h2 style={{marginBottom: "0px"}}>{exercise.name}</h2>
                 <div className="exercise--set">
