@@ -32,7 +32,7 @@ class CreateRoutine extends React.Component {
         this.state ={
             exerciseModal: false,
             routineTemplate: props.routineTemplateToEdit,
-            exercises: routineTemplateToEdit && routineTemplateToEdit.exerciseTemplates 
+            exerciseTemplates: routineTemplateToEdit && routineTemplateToEdit.exerciseTemplates 
                 ? routineTemplateToEdit.exerciseTemplates
                 : [],
             error: ""
@@ -58,7 +58,7 @@ class CreateRoutine extends React.Component {
                     variables: {
                         _id: routineTemplate._id,
                         name,
-                        exerciseTemplateIds: this.state.exercises.map(exer => exer._id)
+                        exerciseTemplateIds: this.state.exerciseTemplates.map(exer => exer._id)
 
                     }
                 }).then(({data}) => {
@@ -71,7 +71,7 @@ class CreateRoutine extends React.Component {
                 this.props.createRoutineTemplate({
                     variables: {
                         name,
-                        exerciseTemplateIds: this.state.exercises.map(exer => exer._id)
+                        exerciseTemplateIds: this.state.exerciseTemplates.map(exer => exer._id)
                     }
                 }).then(({data}) => {
                     console.log(data);
@@ -92,7 +92,7 @@ class CreateRoutine extends React.Component {
     removeExercise = (_id) => (e) => {
         e.preventDefault();
         this.setState((prevState) => ({
-            exercises: prevState.exercises.filter(exercise => exercise._id !== _id)
+            exerciseTemplates: prevState.exerciseTemplates.filter(exercise => exercise._id !== _id)
         }))
     }
 
@@ -108,22 +108,22 @@ class CreateRoutine extends React.Component {
 
     changeExerciseOrder = (idx, newIdx) => (e) => {
         e.preventDefault();
-        const newExercises = [...this.state.exercises];
+        const newExercises = [...this.state.exerciseTemplates];
         const exerciseToMove = newExercises[idx];
         newExercises[idx] = newExercises[newIdx];
         newExercises[newIdx] = exerciseToMove
-        this.setState({exercises: newExercises})
+        this.setState({exerciseTemplates: newExercises})
     }
 
     selectExercise = (exercise) => (e) => {
         e.preventDefault()
-        this.setState((prevState) => ({exercises: [...prevState.exercises, exercise], exerciseModal: false}))
+        this.setState((prevState) => ({exerciseTemplates: [...prevState.exerciseTemplates, exercise], exerciseModal: false}))
     }
 
     render(){
-        const {exercises} = this.props;
+        const {exerciseTemplates} = this.props;
         const {exerciseModal, routineTemplate} = this.state;
-        const routineExerciseIds = this.state.exercises.map(exercise => exercise._id)
+        const routineExerciseIds = this.state.exerciseTemplates.map(exercise => exercise._id)
         return (
             <React.Fragment>
                 <div className="boxed-view boxed-view--modal" style={{display: !exerciseModal ? "flex" : "none"}}>
@@ -137,12 +137,12 @@ class CreateRoutine extends React.Component {
                                     <h2>Exercises</h2>
                                     <AddCircle onClick={this.addExercise} className="icon" />
                                 </div>
-                                    {this.state.exercises.length > 0 ?
-                                        this.state.exercises.map((exercise, idx) => (
+                                    {this.state.exerciseTemplates.length > 0 ?
+                                        this.state.exerciseTemplates.map((exercise, idx) => (
                                         <div className="item">
                                             <h3>{exercise.name}</h3>
                                             <div className="item__icons">
-                                                {idx !== this.state.exercises.length - 1 && 
+                                                {idx !== this.state.exerciseTemplates.length - 1 && 
                                                     <ArrowDownward onClick={this.changeExerciseOrder(idx, idx + 1)} className="icon"/>
                                                 }
                                                 {idx > 0 && 
@@ -163,7 +163,7 @@ class CreateRoutine extends React.Component {
                 </div>
                 {exerciseModal &&
                     <AddExercise 
-                        exercises={exercises.filter(exer => !routineExerciseIds.includes(exer._id))}
+                        exerciseTemplates={exerciseTemplates.filter(exer => !routineExerciseIds.includes(exer._id))}
                         selectExercise={this.selectExercise}
                         closeAddExerciseModal={this.closeAddExerciseModal}
                     />

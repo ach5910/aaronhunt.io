@@ -1,14 +1,9 @@
 import React from 'react';
-import Edit from '@material-ui/icons/Edit';
-import DeleteForever from '@material-ui/icons/DeleteForever';
-
-const Routine = ({routineTemplate, deleteRoutineTemplate, editRoutineTemplate}) => (
+import moment from 'moment';
+const Routine = ({routine}) => (
     <div className="boxed-view__box boxed-view__box--horiz">
-        <h2 style={{marginBottom: "0px"}}>{routineTemplate.name}</h2>
-        <div className="item__icons">
-            <Edit onClick={editRoutineTemplate(routineTemplate)} className="icon" />
-            <DeleteForever onClick={deleteRoutineTemplate(routineTemplate)} className="icon" />
-        </div>
+        <h2 style={{marginBottom: "0px"}}>{routine.name}</h2>
+        <h2 style={{marginBottom: "0px"}}>{moment(routine.startTime).format("M/D/YY")}</h2>
     </div>
 )
 

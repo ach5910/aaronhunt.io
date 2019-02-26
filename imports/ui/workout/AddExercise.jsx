@@ -17,7 +17,7 @@ class AddExercise extends React.Component{
 
     render(){
         const {searchExercise} = this.state;
-        const {exercises, closeAddExerciseModal, selectExercise} = this.props;
+        const {exerciseTemplates, closeAddExerciseModal, selectExercise} = this.props;
         return (
             <div className="boxed-view boxed-view--modal">
                 <div className="page-content page-content--modal">
@@ -26,7 +26,7 @@ class AddExercise extends React.Component{
                             <h2>Exercises</h2>
                             <input type="text" value={searchExercise} onChange={this.updateSearchExercise} placeholder="Search Exercise"/>
                             <ul>
-                                {exercises && exercises.filter(exer => rabinKarp(searchExercise.toLowerCase(), exer.name.toLowerCase())).map(exercise => (
+                                {exerciseTemplates && exerciseTemplates.filter(exer => rabinKarp(searchExercise.toLowerCase(), exer.name.toLowerCase())).map(exercise => (
                                     <li onClick={selectExercise(exercise)} >{exercise.name}</li>
                                 ))}
                             </ul>

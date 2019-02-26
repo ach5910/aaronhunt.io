@@ -3,13 +3,14 @@ type Routine {
     user: String!
     name: String!
     startTime: Int!
-    endTime: Int!
+    endTime: Int
     exercises: [Exercise]
 }
 
 extend type Query {
     routines: [Routine]
     routine(_id: String!): Routine
+    getMostRecentRoutine: Routine
 }
 
 extend type Mutation {

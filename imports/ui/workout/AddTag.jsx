@@ -81,7 +81,7 @@ export default graphql(
     createTag, {
         name: "createTag",
         options: {
-            refetchQueries: "Tags"
+            refetchQueries: ["Tags"]
         }
     }
 )(AddTag);

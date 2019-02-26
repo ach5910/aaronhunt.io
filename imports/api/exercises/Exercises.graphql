@@ -3,8 +3,8 @@ type Exercise {
     user: String!
     sets: [Set]
     name: String!
-    startTime: Int!
-    endTime: Int!
+    startTime: Int
+    endTime: Int
 }
 
 extend type Query {

@@ -60,7 +60,7 @@ li {
   }
 }
 
-input[type=text], input[type=email], input[type=password] {
+input[type=text], input[type=email], input[type=number],input[type=password] {
   border: 1px solid $input-border;
   font-size: $base-font-size;
   margin-bottom: $space;

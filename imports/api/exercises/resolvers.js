@@ -11,7 +11,7 @@ export default {
     },
     Exercise: {
         sets: (exercise) => {
-            return Sets.find({exerciseId: exercise._id}).fetch()
+            return Sets.find({exerciseId: exercise._id}, {sort: {setNumber: 1}})
         },
         name: (exercise) => {
             const exerciseTemplate = ExerciseTemplates.findOne(exercise.templateId);

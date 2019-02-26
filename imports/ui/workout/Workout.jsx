@@ -1,6 +1,7 @@
 import React from 'react';
 import SelectRoutine from './SelectRoutine';
 import Exercise from './Exercise';
+import Routines from './Routines';
 import gql from "graphql-tag";
 import { Query } from 'react-apollo';
 import { graphql, compose } from 'react-apollo';
@@ -53,6 +54,8 @@ const routineQuery = gql`
       name
       exercises {
         _id
+        startTime
+        endTime
         name
         sets {
           weight
@@ -74,6 +77,44 @@ class Workout extends React.Component {
             activeExercise: null,
             finishedExercises: []
         }
+    }
+
+    componentDidMount = () => {
+        this.loadWorkout();
+    }
+
+    loadWorkout = () => {
+        const {getMostRecentRoutine, loading} = this.props;
+        if(!loading && getMostRecentRoutine && getMostRecentRoutine.startTime && getMostRecentRoutine.endTime === null && this.state.routine === null){
+            const finishedExercises = getMostRecentRoutine.exercises.filter(exercise => exercise.endTime !== null).map(exercise => exercise._id)
+            let activeExercise = null;
+            getMostRecentRoutine.exercises.forEach(exercise => {
+                if (exercise.startTime !== null && exercise.endTime === null){
+                    const tempSets = [...exercise.sets];
+                    const lastSet = tempSets.pop();
+                    if (lastSet == undefined){
+                        activeExercise = {
+                            _id: exercise._id,
+                            weight: 0,
+                            reps: 0,
+                            setNumber: 1
+                        }
+                    } else {
+                        activeExercise = {
+                            _id: exercise._id,
+                            weight: lastSet.weight,
+                            reps: lastSet.reps,
+                            setNumber: exercise.sets.length
+                        }
+                    }
+                }
+            })
+            this.setState({
+                routine: getMostRecentRoutine,
+                activeExercise,
+                finishedExercises
+            })
+        } 
     }
 
     closeSelectRoutineModal = (e) => {
@@ -158,8 +199,8 @@ class Workout extends React.Component {
             this.setState((prevState) => ({
                 activeExercise: {
                     _id: prevState.activeExercise._id,
-                    weight: 0,
-                    reps: 0,
+                    weight,
+                    reps,
                     setNumber: prevState.activeExercise.setNumber + 1,
                 }
             }))
@@ -220,13 +261,18 @@ class Workout extends React.Component {
 
     render(){
         const {routine, activeExercise, finishedExercises, selectRoutineModal} = this.state;
-        const {routineTemplates, routines} = this.props;
+        const {routineTemplates, routines, loading, ...data} = this.props;
+        console.log(data);
+        if (loading) return <div>Loading...</div>
         return (
             <React.Fragment>
                 {routine === null &&
                     <React.Fragment>
                         <h1>Workout</h1>
-                        <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
+                        <Routines routines={routines} />
+                        <form noValidate className="boxed-view__form">
+                            <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
+                        </form>
                     </React.Fragment>
                 }
                 {routine !== null && routine._id &&
@@ -249,7 +295,9 @@ class Workout extends React.Component {
                                             onChange={this.onChange}
                                         />
                                     ))}
-                                    <button onClick={this.finishWorkout} className="button">Finish Workout</button>
+                                    <form noValidate className="boxed-view__form">
+                                        <button onClick={this.finishWorkout} type="submit" className="button button--margin-top">Finish Workout</button>
+                                    </form>
                                 </React.Fragment>
                             )
                         }}
@@ -272,7 +320,7 @@ export default compose(
 graphql(createSet, {
         name: "createSet"
 }), graphql(createRoutine, {
-    name: "createRoutine" 
+    name: "createRoutine"
 }), 
 graphql(startExercise, {
     name: "startExercise"
@@ -280,6 +328,9 @@ graphql(startExercise, {
     name: "endExercise"
 }),
 graphql(endRoutine, {
-    name: 'endRoutine'
+    name: 'endRoutine',
+    options: {
+        refetchQueries: ['getMostRecentRoutine']
+    }
 })
 )(Workout);

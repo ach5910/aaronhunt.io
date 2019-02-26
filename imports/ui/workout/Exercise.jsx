@@ -2,7 +2,7 @@ import React from 'react';
 
 const getORM = (activeExercise) => {
     const orm = parseInt(activeExercise.weight) * (1 + (parseInt(activeExercise.reps) / 30))
-    return isNaN(orm) ? "" : orm.toFixed(2);
+    return isNaN(orm) ? 0 : orm.toFixed(2);
 }
 
 const Exercise = ({exercise, refetch, activeExercise, finishedExercises, onChange, startExercise, addSet, finishExercise}) => (
@@ -31,8 +31,8 @@ const Exercise = ({exercise, refetch, activeExercise, finishedExercises, onChang
                     ))}
                 </ul>
                 <form noValidate className="exercise--set">
-                        <input className="exercise--weight" onFocus={(e) => {e.target.select()}} type="text" onChange={onChange("weight")} value={activeExercise.weight} />
-                        <input className="exercise--reps" onFocus={(e) => {e.target.select()}} type="text" onChange={onChange("reps")} value={activeExercise.reps} />
+                        <input className="exercise--weight" onFocus={(e) => {e.target.select()}} type="number" pattern="[0-9]*" onChange={onChange("weight")} value={activeExercise.weight} />
+                        <input className="exercise--reps" onFocus={(e) => {e.target.select()}} type="number" pattern="[0-9]*" onChange={onChange("reps")} value={activeExercise.reps} />
                         <div className="pseudo-input exercise--orm" value>{getORM(activeExercise)}</div>
                 </form>
                 <div className="button__container">

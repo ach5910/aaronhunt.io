@@ -1,0 +1,38 @@
+Workout:
+    - DONE: Loading in last sets values
+    - Load in last workouts values
+    - Add Exercise to Workout
+    - DONE: Only Allow Numbers
+    - DONE: Prevent Mobile Zoom
+    - DONE: Return to workout out after page is closed
+    - DONE: Return to workout if navigated away from workouts
+    - DONE: List my workouts
+    - List all workout
+    - Edit Exercise
+        - Remove
+        - Change Values
+    - Record new records
+    - display highlighest orm on each exercise
+    - Visible Timer
+    - Calendar View
+
+Analytics:
+    - Tag related Analytics
+    - Routine growth
+    - Exercise growth
+    - Calendar
+
+Exercises: 
+    - Specialty Exercises
+        - Burn down
+        - Superset
+    - Running
+    - Primary Target
+    - Supporting in areas
+
+
+MyPage:
+    - Main dashboard
+    - My Exercises - Add
+    - My Routines - Add
+    - My Records

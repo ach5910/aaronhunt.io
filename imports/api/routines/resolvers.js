@@ -5,10 +5,14 @@ import moment , { unix } from 'moment';
 export default {
     Query: {
         routines(obj, args, {userId}){
-            return Routines.find({user: userId}).fetch()
+            return Routines.find({user: userId, endTime: {$exists: true}}).fetch()
         },
         routine(obj, {_id}, context){
             return Routines.findOne(_id);
+        },
+        getMostRecentRoutine(obj, args, {userId}){
+            console.log('getMostRecent')
+            return Routines.findOne({user: userId}, {sort: {$natural: -1}})
         }
     },
     Routine: {

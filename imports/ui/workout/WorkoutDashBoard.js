@@ -2,7 +2,7 @@ import React from 'react';
 import gql from "graphql-tag";
 import { graphql, withApollo, compose } from "react-apollo";
 import ExerciseTemplates from './ExerciseTemplates';
-import Routines from './Routines';
+import RoutineTemplates from './RoutineTemplates';
 import PrivateHeader from './PrivateHeader';
 import Workout from './Workout';
 import {
@@ -23,7 +23,7 @@ class Dashboard extends React.Component{
   }
 
   render(){
-    const {exerciseTemplates, loading, routineTemplates, tags, routines} = this.props;
+    const {exerciseTemplates, loading, routineTemplates, tags, routines, getMostRecentRoutine} = this.props;
     const {page} = this.state;
     if (loading) return <div>Loading</div>
     return (
@@ -31,10 +31,10 @@ class Dashboard extends React.Component{
         <PrivateHeader {...this.props} onPageChange={this.onPageChange} title="Workout Dashboard"/>
         <div className="page-content">
           {page === WORKOUT_PAGE &&
-            <Workout routineTemplates={routineTemplates} routines={routines}/>
+            <Workout routineTemplates={routineTemplates} routines={routines} getMostRecentRoutine={getMostRecentRoutine}/>
           }
           {page === ROUTINES_PAGE &&
-            <Routines loading={loading} exercises={exerciseTemplates} routineTemplates={routineTemplates}/>
+            <RoutineTemplates loading={loading} exerciseTemplates={exerciseTemplates} routineTemplates={routineTemplates}/>
           }
           {page === EXERCISES_PAGE &&
             <ExerciseTemplates loading={loading} tags={tags} exerciseTemplates={exerciseTemplates}/>
@@ -75,6 +75,8 @@ const routinesQuery = gql`
     routines {
       _id
       name
+      startTime
+      endTime
       exercises {
         _id
         sets {
@@ -86,6 +88,27 @@ const routinesQuery = gql`
       }
     }
   }
+`;
+
+const getMostRecentRoutine = gql`
+    query getMostRecentRoutine{
+        getMostRecentRoutine{
+            _id
+            name
+            startTime
+            endTime
+            exercises{
+                _id
+                startTime
+                endTime
+                sets{
+                    weight
+                    reps
+                    setNumber
+                }
+            }
+        }
+    }
 `;
 
 const tagsQuery = gql`
@@ -104,5 +127,7 @@ export default compose (graphql(exerciseTemplatesQuery, {
   props: ({data}) => ({...data})
 }), graphql( routinesQuery, {
   props: ({ data }) => ({ ...data })
-}) 
+}),graphql(getMostRecentRoutine, {
+  props: ({ data }) => ({ ...data })
+})
 )(withApollo(Dashboard));
