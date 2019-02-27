@@ -1,33 +1,33 @@
 import React from 'react';
 import ExerciseTemplate from './ExerciseTemplate';
-import CreateExercise from './CreateExercise';
+import CreateExerciseTemplate from './CreateExerciseTemplate';
 
 class ExerciseTemplates extends React.Component{
     constructor(props){
         super(props)
         this.state ={
-            exerciseModalOpen: false,
+            exerciseTemplateModalOpen: false,
             exerciseTemplateToEdit: null
         }
     }
-    closeExerciseModal = () => {
-        this.setState({exerciseModalOpen: false, exerciseTemplateToEdit: null})
+    closeExerciseTemplateModal = () => {
+        this.setState({exerciseTemplateModalOpen: false, exerciseTemplateToEdit: null})
     }
 
     editExerciseTemplate = (exerciseTemplateToEdit) => (e) => {
         e.preventDefault();
-        this.setState({exerciseTemplateToEdit, exerciseModalOpen: true})
+        this.setState({exerciseTemplateToEdit, exerciseTemplateModalOpen: true})
     }
 
-    openExerciseModal = (e) => {
+    openExerciseTemplateModal = (e) => {
         e.preventDefault();
-        this.setState({exerciseModalOpen: true})
+        this.setState({exerciseTemplateModalOpen: true})
         console.log('clicked');
     }
 
     render(){
         const {loading, exerciseTemplates} = this.props;
-        const {exerciseModalOpen, exerciseTemplateToEdit} = this.state;
+        const {exerciseTemplateModalOpen, exerciseTemplateToEdit} = this.state;
         if (loading) return (<div>Loading</div>)
         return (
             <React.Fragment>
@@ -37,16 +37,16 @@ class ExerciseTemplates extends React.Component{
                     ))
                 }
                 <form noValidate className="boxed-view__form">
-                    <button onClick={this.openExerciseModal} className="button button--margin-top" >
+                    <button onClick={this.openExerciseTemplateModal} className="button button--margin-top" >
                         Add Exercise
                     </button>
                 </form>
-                {exerciseModalOpen &&
-                    <CreateExercise
+                {exerciseTemplateModalOpen &&
+                    <CreateExerciseTemplate
                         exerciseTemplateToEdit={exerciseTemplateToEdit}
                         exerciseTemplates={exerciseTemplates}
                         tags={this.props.tags}
-                        closeExerciseModal={this.closeExerciseModal}
+                        closeExerciseTemplateModal={this.closeExerciseTemplateModal}
                     />
                 }
             </React.Fragment>

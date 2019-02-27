@@ -6,7 +6,7 @@ import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import DeleteForever from '@material-ui/icons/DeleteForever';
 import Cancel from '@material-ui/icons/Cancel';
-import AddExercise from './AddExercise';
+import AddExerciseTemplate from './AddExerciseTemplate';
 
 const createRoutineTemplate = gql`
   mutation createRoutineTemplate($name: String!, $exerciseTemplateIds: [String]) {
@@ -30,7 +30,7 @@ class CreateRoutine extends React.Component {
         super(props);
         const {routineTemplateToEdit} = props;
         this.state ={
-            exerciseModal: false,
+            exerciseTemplateModal: false,
             routineTemplate: props.routineTemplateToEdit,
             exerciseTemplates: routineTemplateToEdit && routineTemplateToEdit.exerciseTemplates 
                 ? routineTemplateToEdit.exerciseTemplates
@@ -89,44 +89,44 @@ class CreateRoutine extends React.Component {
 
     }
 
-    removeExercise = (_id) => (e) => {
+    removeExerciseTemplate = (_id) => (e) => {
         e.preventDefault();
         this.setState((prevState) => ({
             exerciseTemplates: prevState.exerciseTemplates.filter(exercise => exercise._id !== _id)
         }))
     }
 
-    addExercise = (e) => {
+    addExerciseTemplate = (e) => {
         e.preventDefault();
-        this.setState({exerciseModal: true})
+        this.setState({exerciseTemplateModal: true})
     }
 
-    closeAddExerciseModal = (e) => {
+    closeAddExerciseTemplateModal = (e) => {
         e.preventDefault();
-        this.setState({exerciseModal: false})
+        this.setState({exerciseTemplateModal: false})
     }
 
-    changeExerciseOrder = (idx, newIdx) => (e) => {
+    changeOrder = (idx, newIdx) => (e) => {
         e.preventDefault();
-        const newExercises = [...this.state.exerciseTemplates];
-        const exerciseToMove = newExercises[idx];
-        newExercises[idx] = newExercises[newIdx];
-        newExercises[newIdx] = exerciseToMove
-        this.setState({exerciseTemplates: newExercises})
+        const newExerciseTemplates = [...this.state.exerciseTemplates];
+        const exerciseTemplateToMove = newExerciseTemplates[idx];
+        newExercises[idx] = newExerciseTemplates[newIdx];
+        newExercises[newIdx] = exerciseTemplateToMove
+        this.setState({exerciseTemplates: newExerciseTemplates})
     }
 
-    selectExercise = (exercise) => (e) => {
+    selectExerciseTemplate = (exerciseTemplate) => (e) => {
         e.preventDefault()
-        this.setState((prevState) => ({exerciseTemplates: [...prevState.exerciseTemplates, exercise], exerciseModal: false}))
+        this.setState((prevState) => ({exerciseTemplates: [...prevState.exerciseTemplates, exerciseTemplate], exerciseTemplateModal: false}))
     }
 
     render(){
         const {exerciseTemplates} = this.props;
-        const {exerciseModal, routineTemplate} = this.state;
-        const routineExerciseIds = this.state.exerciseTemplates.map(exercise => exercise._id)
+        const {exerciseTemplateModal, routineTemplate} = this.state;
+        const routineExerciseIds = this.state.exerciseTemplates.map(exerciseTemplate => exerciseTemplate._id)
         return (
             <React.Fragment>
-                <div className="boxed-view boxed-view--modal" style={{display: !exerciseModal ? "flex" : "none"}}>
+                <div className="boxed-view boxed-view--modal" style={{display: !exerciseTemplateModal ? "flex" : "none"}}>
                     <div className="page-content page-content--modal">
                         <div className="boxed-view__box boxed-view--modal-item">
                             <h1>Create Routine</h1>
@@ -135,20 +135,20 @@ class CreateRoutine extends React.Component {
                                 <input type="text" ref={el => this.name = el} placeholder="Enter Routine Name"/>
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <h2>Exercises</h2>
-                                    <AddCircle onClick={this.addExercise} className="icon" />
+                                    <AddCircle onClick={this.addExerciseTemplate} className="icon" />
                                 </div>
                                     {this.state.exerciseTemplates.length > 0 ?
-                                        this.state.exerciseTemplates.map((exercise, idx) => (
+                                        this.state.exerciseTemplates.map((exerciseTemplate, idx) => (
                                         <div className="item">
-                                            <h3>{exercise.name}</h3>
+                                            <h3>{exerciseTemplate.name}</h3>
                                             <div className="item__icons">
                                                 {idx !== this.state.exerciseTemplates.length - 1 && 
-                                                    <ArrowDownward onClick={this.changeExerciseOrder(idx, idx + 1)} className="icon"/>
+                                                    <ArrowDownward onClick={this.changeOrder(idx, idx + 1)} className="icon"/>
                                                 }
                                                 {idx > 0 && 
-                                                    <ArrowUpward onClick={this.changeExerciseOrder(idx, idx - 1)} className="icon" />
+                                                    <ArrowUpward onClick={this.changeOrder(idx, idx - 1)} className="icon" />
                                                 }
-                                                <DeleteForever onClick={this.removeExercise(exercise._id)}className='icon' />
+                                                <DeleteForever onClick={this.removeExerciseTemplate(exerciseTemplate._id)}className='icon' />
                                             </div>
                                         </div>))
                                         : <h3 style={{marginBottom: '1.4rem'}}>No exercises have been added to this routine yet</h3>
@@ -161,11 +161,11 @@ class CreateRoutine extends React.Component {
                         </div>
                     </div>
                 </div>
-                {exerciseModal &&
-                    <AddExercise 
+                {exerciseTemplateModal &&
+                    <AddExerciseTemplate 
                         exerciseTemplates={exerciseTemplates.filter(exer => !routineExerciseIds.includes(exer._id))}
-                        selectExercise={this.selectExercise}
-                        closeAddExerciseModal={this.closeAddExerciseModal}
+                        selectExerciseTemplate={this.selectExerciseTemplate}
+                        closeAddExerciseTemplateModal={this.closeAddExerciseTemplateModal}
                     />
                 }
             </React.Fragment>

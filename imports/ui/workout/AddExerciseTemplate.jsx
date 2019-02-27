@@ -2,37 +2,37 @@ import React from 'react';
 import Cancel from '@material-ui/icons/Cancel';
 import { rabinKarp } from '../../startup/client/utils';
 
-class AddExercise extends React.Component{
+class AddExerciseTemplate extends React.Component{
     constructor(props){
         super(props)
         this.state ={
-            searchExercise: ""
+            searchName: ""
         }
     }
 
-    updateSearchExercise = (e) => {
+    updateSearchName = (e) => {
         e.preventDefault();
-        this.setState({searchExercise: e.target.value})
+        this.setState({searchName: e.target.value})
     }
 
     render(){
-        const {searchExercise} = this.state;
-        const {exerciseTemplates, closeAddExerciseModal, selectExercise} = this.props;
+        const {searchName} = this.state;
+        const {exerciseTemplates, closeAddExerciseTemplateModal, selectExerciseTemplate} = this.props;
         return (
             <div className="boxed-view boxed-view--modal">
                 <div className="page-content page-content--modal">
                     <div className="boxed-view__box boxed-view--modal-item">
                         <form noValidate className="boxed-view__form" style={{zIndex: 8}}>
                             <h2>Exercises</h2>
-                            <input type="text" value={searchExercise} onChange={this.updateSearchExercise} placeholder="Search Exercise"/>
+                            <input type="text" value={searchName} onChange={this.updateSearchName} placeholder="Search Exercise"/>
                             <ul>
-                                {exerciseTemplates && exerciseTemplates.filter(exer => rabinKarp(searchExercise.toLowerCase(), exer.name.toLowerCase())).map(exercise => (
-                                    <li onClick={selectExercise(exercise)} >{exercise.name}</li>
+                                {exerciseTemplates && exerciseTemplates.filter(exer => rabinKarp(searchName.toLowerCase(), exer.name.toLowerCase())).map(exerciseTemplate => (
+                                    <li onClick={selectExerciseTemplate(exerciseTemplate)} >{exerciseTemplate.name}</li>
                                 ))}
                             </ul>
                         </form>
                         <div className="modal__cancel-box">
-                            <Cancel onClick={closeAddExerciseModal} className="icon"/>
+                            <Cancel onClick={closeAddExerciseTemplateModal} className="icon"/>
                         </div>
                     </div>
                 </div>
@@ -41,4 +41,4 @@ class AddExercise extends React.Component{
     }
 }
 
-export default AddExercise;
+export default AddExerciseTemplate;

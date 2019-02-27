@@ -10,10 +10,14 @@ Workout:
     X DONE: Scroll added set into view
     X DONE: Refresh Routines after workout is finished
     X DONE: Hide Finsih Workout Button
-    X Done: Add black border
+    X DONE: Add black border
+    X DONE: Break apart the Exercise Components
+    X DONE: Transition names from Exercise to ExerciseTemplate where necessary
+    - Break apart the WorkoutComponent
+    - Remove server side console.logs
     - Modals must be scrollable => Exercise List
-    - Edit Exercise
-        - Remove
+    - Edit Exercise -- double click on list item to expose the edit and delete icons
+        - Remove Set
         - Change Values
     - Add Exercise to Workout
     - Load in last workouts values

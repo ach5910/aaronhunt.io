@@ -1,162 +1,54 @@
 import React from 'react';
-import gql from "graphql-tag";
-import { graphql, compose} from "react-apollo";
-import Chip from '../Components/Chip';
-import AddCircle from '@material-ui/icons/AddCircle';
-import Cancel from '@material-ui/icons/Cancel';
-import AddTag from './AddTag';
-
-const createExerciseTemplate = gql`
-  mutation createExerciseTemplate($name: String!, $tagIds: [String!]) {
-    createExerciseTemplate(name: $name, tagIds: $tagIds) {
-      _id
-    }
-  }
-`;
-
-const updateExerciseTemplate = gql`
-    mutation updateExerciseTemplate($_id: String!, $name: String!, $tagIds: [String!]){
-        updateExerciseTemplate(_id: $_id, name: $name, tagIds: $tagIds){
-            _id,
-            name
-        }
-    }
-`
+import SetTitles from './SetTitles';
+import SetList from './SetList';
 
 class CreateExercise extends React.Component{
     constructor(props){
-        super(props)
-        const {exerciseTemplateToEdit} = props;
+        super(props);
         this.state = {
-            tagModalOpen: false,
-            tags: exerciseTemplateToEdit && exerciseTemplateToEdit.tags ? exerciseTemplateToEdit.tags : [],
-            error: "",
+            setCount: props.exercise.sets.length
         }
     }
 
-    componentDidMount = () => {
-        if (this.props.exerciseTemplateToEdit){
-            this.name.value = this.props.exerciseTemplateToEdit.name;
+    componentDidUpdate = () => {
+        if (this.list && this.state.setCount + 1 === this.list.childElementCount){
+            this.list.lastElementChild.scrollIntoView({behavior: 'smooth'});
         }
     }
 
-    selectTag = (tag) => {
-        const unique = this.state.tags.reduce((accum, _tag) => (accum && _tag._id !== tag._id), true)
-        if (unique){
-            this.setState((prevState) => ({
-                tags: [...prevState.tags, tag],
-                tagModalOpen: false
-            }))
-        }
+    getORM = (activeExercise) => {
+        const orm = parseInt(activeExercise.weight) * (1 + (parseInt(activeExercise.reps) / 30))
+        return isNaN(orm) ? 0 : orm.toFixed(2);
     }
 
-    deleteTag = (tag) => {
-        const newTags = this.state.tags.filter(_tag => _tag._id !== tag._id)
-        this.setState({tags: newTags})
+    addSet = (refetch) => (e) => {
+        this.setState({setCount: this.list.childElementCount})
+        this.props.addSet(refetch)(e)
     }
 
-    openTagModal = (e) => {
-        e.preventDefault()
-        this.setState({tagModalOpen: true})
-    }
-
-    closeAddTagModal = (e) => {
-        e.preventDefault();
-        this.setState({tagModalOpen: false})
-    }
-
-    saveExercise = (e) => {
-        e.preventDefault();
-        const name = this.name.value.trim();
-        const editName = this.props.exerciseTemplateToEdit ? this.props.exerciseTemplateToEdit.name : "";
-        const unique = this.props.exerciseTemplates.reduce((accum, exer) => 
-            (accum && (exer.name !== name || name === editName)), true)
-        if (name.length > 2 && unique){
-            if (this.props.exerciseTemplateToEdit){
-                this.props.updateExerciseTemplate({
-                    variables: {
-                        _id: this.props.exerciseTemplateToEdit._id,
-                        name,
-                        tagIds: this.state.tags.map(tag => tag._id)
-                    }
-                }).then(({data}) => {
-                    console.log('updateExerciseTemplate', data);
-                    this.name.value = "";
-                    this.setState({error: ""})
-                    this.props.closeExerciseModal();
-                }).catch((error) => {
-                    console.log('updateExerciseTemplate', error)
-                    this.setState({error: ""})
-                })
-            } else {
-                this.props.createExerciseTemplate({
-                    variables: {
-                        name,
-                        tagIds: this.state.tags.map(tag => tag._id)
-                    }
-                }).then(({data}) => {
-                    console.log(data);
-                    this.name.value = "";
-                    this.setState({error: ""})
-                    this.props.closeExerciseModal()
-                }).catch((error) => {
-                    console.log('saveExercise', error)
-                    this.setState({error: ""})
-                })
-            }
-        } else {
-            this.setState({error: "Exercise name must be unique and at least three character long"})
-        }
+    getRef = (el) => {
+        this.list = el;
     }
 
     render(){
+        const {exercise, refetch, activeExercise, onChange, finishExercise} = this.props
         return (
-            <React.Fragment>
-                <div className="boxed-view boxed-view--modal" style={{display: !this.state.tagModalOpen ? "flex" : "none"}}>
-                    <div className="page-content page-content--modal">
-                        <div className="boxed-view__box boxed-view--modal-item">
-                            <h1>Create Exercise</h1>
-                            {this.state.error !== "" && <span style={{color: 'red'}}>{this.state.error}</span>}
-                            <form noValidate className="boxed-view__form" style={{zIndex: 6}}>
-                                <input type="text" ref={el => this.name = el} placeholder="Enter Exercise Name"/>
-                                <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <h2>Tags</h2>
-                                    <AddCircle onClick={this.openTagModal} className="icon" />
-                                </div>
-                                <div style={{marginBottom: '1.4rem'}}>
-                                    {this.state.tags.length > 0
-                                        ? this.state.tags.map(tag => (<Chip name={tag.name} value={tag} deleteable onDelete={this.deleteTag} />))
-                                        : <h3>No tags have been added to this exercise yet</h3>
-                                    }
-                                </div>
-                                <button onClick={this.saveExercise} className="button">Save Exercise</button>
-                            </form>
-                            <div className="modal__cancel-box">
-                                <Cancel onClick={() => {this.props.closeExerciseModal()}} className="icon"/>
-                            </div>
-                        </div>
-                    </div>
+            <div className='boxed-view__box boxed-view__box--vert'>
+                <h2 style={{marginBottom: "0px"}}>{exercise.name}</h2>
+                <SetTitles />
+                <SetList getRef={this.getRef} exercise={exercise}/>
+                <form noValidate className="exercise--set">
+                        <input className="exercise--weight" onFocus={(e) => {e.target.select()}} type="number" pattern="[0-9]*" onChange={onChange("weight")} value={activeExercise.weight} />
+                        <input className="exercise--reps" onFocus={(e) => {e.target.select()}} type="number" pattern="[0-9]*" onChange={onChange("reps")} value={activeExercise.reps} />
+                        <div className="pseudo-input exercise--orm" value>{this.getORM(activeExercise)}</div>
+                </form>
+                <div className="button__container">
+                    <button onClick={this.addSet(refetch)} className="button button--secondary button--margin">Add Set</button>
+                    <button onClick={finishExercise(refetch)} className="button button--margin">Finish Exercise</button>
                 </div>
-                {this.state.tagModalOpen &&
-                    <AddTag 
-                        tags={this.props.tags}
-                        selectTag={this.selectTag}
-                        closeAddTagModal={this.closeAddTagModal}
-                    />
-                }
-            </React.Fragment>
+            </div>
         )
     }
 }
 
-export default compose( graphql(
-    createExerciseTemplate, {
-        name: "createExerciseTemplate",
-        options: {
-            refetchQueries: ["ExerciseTemplates", "Tags"]
-}}),graphql(
-    updateExerciseTemplate, {
-        name: "updateExerciseTemplate",
-        options: {
-            refetchQueries: ["ExerciseTemplates"]
-}}))(CreateExercise);
+export default CreateExercise;

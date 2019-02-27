@@ -1,6 +1,6 @@
 import React from 'react';
 import SelectRoutine from './SelectRoutine';
-import Exercise from './Exercise';
+import Exercises from './Exercises';
 import Routines from './Routines';
 import gql from "graphql-tag";
 import { Query } from 'react-apollo';
@@ -279,18 +279,16 @@ class Workout extends React.Component {
                             return (
                                 <React.Fragment>
                                     <h1>{routine.name}</h1>
-                                    {data.routine.exercises.map(exercise => (
-                                        <Exercise
-                                            refetch={refetch}
-                                            exercise={exercise}
-                                            activeExercise={activeExercise}
-                                            startExercise={this.startExercise}
-                                            addSet={this.addSet}
-                                            finishExercise={this.finishExercise}
-                                            finishedExercises={finishedExercises}
-                                            onChange={this.onChange}
-                                        />
-                                    ))}
+                                    <Exercises
+                                        exercises={data.routine.exercises}
+                                        startExercise={this.startExercise}
+                                        activeExercise={activeExercise}
+                                        addSet={this.addSet}
+                                        finishExercise={this.finishExercise}
+                                        finishedExercises={this.state.finishedExercises}
+                                        onChange={this.onChange}
+                                        refetch={refetch}
+                                    />
                                     {activeExercise === null &&
                                         <form noValidate className="boxed-view__form">
                                             <button onClick={this.finishWorkout} type="submit" className="button button--margin-top">Finish Workout</button>
