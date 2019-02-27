@@ -2,7 +2,7 @@ import Exercises from './exercises';
 import Sets from '../sets/sets';
 import Routines from '../routines/routines';
 import ExerciseTemplates from '../exerciseTemplates/exerciseTemplates';
-import  moment, { unix } from 'moment';
+import  moment from 'moment';
 export default {
     Query: {
         exercises(obj, args, { userId }){
@@ -38,7 +38,8 @@ export default {
             return Exercises.findOne(_id)
         },
         startExercise(obj, {_id}, context){
-            const startTime = moment().unix();
+            const startTime = moment().valueOf().toString();
+            console.log('1234', 1234, startTime)
             Exercises.update(_id, {
                 $set: {
                     startTime
@@ -47,7 +48,7 @@ export default {
             return Exercises.findOne(_id);
         },
         endExercise(obj, {_id}, context){
-            const endTime = moment().unix();
+            const endTime = moment().valueOf().toString();
             Exercises.update(_id, {
                 $set: {
                     endTime

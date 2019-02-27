@@ -2,8 +2,8 @@ type Routine {
     _id: String!
     user: String!
     name: String!
-    startTime: Int!
-    endTime: Int
+    startTime: String!
+    endTime: String
     exercises: [Exercise]
 }
 

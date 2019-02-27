@@ -1,18 +1,25 @@
 Workout:
-    - DONE: Loading in last sets values
-    - Load in last workouts values
-    - Add Exercise to Workout
-    - DONE: Only Allow Numbers
-    - DONE: Prevent Mobile Zoom
-    - DONE: Return to workout out after page is closed
-    - DONE: Return to workout if navigated away from workouts
-    - DONE: List my workouts
-    - List all workout
+    X DONE: Loading in last sets values
+    X DONE: Only Allow Numbers
+    X DONE: Prevent Mobile Zoom
+    X DONE: Return to workout out after page is closed
+    X DONE: Return to workout if navigated away from workouts
+    X DONE: List my workouts
+    X DONE: Time is wrong - Looks like epoch
+    X DONE: Moments need to be saved as as strings
+    X DONE: Scroll added set into view
+    X DONE: Refresh Routines after workout is finished
+    X DONE: Hide Finsih Workout Button
+    X Done: Add black border
+    - Modals must be scrollable => Exercise List
     - Edit Exercise
         - Remove
         - Change Values
-    - Record new records
+    - Add Exercise to Workout
+    - Load in last workouts values
     - display highlighest orm on each exercise
+    - Record new records
+    - List all workout
     - Visible Timer
     - Calendar View
 

@@ -22,6 +22,7 @@
   padding: 2.4rem;
   text-align: center;
   border: 1px solid $gray;
+  border-top: 2px solid $top-border;
   &.boxed-view__box--vert{
     display: flex;
     text-align: left;

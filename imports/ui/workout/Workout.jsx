@@ -75,7 +75,7 @@ class Workout extends React.Component {
             routine: null,
             selectRoutineModal: false,
             activeExercise: null,
-            finishedExercises: []
+            finishedExercises: [],
         }
     }
 
@@ -158,7 +158,6 @@ class Workout extends React.Component {
                 _id
             }
         }).then(({data}) => {
-            console.log('startExercise', data)
             this.setState({
                 activeExercise: {
                     _id,
@@ -195,14 +194,14 @@ class Workout extends React.Component {
                 exerciseId: this.state.activeExercise._id
             }
         }).then(({data}) => {
-            console.log('createSet', data);
             this.setState((prevState) => ({
                 activeExercise: {
                     _id: prevState.activeExercise._id,
                     weight,
                     reps,
                     setNumber: prevState.activeExercise.setNumber + 1,
-                }
+                },
+                newSet: true
             }))
             refetch();
         }).catch((error) => {
@@ -217,7 +216,6 @@ class Workout extends React.Component {
                 _id: this.state.routine._id
             }
         }).then(({data}) => {
-            console.log('endRoutine', data);
             this.setState({
                 routine: null,
                 activeExercise: null,
@@ -239,13 +237,11 @@ class Workout extends React.Component {
                 exerciseId: this.state.activeExercise._id
             }
         }).then(({data}) => {
-            console.log('createSet', data);
             this.props.endExercise({
                 variables: {
                     _id: this.state.activeExercise._id
                 }
             }).then(({data}) => {
-                console.log('endExercise', data)
                 this.setState((prevState) => ({
                     finishedExercises: [...prevState.finishedExercises, prevState.activeExercise._id],
                     activeExercise: null
@@ -260,7 +256,7 @@ class Workout extends React.Component {
     }
 
     render(){
-        const {routine, activeExercise, finishedExercises, selectRoutineModal} = this.state;
+        const {routine, activeExercise, finishedExercises, selectRoutineModal, newSet} = this.state;
         const {routineTemplates, routines, loading, ...data} = this.props;
         console.log(data);
         if (loading) return <div>Loading...</div>
@@ -295,9 +291,11 @@ class Workout extends React.Component {
                                             onChange={this.onChange}
                                         />
                                     ))}
-                                    <form noValidate className="boxed-view__form">
-                                        <button onClick={this.finishWorkout} type="submit" className="button button--margin-top">Finish Workout</button>
-                                    </form>
+                                    {activeExercise === null &&
+                                        <form noValidate className="boxed-view__form">
+                                            <button onClick={this.finishWorkout} type="submit" className="button button--margin-top">Finish Workout</button>
+                                        </form>
+                                    }
                                 </React.Fragment>
                             )
                         }}
@@ -330,7 +328,7 @@ graphql(startExercise, {
 graphql(endRoutine, {
     name: 'endRoutine',
     options: {
-        refetchQueries: ['getMostRecentRoutine']
+        refetchQueries: ['getMostRecentRoutine' , 'Routines']
     }
 })
 )(Workout);

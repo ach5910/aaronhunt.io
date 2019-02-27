@@ -1,7 +1,7 @@
 import Routines from './routines';
 import Exercises from '../exercises/exercises';
 import RoutineTemplates from '../routineTemplates/routineTemplates';
-import moment , { unix } from 'moment';
+import moment from 'moment';
 export default {
     Query: {
         routines(obj, args, {userId}){
@@ -45,7 +45,7 @@ export default {
                     exerciseIds.push(exerciseId)
                     console.log('exerciseIds', exerciseIds);
                 })
-                const startTime = moment().unix()
+                const startTime = moment().valueOf().toString();
                 const routineId = Routines.insert({
                     templateId,
                     user: userId,
@@ -58,7 +58,7 @@ export default {
             throw new Error("Unauthorized")
         },
         startRoutine(obj, {_id}, context){
-            const startTime = moment().unix()
+            const startTime = moment().valueOf().toString();
             Routines.update(_id, {
                 $set: {
                     startTime
@@ -67,7 +67,7 @@ export default {
             return Routines.findOne(_id);
         },
         endRoutine(obj, {_id}, context){
-            const endTime = moment().unix();
+            const endTime = moment().valueOf().toString();
             Routines.update(_id, {
                 $set: {
                     endTime

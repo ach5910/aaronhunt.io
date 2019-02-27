@@ -1,8 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { Switch, Router, Route } from 'react-router-dom';
-import moment, { unix } from 'moment';
-
 import Signup from '../ui/Signup';
 import Dashboard from '../ui/workout/WorkoutDashBoard';
 import NotFound from '../ui/NotFound';
@@ -51,8 +49,6 @@ export default class Routes extends React.Component{
   // };
 
   render(){
-      console.log(moment().format())
-      console.log(moment().unix())
     return (
       <Router history={this.props.history}>
         <Switch >
