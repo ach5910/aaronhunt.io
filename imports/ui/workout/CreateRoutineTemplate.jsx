@@ -137,9 +137,10 @@ class CreateRoutine extends React.Component {
                                     <h2>Exercises</h2>
                                     <AddCircle onClick={this.addExerciseTemplate} className="icon" />
                                 </div>
+                                <ul>
                                     {this.state.exerciseTemplates.length > 0 ?
                                         this.state.exerciseTemplates.map((exerciseTemplate, idx) => (
-                                        <div className="item">
+                                        <li className="item">
                                             <h3>{exerciseTemplate.name}</h3>
                                             <div className="item__icons">
                                                 {idx !== this.state.exerciseTemplates.length - 1 && 
@@ -150,10 +151,11 @@ class CreateRoutine extends React.Component {
                                                 }
                                                 <DeleteForever onClick={this.removeExerciseTemplate(exerciseTemplate._id)}className='icon' />
                                             </div>
-                                        </div>))
+                                        </li>))
                                         : <h3 style={{marginBottom: '1.4rem'}}>No exercises have been added to this routine yet</h3>
                                     }
-                                <button type="submit" className="button">Save Routine</button>
+                                </ul>
+                                <button type="submit" className="button button--margin-top">Save Routine</button>
                             </form>
                             <div className="modal__cancel-box">
                                 <Cancel onClick={this.props.closeAddRoutineModal}className="icon"/>

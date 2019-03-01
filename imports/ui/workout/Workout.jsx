@@ -15,6 +15,19 @@ const createSet = gql`
     }
 `;
 
+const editSet = gql`
+    mutation editSet($_id: String!, $weight: Float!, $reps: Int!){
+        editSet(_id: $_id, weight: $weight, reps: $reps){
+            _id
+        }
+    }
+`;
+
+const deleteSet = gql`
+    mutation deleteSet($_id: String!){
+        deleteSet(_id: $_id)
+    }
+`;
 const endRoutine = gql`
     mutation endRoutine($_id: String!){
         endRoutine(_id: $_id){
@@ -58,6 +71,7 @@ const routineQuery = gql`
         endTime
         name
         sets {
+            _id
           weight
           reps
           orm
@@ -183,6 +197,53 @@ class Workout extends React.Component {
         }))
     }
 
+    deleteSet = (setId, refetch) => {
+        this.props.deleteSet({
+            variables: {
+                _id: setId
+            }
+        }).then(({data}) => {
+            console.log('deleteSet', data)
+            refetch();
+        }).catch((error) => {
+            console.log('deleteSet', error)
+        })
+    }
+
+    startEdittingSet = (set) => {
+        this.setState((prevState) => ({
+            activeExercise: {
+                _id: prevState.activeExercise._id,
+                weight: set.weight,
+                reps: set.reps,
+                setNumber: prevState.activeExercise.setNumber
+            },
+            edittingSet: true
+        }))
+    }
+    editSet = (setId, refetch) => {
+        const {weight, reps} = this.state.activeExercise;
+        this.props.editSet({
+            variables: {
+                _id: setId,
+                weight: parseFloat(weight),
+                reps: parseInt(reps)
+            }
+        }).then(({data}) => {
+            this.setState((prevState) => ({
+                activeExercise: {
+                    _id: prevState.activeExercise._id,
+                    weight,
+                    reps,
+                    setNumber: prevState.activeExercise.setNumber
+                }
+            }))
+            refetch();
+        }).catch((error) => {
+            console.log('editSet', error);
+        })
+    }
+
     addSet = (refetch) => (e) => {
         e.preventDefault();
         const {weight, reps, setNumber} = this.state.activeExercise;
@@ -288,6 +349,9 @@ class Workout extends React.Component {
                                         finishedExercises={this.state.finishedExercises}
                                         onChange={this.onChange}
                                         refetch={refetch}
+                                        editSet={this.editSet}
+                                        deleteSet={this.deleteSet}
+                                        startEdittingSet={this.startEdittingSet}
                                     />
                                     {activeExercise === null &&
                                         <form noValidate className="boxed-view__form">
@@ -322,6 +386,11 @@ graphql(startExercise, {
     name: "startExercise"
 }), graphql(endExercise, {
     name: "endExercise"
+}),
+graphql(editSet, {
+    name: "editSet"
+}), graphql(deleteSet, {
+    name: "deleteSet"
 }),
 graphql(endRoutine, {
     name: 'endRoutine',

@@ -29,6 +29,18 @@ export default {
                 }
             })
             return Sets.findOne(_id);
+        },
+        editSet(obj, {_id, weight, reps}, context){
+            Sets.update(_id, {
+                $set: {
+                    weight,
+                    reps
+                }
+            })
+            return Sets.findOne(_id);
+        },
+        deleteSet(obj, {_id}, context){
+            return Sets.remove({_id});
         }
     }
 }

@@ -80,6 +80,7 @@ const routinesQuery = gql`
       exercises {
         _id
         sets {
+          _id
           weight
           reps
           orm
@@ -102,6 +103,7 @@ const getMostRecentRoutine = gql`
                 startTime
                 endTime
                 sets{
+                    _id
                     weight
                     reps
                     setNumber

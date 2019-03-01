@@ -2,7 +2,7 @@ import React from 'react';
 import CreateExercise from './CreateExercise';
 import ExerciseListItem from './ExerciseListItem';
 
-const Exercises = ({exercises, activeExercise, startExercise, refetch, addSet, finishExercise, finishedExercises, onChange}) => (
+const Exercises = ({exercises, activeExercise, startExercise, refetch, addSet, finishExercise, finishedExercises, onChange, editSet, deleteSet, startEdittingSet}) => (
     <React.Fragment>
         {exercises.map(exercise => (
             <React.Fragment>
@@ -20,6 +20,9 @@ const Exercises = ({exercises, activeExercise, startExercise, refetch, addSet, f
                         addSet={addSet}
                         finishExercise={finishExercise}
                         onChange={onChange}
+                        editSet={editSet}
+                        deleteSet={deleteSet}
+                        startEdittingSet={startEdittingSet}
                     />
                 }
             </React.Fragment>

@@ -15,10 +15,10 @@ Workout:
     X DONE: Transition names from Exercise to ExerciseTemplate where necessary
     - Break apart the WorkoutComponent
     - Remove server side console.logs
-    - Modals must be scrollable => Exercise List
-    - Edit Exercise -- double click on list item to expose the edit and delete icons
-        - Remove Set
-        - Change Values
+    X DONE: Modals must be scrollable => Exercise List
+    X DONE: Edit Exercise -- double click on list item to expose the edit and delete icons
+        X DONE: Remove Set
+        X DONE: Change Values
     - Add Exercise to Workout
     - Load in last workouts values
     - display highlighest orm on each exercise

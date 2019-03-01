@@ -5,8 +5,26 @@
     width: 100%;
     align-items: center;
     grid-template-rows: 45px;
-    grid-template-areas: "exerciseWeight exerciseReps exerciseORM"
+    grid-template-areas: "exerciseWeight exerciseReps exerciseORM";
+    &.exercise--set-edit{
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: "editSet deleteSet";
+    }
     
+}
+
+.exercise--edit-set{
+    display: flex;
+    justify-content: center;
+    grid-area: editSet;
+    width: 100%;
+}
+
+.exercise--delete-set{
+    display: flex;
+    justify-content: center;
+    grid-area: deleteSet;
+    width: 100%;
 }
 
 .exercise--weight{
