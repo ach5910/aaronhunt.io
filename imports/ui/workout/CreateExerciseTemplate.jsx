@@ -121,7 +121,10 @@ class CreateExerciseTemplate extends React.Component{
                                 <input type="text" ref={el => this.name = el} placeholder="Enter Exercise Name"/>
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <h2>Tags</h2>
-                                    <AddCircle onClick={this.openTagModal} className="icon" />
+                                    <button onClick={this.openTagModal} className="button button--link-text" type="submit">
+                                        <AddCircle className="icon" />
+                                        Add Tag
+                                    </button>
                                 </div>
                                 <div style={{marginBottom: '1.4rem'}}>
                                     {this.state.tags.length > 0

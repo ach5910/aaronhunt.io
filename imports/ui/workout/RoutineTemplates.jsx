@@ -4,6 +4,7 @@ import { graphql } from 'react-apollo';
 import RoutineTemplate from './RoutineTemplate';
 import CreateRoutineTemplate from './CreateRoutineTemplate';
 import ConfirmationModal from './ConfirmationModal';
+import AddCircle from '@material-ui/icons/AddCircle';
 
 const deleteRoutineTemplate = gql`
   mutation deleteRoutineTemplate($_id: String!) {
@@ -67,7 +68,15 @@ class RoutineTemplates extends React.Component{
         if (loading) return (<div>Loading</div>)
         return (
             <React.Fragment>
-                <h1>Routines</h1>
+                <div className='section-title'>
+                    <h1>Routines</h1>
+                    <form onSubmit={this.onSubmit} noValidate >
+                        <button className="button button--link-text" type="submit">
+                            <AddCircle className="icon" />
+                            Add Routine
+                        </button>
+                    </form>
+                </div>
                 {routineTemplates && routineTemplates.map(routineTemplate => (
                     <RoutineTemplate 
                         routineTemplate={routineTemplate}
@@ -75,11 +84,6 @@ class RoutineTemplates extends React.Component{
                         editRoutineTemplate={this.editRoutineTemplate}
                     />
                     ))}
-                <form onSubmit={this.onSubmit} noValidate className="boxed-view__form">
-                    <button className="button button--margin-top" type="submit">
-                        Add Routine
-                    </button>
-                </form>
                 {addRoutine &&
                     <CreateRoutineTemplate 
                         routineTemplates={routineTemplates}

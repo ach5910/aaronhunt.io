@@ -11,21 +11,18 @@ export default {
             return Routines.findOne(_id);
         },
         getMostRecentRoutine(obj, args, {userId}){
-            console.log('getMostRecent')
             return Routines.findOne({user: userId}, {sort: {$natural: -1}})
         }
     },
     Routine: {
         exercises: (routine) => {
             if (routine.exerciseIds == null) return [];
-            console.log('Routine exercises - ids', routine.exerciseIds)
             var pipeline = [
                 {$match: {_id: {$in: routine.exerciseIds}}},
                 {$addFields: {"__order": {$indexOfArray: [routine.exerciseIds, "$_id" ]}}},
                 {$sort: {"__order": 1}}
                ];
             var result = Exercises.aggregate(pipeline);
-            console.log('Routine exercises - result', result)
             return result;
         },
         name: (routine) => {
@@ -43,7 +40,6 @@ export default {
                         templateId: exerciseTemplateId
                     })
                     exerciseIds.push(exerciseId)
-                    console.log('exerciseIds', exerciseIds);
                 })
                 const startTime = moment().valueOf().toString();
                 const routineId = Routines.insert({
@@ -52,7 +48,6 @@ export default {
                     exerciseIds,
                     startTime
                 })
-                console.log('routineId  exerciseIds', routineId, exerciseIds)
                 return Routines.findOne(routineId);
             }
             throw new Error("Unauthorized")

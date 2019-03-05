@@ -39,7 +39,6 @@ export default {
         },
         startExercise(obj, {_id}, context){
             const startTime = moment().valueOf().toString();
-            console.log('1234', 1234, startTime)
             Exercises.update(_id, {
                 $set: {
                     startTime

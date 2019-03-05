@@ -13,8 +13,9 @@ Workout:
     X DONE: Add black border
     X DONE: Break apart the Exercise Components
     X DONE: Transition names from Exercise to ExerciseTemplate where necessary
-    - Break apart the WorkoutComponent
-    - Remove server side console.logs
+    X DONE: Break apart the WorkoutComponent
+    X DONE: Remove server side console.logs
+    X DONE: Change add buttons
     X DONE: Modals must be scrollable => Exercise List
     X DONE: Edit Exercise -- double click on list item to expose the edit and delete icons
         X DONE: Remove Set

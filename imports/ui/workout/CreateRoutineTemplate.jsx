@@ -135,7 +135,10 @@ class CreateRoutine extends React.Component {
                                 <input type="text" ref={el => this.name = el} placeholder="Enter Routine Name"/>
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <h2>Exercises</h2>
-                                    <AddCircle onClick={this.addExerciseTemplate} className="icon" />
+                                    <button onClick={this.addExerciseTemplate} className="button button--link-text" >
+                                        <AddCircle className="icon" />
+                                        Add Exercise
+                                    </button>
                                 </div>
                                 <ul>
                                     {this.state.exerciseTemplates.length > 0 ?

@@ -5,6 +5,7 @@ import Routines from './Routines';
 import gql from "graphql-tag";
 import { Query } from 'react-apollo';
 import { graphql, compose } from 'react-apollo';
+import AddCircle from '@material-ui/icons/AddCircle';
 
 const createSet = gql`
     mutation createSet($weight: Float!, $reps: Int!, $setNumber: Int!, $exerciseId: String!) {
@@ -325,11 +326,17 @@ class Workout extends React.Component {
             <React.Fragment>
                 {routine === null &&
                     <React.Fragment>
-                        <h1>Workout</h1>
+                        <div className='section-title'>
+                            <h1>Workouts</h1>
+                            <button onClick={this.openSelectRoutineModal} className="button button--link-text">
+                                <AddCircle className="icon" />
+                                Add Workout
+                            </button>
+                        </div>
                         <Routines routines={routines} />
-                        <form noValidate className="boxed-view__form">
+                        {/* <form noValidate className="boxed-view__form">
                             <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
-                        </form>
+                        </form> */}
                     </React.Fragment>
                 }
                 {routine !== null && routine._id &&

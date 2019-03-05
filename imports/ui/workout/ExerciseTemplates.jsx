@@ -1,6 +1,7 @@
 import React from 'react';
 import ExerciseTemplate from './ExerciseTemplate';
 import CreateExerciseTemplate from './CreateExerciseTemplate';
+import AddCircle from '@material-ui/icons/AddCircle';
 
 class ExerciseTemplates extends React.Component{
     constructor(props){
@@ -31,16 +32,22 @@ class ExerciseTemplates extends React.Component{
         if (loading) return (<div>Loading</div>)
         return (
             <React.Fragment>
-                <h1>Exercises</h1>
+                <div className='section-title'>
+                    <h1>Exercises</h1>
+                    <button onClick={this.openExerciseTemplateModal} className="button button--link-text" >
+                        <AddCircle className="icon" />
+                        Add Exercise
+                    </button>
+                </div>
                 {exerciseTemplates && exerciseTemplates.map(exerciseTemplate => (
                     <ExerciseTemplate editExerciseTemplate={this.editExerciseTemplate} exerciseTemplate={exerciseTemplate} />
                     ))
                 }
-                <form noValidate className="boxed-view__form">
+                {/* <form noValidate className="boxed-view__form">
                     <button onClick={this.openExerciseTemplateModal} className="button button--margin-top" >
                         Add Exercise
                     </button>
-                </form>
+                </form> */}
                 {exerciseTemplateModalOpen &&
                     <CreateExerciseTemplate
                         exerciseTemplateToEdit={exerciseTemplateToEdit}
