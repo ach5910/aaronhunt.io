@@ -65,6 +65,13 @@ input[type=text], input[type=email], input[type=number],input[type=password] {
   font-size: $base-font-size;
   margin-bottom: $space;
   padding: $input-spacing;
+  &:disabled{
+    color: $input-disbled-text-color;
+  }
+}
+
+input[type=text]:disabled{
+  color: $input-disbled-text-color;
 }
 
 .pseudo-input{
@@ -77,10 +84,14 @@ input[type=text], input[type=email], input[type=number],input[type=password] {
   text-shadow: none;
   display: inline-block;
   text-align: start;
-  border: 1px solid $input-border;
-  font-size: $base-font-size;
+  // border: 1px solid $input-border;
+  font-size: $medium-font-size;
   margin-bottom: $space;
+  color: $pseudo-text-color;
   padding: $input-spacing;
   user-select: none;
-  background-color: white; 
+  background-color: white;
+  &.disabled{
+    color: $input-disbled-text-color;
+  }
 }

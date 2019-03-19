@@ -18,7 +18,8 @@ const SetList = ({exercise, getRef = undefined, handleClick = undefined, editSet
                         </div>
                     </li>
                     :
-                    <li className="exercise--set" onClick={(e) => {if (handleClick !== undefined) handleClick(set._id)}}>
+                    <li className="exercise--set exercise--set__header exercise--set__list" onClick={(e) => {if (handleClick !== undefined) handleClick(set._id)}}>
+                        <div className="exercise--title">{set.setNumber}</div>
                         <div className='exercise--weight'>{set.weight}</div>
                         <div className="exercise--reps">{set.reps}</div>
                         <div className="exercise--orm">{set.orm.toFixed(2)}</div>

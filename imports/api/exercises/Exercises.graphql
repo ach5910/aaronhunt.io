@@ -1,3 +1,9 @@
+type ExerciseStats {
+    totalWeight: Float
+    totalReps: Int
+    topORM: Float
+}
+
 type Exercise {
     _id: String!
     user: String!
@@ -5,10 +11,14 @@ type Exercise {
     name: String!
     startTime: String
     endTime: String
+    previousExercise: Exercise
+    exerciseTemplate: ExerciseTemplate
+    exerciseStats: ExerciseStats
 }
 
 extend type Query {
     exercises: [Exercise]
+    exercise(_id: String!): Exercise
 }
 
 extend type Mutation {

@@ -20,13 +20,32 @@ Workout:
     X DONE: Edit Exercise -- double click on list item to expose the edit and delete icons
         X DONE: Remove Set
         X DONE: Change Values
-    - Add Exercise to Workout
-    - Load in last workouts values
-    - display highlighest orm on each exercise
-    - Record new records
+    X DONE: Add Exercise to Workout
+    X DONE: Load in last workouts values
+    X DONE: Update setNumbers when a set is deleted
+    X DONE: Filter lastExercise relative to the exercise passed in
+    X DONE: Change lastExercise field to previousExercise
+    X DONE: display highlighest orm on each exercise
+	X DONE: Calc totalWeight, totalReps and Max 1RM records for exercise template
+	X DONE: Calc totalWeight, totalReps, and Max 1RM for an exercise
+	- Determine how to surface records
+	- Removed setNumber tracking in react, only track in backend and pass via api
+    - Determine exercise and workout point system
+    - Add decimal values for weight
+    - Pull data with user id
     - List all workout
     - Visible Timer
     - Calendar View
+
+Workout Page:
+    - View workout page
+    - Record new records
+    - Add records to workouts for logging
+
+Post Work Out Summary:
+	- Display totalWeight, totalReps and Max 1RM for curr, prev and record
+	- Show Workout time
+
 
 Analytics:
     - Tag related Analytics
@@ -34,7 +53,9 @@ Analytics:
     - Exercise growth
     - Calendar
 
-Exercises: 
+Exercises:
+    - Record total weight
+    - Record total reps
     - Specialty Exercises
         - Burn down
         - Superset
@@ -48,3 +69,862 @@ MyPage:
     - My Exercises - Add
     - My Routines - Add
     - My Records
+
+
+
+// How to get the totalWeight, totalReps and best ORM for every excerise and
+// How to get the topTotalWeight, topTotalReps and best ORM at the exercise template level
+db.sets.aggregate([
+    // Join exercises collection and sets collection
+    {$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, 
+    // Merge the two results and set the exerciseId to the root id
+    {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}},
+    // Remove the set_exercises array of elems
+    {$project: {set_exercises: 0}}, 
+    // Group all sets under the same exercise and calc the sums and max values
+    {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, 
+    // Group the the exercises under their parent template and determine the highest value for each field
+    {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, 
+    {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},
+    // Join the exerciseTemplateId and top values to the exerciseTemplate collection
+    {$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, 
+    // Merge the results and remove the array of elems 
+    {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, 
+    {$project: {calcExTemps: 0, tagIds: 0}}])
+
+db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}},{$project: {calcExTemps: 0, tagIds: 0}}])
+db.exerciseTemplates.aggregate([{$lookup: {from: "exercises", localField: "_id", foreignField: "templateId", as: "template_exercises"}, 
+{$replaceRoot: {newRoot: {$mergeObjects: [{$arrayElemAt: ["$template_exercises", 0]}, "$$ROOT"]}}}]})
+
+
+
+2019-03-15T02:32:55.029-0700 E QUERY    [js] SyntaxError: invalid property id @(shell):1:43
+meteor:PRIMARY> db.exercises.find({startTime: {$ne: null}}, {sort: {startTime: -1}})
+Error: error: {
+	"operationTime" : Timestamp(1552642380, 1),
+	"ok" : 0,
+	"errmsg" : "Unsupported projection option: sort: { startTime: -1.0 }",
+	"code" : 2,
+	"codeName" : "BadValue",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552642380, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+}
+meteor:PRIMARY> db.exercises.find({startTime: {$ne: null}}, {$sort: {startTime: -1}})
+Error: error: {
+	"operationTime" : Timestamp(1552642500, 1),
+	"ok" : 0,
+	"errmsg" : "Unsupported projection option: $sort: { startTime: -1.0 }",
+	"code" : 2,
+	"codeName" : "BadValue",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552642500, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+}
+meteor:PRIMARY> db.exercises.find({startTime: {$ne: null}})
+{ "_id" : "oewWti5bfmikMDdMH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551160642 }
+{ "_id" : "6WFBCQtNYHcddLAvE", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551160712 }
+{ "_id" : "8G7PABujTMw4EJRWF", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551160809 }
+{ "_id" : "LB3Xm7ezryx2rLGj5", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551161212 }
+{ "_id" : "cvP8ZPgDJdxCcz2MS", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551161241 }
+{ "_id" : "8sf26ThfbkAoQzu8R", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551161891 }
+{ "_id" : "YPZ4Y5e7mRhnMXzuv", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551162118 }
+{ "_id" : "bvu7s6ni3JcPRejyu", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551162305 }
+{ "_id" : "QykWtssSagb9WtYWM", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551162361 }
+{ "_id" : "ZhPRkv6yePHo2KA83", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551162511 }
+{ "_id" : "t9qmALmouGbYxqS4T", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551162636 }
+{ "_id" : "vnveFQMvskWsoHvrB", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551162787 }
+{ "_id" : "dno9aj7efXL3E7uSe", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551162994 }
+{ "_id" : "7GY9NM9zPwJhtozjy", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551163123 }
+{ "_id" : "gj4vEBK4RAGuGKQZD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551163612 }
+{ "_id" : "8rahCAEZoQTgTtzpB", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551163716 }
+{ "_id" : "o7f5GWQCqZEyorW5q", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551163877 }
+{ "_id" : "zotcLi3haJgHGyhFb", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551163970 }
+{ "_id" : "qCtBGmkqK4hPHd4wd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164084 }
+{ "_id" : "tnLAgL5yx6gQEaymE", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551164540 }
+Type "it" for more
+meteor:PRIMARY> it
+{ "_id" : "qk5N9CPf4oSe2Mi2m", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164627 }
+{ "_id" : "gBroTC8yFB3rwxjH3", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551164822 }
+{ "_id" : "WkoERxoszyfDfDmeh", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164915 }
+{ "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 }
+{ "_id" : "jrtg9zGcvMBwfFeM4", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165339 }
+{ "_id" : "Deemns6DAJd4BXQzH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322 }
+{ "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 }
+{ "_id" : "AwoQMhh4RRtrfzTWt", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643 }
+{ "_id" : "aLTcB83bZARy4mEAp", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165645 }
+{ "_id" : "HjRDMrgvphYD776oD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870 }
+{ "_id" : "NqhYH7psX4X3AsDtK", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172 }
+{ "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 }
+{ "_id" : "vvMFk7SRZW3Cd9HPY", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300 }
+{ "_id" : "GkbCAjoJGLR8gxudL", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707 }
+{ "_id" : "8gR9zEF7EPiPxMy97", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749 }
+{ "_id" : "8hBdGbJQfsWiBt44W", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825 }
+{ "_id" : "fab2RekCfjP8SbRuN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166891 }
+{ "_id" : "98aTn7SvXui84KFLn", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551167210 }
+{ "_id" : "buZsKGywocz3vEPoN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551167280 }
+{ "_id" : "bXktJXNae6BY2qYdM", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551167430 }
+Type "it" for more
+meteor:PRIMARY> it
+{ "_id" : "hzbdDjLrA4tsAuTow", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551167480 }
+{ "_id" : "3WBAfT7ZjoiQjPmdN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551167832 }
+{ "_id" : "HRNTkN6Tcud74aRNy", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551168194 }
+{ "_id" : "uyYN5rxJCrZwxSgQM", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551168413 }
+{ "_id" : "oqaqRryXHLS2K4amw", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551168444, "endTime" : 1551168897 }
+{ "_id" : "qHPNBKZoXuYXn7L86", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551168911, "endTime" : 1551169002 }
+{ "_id" : "fwvDfQck5Sib2ap5b", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551169692, "endTime" : 1551169706 }
+{ "_id" : "GB6qga3wwxSxCDzeh", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551169758, "endTime" : 1551169773 }
+{ "_id" : "BNvogHMMRywh3mmP5", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551170155, "endTime" : 1551170178 }
+{ "_id" : "ZEjCri772Wzp5uMK8", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551172693, "endTime" : 1551172744 }
+{ "_id" : "8CC8rzunQsvFKgJsZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551179063, "endTime" : 1551179119 }
+{ "_id" : "NQ9Yy7SgCHKnxtier", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "DeXWhBq6aYqzRpqdb", "startTime" : 1551180329, "endTime" : 1551183291 }
+{ "_id" : "DosTrqM5qjzQKSetv", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551183832, "endTime" : 1551184081 }
+{ "_id" : "J87skosyLxwPjSi8y", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "y6YFGBFpAMEEvra2r", "startTime" : 1551184158, "endTime" : 1551184181 }
+{ "_id" : "gsbPTog3ecaSjWm6g", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551185489, "endTime" : 1551185501 }
+{ "_id" : "GQXMMe3hNTe3WzXCc", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551185679, "endTime" : 1551185968 }
+{ "_id" : "uFhb3xiiAtfdAhLfZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551200855160 }
+{ "_id" : "vEY5ZGkTQ9AnnoFfQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551201480807" }
+{ "_id" : "wyqsoZkDR4f32aQdJ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551251740591" }
+{ "_id" : "uMHCebnGpBSc7cGBP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551253144892", "endTime" : "1551253648536" }
+Type "it" for more
+meteor:PRIMARY> db.exercises.find({startTime: {$ne: null, $type: "string"}}, {$sort: {startTime: -1}})
+Error: error: {
+	"operationTime" : Timestamp(1552642860, 1),
+	"ok" : 0,
+	"errmsg" : "Unsupported projection option: $sort: { startTime: -1.0 }",
+	"code" : 2,
+	"codeName" : "BadValue",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552642860, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+}
+meteor:PRIMARY> db.exercises.find({"startTime" : {$type: "string"}}, {$sort: {"startTime": -1}})
+Error: error: {
+	"operationTime" : Timestamp(1552642960, 1),
+	"ok" : 0,
+	"errmsg" : "Unsupported projection option: $sort: { startTime: -1.0 }",
+	"code" : 2,
+	"codeName" : "BadValue",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552642960, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+}
+meteor:PRIMARY> db.exercises.find({"startTime" : {$type: "string"}}).sort({"startTime": -1})
+{ "_id" : "ALQSMc4rEXEGQjbnp", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "DeXWhBq6aYqzRpqdb", "startTime" : "1552640118216", "endTime" : "1552640139240" }
+{ "_id" : "7KLK7NnMBMLfwpWFc", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "DeXWhBq6aYqzRpqdb", "startTime" : "1552638890898", "endTime" : "1552638896914" }
+{ "_id" : "jW2PXQrnQj7tCey4Z", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Jms6M7G9yPh9mXion", "startTime" : "1552637800504", "endTime" : "1552638882617" }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Jms6M7G9yPh9mXion", "startTime" : "1552637757310", "endTime" : "1552637782517" }
+{ "_id" : "THohirMvtht6eQkcH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1552637581374", "endTime" : "1552637753379" }
+{ "_id" : "na5xR7FaxgtDT43tm", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "DeXWhBq6aYqzRpqdb", "startTime" : "1552636802588", "endTime" : "1552636830225" }
+{ "_id" : "8s7C4rp82LMimZL3G", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "7kRfMgveFfeZzoi99", "startTime" : "1552636788093", "endTime" : "1552636795900" }
+{ "_id" : "BcxwrjCHKTk2rxAxH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "tgHZyd2ofGXswkjrs", "startTime" : "1552636110752", "endTime" : "1552636457861" }
+{ "_id" : "iubozCu2go55R2ZWb", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "tgHZyd2ofGXswkjrs", "startTime" : "1552636028778", "endTime" : "1552636087042" }
+{ "_id" : "ZquNassJK7GfBGT8a", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1552635287983", "endTime" : "1552636026460" }
+{ "_id" : "ttzibAygD6uuECaAM", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1552634846990", "endTime" : "1552635286251" }
+{ "_id" : "iWonpNfahKQXwBgga", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : "1552633971168", "endTime" : "1552634826520" }
+{ "_id" : "2rTDpR7xvfJyAqt2u", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "PDvqE7ZYfsvK7dqai", "startTime" : "1552631351489", "endTime" : "1552631419401" }
+{ "_id" : "W3JmGxBG7AMqjid5h", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1552630523483", "endTime" : "1552631251068" }
+{ "_id" : "nkkwkLPJpRzGeupvx", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1552591818723", "endTime" : "1552591895945" }
+{ "_id" : "ikogiEm6t2K7ZKzbj", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Jms6M7G9yPh9mXion", "startTime" : "1551767603189", "endTime" : "1551767630331" }
+{ "_id" : "KMToepPnGqXrqcugQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551300622817", "endTime" : "1551767567534" }
+{ "_id" : "XLHjQwm3SP8FMcSaE", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1551281543613", "endTime" : "1551281552810" }
+{ "_id" : "9EkogZ9EFKcTwTtS7", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1551281406679", "endTime" : "1551281411059" }
+{ "_id" : "vgP7NMMuwmK2ESviP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Jms6M7G9yPh9mXion", "startTime" : "1551280810153", "endTime" : "1551280813007" }
+Type "it" for more
+meteor:PRIMARY> db.exercises.find({"startTime" : {$type: "string", $lt: "1552631351489"}}).sort({"startTime": -1})
+{ "_id" : "W3JmGxBG7AMqjid5h", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1552630523483", "endTime" : "1552631251068" }
+{ "_id" : "nkkwkLPJpRzGeupvx", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1552591818723", "endTime" : "1552591895945" }
+{ "_id" : "ikogiEm6t2K7ZKzbj", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Jms6M7G9yPh9mXion", "startTime" : "1551767603189", "endTime" : "1551767630331" }
+{ "_id" : "KMToepPnGqXrqcugQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551300622817", "endTime" : "1551767567534" }
+{ "_id" : "XLHjQwm3SP8FMcSaE", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1551281543613", "endTime" : "1551281552810" }
+{ "_id" : "9EkogZ9EFKcTwTtS7", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1551281406679", "endTime" : "1551281411059" }
+{ "_id" : "vgP7NMMuwmK2ESviP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Jms6M7G9yPh9mXion", "startTime" : "1551280810153", "endTime" : "1551280813007" }
+{ "_id" : "9sihcgHKgsmKsZzwP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "PDvqE7ZYfsvK7dqai", "startTime" : "1551280722988", "endTime" : "1551280803327" }
+{ "_id" : "wmFqixShFhq2CGnhL", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "DeXWhBq6aYqzRpqdb", "startTime" : "1551280631758", "endTime" : "1551280639677" }
+{ "_id" : "FBgk7ovwJw44LFpfP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : "1551262074637", "endTime" : "1551262081934" }
+{ "_id" : "Koiu3dC3RcPSQqexA", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1551261951561", "endTime" : "1551262009743" }
+{ "_id" : "9Xu9yie9ocyppd8Ye", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551260555077", "endTime" : "1551261926465" }
+{ "_id" : "v4DhzZJHSp4gKNRQX", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551260442306" }
+{ "_id" : "epD5uMRTXPrg8hQsH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1551253721965", "endTime" : "1551260143369" }
+{ "_id" : "uMHCebnGpBSc7cGBP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551253144892", "endTime" : "1551253648536" }
+{ "_id" : "wyqsoZkDR4f32aQdJ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551251740591" }
+{ "_id" : "vEY5ZGkTQ9AnnoFfQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : "1551201480807" }
+meteor:PRIMARY> db.exercises.find({"startTime" : {$type: "string", $lt: "1552631351489"}}).sort({"startTime": -1}).limit(1)
+{ "_id" : "W3JmGxBG7AMqjid5h", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1552630523483", "endTime" : "1552631251068" }
+meteor:PRIMARY> db.exercises.find({"startTime" : {$type: "string"}, "endTime": { $lt: "1552631351489"}}).sort({"endTime": -1}).limit(1)
+{ "_id" : "W3JmGxBG7AMqjid5h", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : "1552630523483", "endTime" : "1552631251068" }
+meteor:PRIMARY> db.exercises.aggregate([{$sortByCount: "$sets"}])
+{ "_id" : null, "count" : 530 }
+meteor:PRIMARY> db.exercises.aggregate([{},{$sortByCount: "$sets"}])
+2019-03-15T03:28:19.039-0700 E QUERY    [js] Error: command failed: {
+	"operationTime" : Timestamp(1552645691, 1),
+	"ok" : 0,
+	"errmsg" : "A pipeline stage specification object must contain exactly one field.",
+	"code" : 40323,
+	"codeName" : "Location40323",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552645691, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+} : aggregate failed :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+doassert@src/mongo/shell/assert.js:18:14
+_assertCommandWorked@src/mongo/shell/assert.js:534:17
+assert.commandWorked@src/mongo/shell/assert.js:618:16
+DB.prototype._runAggregate@src/mongo/shell/db.js:260:9
+DBCollection.prototype.aggregate@src/mongo/shell/collection.js:1056:12
+@(shell):1:1
+meteor:PRIMARY> db.exercises.aggregate([{$unwind: "$sets"},{$sortByCount: "$sets"}, {$limit: 10}])
+meteor:PRIMARY> db.exercises.aggregate([{$unwind: "$sets"},{$group: {_id: "$_id", len: {$sum: 1}}}, {$limit: 10}])
+meteor:PRIMARY> db.exercises.aggregate([{$group: {_id: "$_id", len: {$sum: 1}}}, {$limit: 10}])
+{ "_id" : "2aP5gzaWqmeq4P4zb", "len" : 1 }
+{ "_id" : "ALQSMc4rEXEGQjbnp", "len" : 1 }
+{ "_id" : "ymrfXNpKWhzwEBwss", "len" : 1 }
+{ "_id" : "MjLt9sDqiuXJYB5tj", "len" : 1 }
+{ "_id" : "hfeawo36wznE56v78", "len" : 1 }
+{ "_id" : "8s7C4rp82LMimZL3G", "len" : 1 }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "len" : 1 }
+{ "_id" : "cS2Rz9AG62vsQ6cPc", "len" : 1 }
+{ "_id" : "THohirMvtht6eQkcH", "len" : 1 }
+{ "_id" : "F7y5NK7XdK9xwgu4d", "len" : 1 }
+meteor:PRIMARY> db.exercises.aggregate([{$group: {_id: "$_id", len: {$sum: 1}}}, { {$limit: 10}])
+... }
+2019-03-15T03:37:15.826-0700 E QUERY    [js] SyntaxError: invalid property id @(shell):1:67
+meteor:PRIMARY> db.exercises.aggregate([{$group: {_id: "$_id", len: {$sum: 1}}}, {$sort: {len: -1}}, {$limit: 10}]) }
+2019-03-15T03:37:34.106-0700 E QUERY    [js] SyntaxError: expected expression, got '}' @(shell):1:98
+meteor:PRIMARY> db.exercises.aggregate([{$group: {_id: "$_id", len: {$sum: 1}}}, {$sort: {len: -1}}, {$limit: 10}])}
+2019-03-15T03:38:31.412-0700 E QUERY    [js] SyntaxError: expected expression, got '}' @(shell):1:98
+meteor:PRIMARY> db.exercises.aggregate([{$group: {_id: "$_id", len: {$sum: 1}}}, {$sort:{len: -1}}, {$limit: 10}])}
+2019-03-15T03:39:14.116-0700 E QUERY    [js] SyntaxError: expected expression, got '}' @(shell):1:97
+meteor:PRIMARY> db.exercises.aggregate([{$group: {_id: "$_id", len: {$sum: 1}}}, {$limit: 10}])}
+2019-03-15T03:39:24.022-0700 E QUERY    [js] SyntaxError: expected expression, got '}' @(shell):1:78
+meteor:PRIMARY> db.exercises.aggregate([{$group: {_id: "$_id", len: {$sum: 1}}}, {$sort:{len: -1}}, {$limit: 10}])
+{ "_id" : "8s7C4rp82LMimZL3G", "len" : 1 }
+{ "_id" : "F7y5NK7XdK9xwgu4d", "len" : 1 }
+{ "_id" : "ymrfXNpKWhzwEBwss", "len" : 1 }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "len" : 1 }
+{ "_id" : "THohirMvtht6eQkcH", "len" : 1 }
+{ "_id" : "hfeawo36wznE56v78", "len" : 1 }
+{ "_id" : "2aP5gzaWqmeq4P4zb", "len" : 1 }
+{ "_id" : "ALQSMc4rEXEGQjbnp", "len" : 1 }
+{ "_id" : "MjLt9sDqiuXJYB5tj", "len" : 1 }
+{ "_id" : "cS2Rz9AG62vsQ6cPc", "len" : 1 }
+meteor:PRIMARY> db.exercises.aggregate
+function (pipeline, aggregateOptions) {
+    if (!(pipeline instanceof Array)) {
+        // Support legacy varargs form. Also handles db.foo.aggregate().
+        pipeline = Array.from(arguments);
+        aggregateOptions = {};
+    } else if (aggregateOptions === undefined) {
+        aggregateOptions = {};
+    }
+
+    const cmdObj = this._makeCommand("aggregate", {pipeline: pipeline});
+
+    return this._db._runAggregate(cmdObj, aggregateOptions);
+}
+meteor:PRIMARY> db.exercises.aggregate([{$addFields: {set_count: {$size: { "$ifNull" : ["$sets" : [] ]}}}},  {$sort: {"set_count": 1}}])
+2019-03-15T03:52:30.660-0700 E QUERY    [js] SyntaxError: missing ] after element list @(shell):1:80
+meteor:PRIMARY> db.exercises.aggregate([{$addFields: {set_count: {$size: { "$ifNull" : ["$sets", [] ]}}}},  {$sort: {"set_count": 1}}])
+{ "_id" : "NkNMMLYK28ddrRsJc", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "kMnSQdhXS99MjF29W", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "TEAzP4Bod5sTwteL2", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "SFf2hrMHtjyF3BEfi", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "4J9orGKq3uC9ZcbuR", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "ErwYB39aDFJrZhEd3", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "rigD3kZMzXNKAi834", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "zvX4dTwSewSkGMRNq", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "n8hRsoEL2sNb2TneZ", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "HsWyARv7Hv4aHZgQ3", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "GXnofRC3gkoMnDQ9u", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "HuJtWK39JhdazXFzT", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "zuMC55BGRFxGzLZ7B", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "YoFKLj3oquW6AginD", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "ruSxuQhxTkjdmBGGc", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "ZkuN23SufEg9XfXjh", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "gcz9GxmGs4aZCjdm7", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "2qet7DtoYBu66a3Wd", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "PwCX2ZvWuunXT6EpC", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "oxEpyr4DcoYo7sRTD", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+Type "it" for more
+meteor:PRIMARY> db.exercises.aggregate([{$addFields: {set_count: {$size: { "$ifNull" : ["$sets", [] ]}}}},  {$sort: {"set_count": -1}}])
+{ "_id" : "NkNMMLYK28ddrRsJc", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "kMnSQdhXS99MjF29W", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "TEAzP4Bod5sTwteL2", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "SFf2hrMHtjyF3BEfi", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "4J9orGKq3uC9ZcbuR", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "ErwYB39aDFJrZhEd3", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "rigD3kZMzXNKAi834", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "zvX4dTwSewSkGMRNq", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "n8hRsoEL2sNb2TneZ", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "HsWyARv7Hv4aHZgQ3", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "GXnofRC3gkoMnDQ9u", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "HuJtWK39JhdazXFzT", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "zuMC55BGRFxGzLZ7B", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "YoFKLj3oquW6AginD", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "ruSxuQhxTkjdmBGGc", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "ZkuN23SufEg9XfXjh", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "gcz9GxmGs4aZCjdm7", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "2qet7DtoYBu66a3Wd", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "PwCX2ZvWuunXT6EpC", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+{ "_id" : "oxEpyr4DcoYo7sRTD", "user" : "3SAGFCw7tMrGkkkbh", "set_count" : 0 }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: exerciseId, totalWeight: {$sum: "$weight}, totalReps: $sum: "$reps"}, bestORM: {$max: "$orm"}}])
+2019-03-15T04:02:34.048-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:95
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "exerciseId", totalWeight: {$sum: "$weight}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}])
+2019-03-15T04:03:38.843-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:98
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "exerciseId", totalWeight: {$sum: "$weight}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}])
+2019-03-15T04:05:03.933-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:98
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "exerciseId", totalWeight: {$sum: "$weight}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}])
+2019-03-15T04:06:34.376-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:98
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "exerciseId", totalWeight: {$sum: "$weight}}}])
+2019-03-15T04:07:02.688-0700 E QUERY    [js] SyntaxError: unterminated string literal @(shell):1:68
+meteor:PRIMARY> db.sets.aggregate({$group :{_id: "exerciseId", totalWeight: {$sum: "$weight}}})
+2019-03-15T04:07:30.454-0700 E QUERY    [js] SyntaxError: unterminated string literal @(shell):1:67
+meteor:PRIMARY> db.sets.aggregate({$group :{_id: "exerciseId", totalWeight: {$sum: "$weight"}}})
+{ "_id" : "exerciseId", "totalWeight" : 2046 }
+meteor:PRIMARY> db.sets.aggregate({$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}}})
+{ "_id" : "ALQSMc4rEXEGQjbnp", "totalWeight" : 35 }
+{ "_id" : "7KLK7NnMBMLfwpWFc", "totalWeight" : 26 }
+{ "_id" : "jW2PXQrnQj7tCey4Z", "totalWeight" : 54 }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "totalWeight" : 54 }
+{ "_id" : "THohirMvtht6eQkcH", "totalWeight" : 38 }
+{ "_id" : "na5xR7FaxgtDT43tm", "totalWeight" : 40 }
+{ "_id" : "8s7C4rp82LMimZL3G", "totalWeight" : 3 }
+{ "_id" : "BcxwrjCHKTk2rxAxH", "totalWeight" : 32 }
+{ "_id" : "iubozCu2go55R2ZWb", "totalWeight" : 48 }
+{ "_id" : "ZquNassJK7GfBGT8a", "totalWeight" : 30 }
+{ "_id" : "ttzibAygD6uuECaAM", "totalWeight" : 23 }
+{ "_id" : "uMHCebnGpBSc7cGBP", "totalWeight" : 0 }
+{ "_id" : "2rTDpR7xvfJyAqt2u", "totalWeight" : 28 }
+{ "_id" : "nkkwkLPJpRzGeupvx", "totalWeight" : 27 }
+{ "_id" : "ikogiEm6t2K7ZKzbj", "totalWeight" : 80 }
+{ "_id" : "wmFqixShFhq2CGnhL", "totalWeight" : 0 }
+{ "_id" : "8gR9zEF7EPiPxMy97", "totalWeight" : 10 }
+{ "_id" : "FBgk7ovwJw44LFpfP", "totalWeight" : 0 }
+{ "_id" : "Koiu3dC3RcPSQqexA", "totalWeight" : 0 }
+{ "_id" : "ie9oTtyrGTSAZscQa", "totalWeight" : 24 }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: ["bestORM", "totalWeight", "totalReps"]}])
+2019-03-15T04:09:24.637-0700 E QUERY    [js] Error: command failed: {
+	"operationTime" : Timestamp(1552648164, 3),
+	"ok" : 0,
+	"errmsg" : "the $sort key specification must be an object",
+	"code" : 15973,
+	"codeName" : "Location15973",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552648164, 3),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+} : aggregate failed :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+doassert@src/mongo/shell/assert.js:18:14
+_assertCommandWorked@src/mongo/shell/assert.js:534:17
+assert.commandWorked@src/mongo/shell/assert.js:618:16
+DB.prototype._runAggregate@src/mongo/shell/db.js:260:9
+DBCollection.prototype.aggregate@src/mongo/shell/collection.js:1056:12
+@(shell):1:1
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}])
+... 
+... }
+2019-03-15T04:10:17.229-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:194
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}]) 
+{ "_id" : "exerciseId", "totalWeight" : 2046, "totalReps" : 1845, "bestORM" : 2761.2000000000003 }
+meteor:PRIMARY> db.sets.aggregate([{$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+{ "_id" : "J87skosyLxwPjSi8y", "totalWeight" : 269, "totalReps" : 347, "bestORM" : 2761.2000000000003 }
+{ "_id" : "M3jJWnRpK9ep7nNKZ", "totalWeight" : 120, "totalReps" : 30, "bestORM" : 240 }
+{ "_id" : "8CC8rzunQsvFKgJsZ", "totalWeight" : 107, "totalReps" : 182, "bestORM" : 200 }
+{ "_id" : null, "totalWeight" : 144, "totalReps" : 42, "bestORM" : 199.99999999999997 }
+{ "_id" : "GQXMMe3hNTe3WzXCc", "totalWeight" : 180, "totalReps" : 36, "bestORM" : 156 }
+{ "_id" : "3WBAfT7ZjoiQjPmdN", "totalWeight" : 90, "totalReps" : 12, "bestORM" : 125.99999999999999 }
+{ "_id" : "GB6qga3wwxSxCDzeh", "totalWeight" : 92, "totalReps" : 22, "bestORM" : 112 }
+{ "_id" : "DosTrqM5qjzQKSetv", "totalWeight" : 37, "totalReps" : 91, "bestORM" : 63.33333333333333 }
+{ "_id" : "BNvogHMMRywh3mmP5", "totalWeight" : 60, "totalReps" : 45, "bestORM" : 60 }
+{ "_id" : "iWonpNfahKQXwBgga", "totalWeight" : 86, "totalReps" : 97, "bestORM" : 52 }
+{ "_id" : "2rTDpR7xvfJyAqt2u", "totalWeight" : 28, "totalReps" : 29, "bestORM" : 28.2 }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "totalWeight" : 54, "totalReps" : 57, "bestORM" : 27.766666666666666 }
+{ "_id" : "jW2PXQrnQj7tCey4Z", "totalWeight" : 54, "totalReps" : 53, "bestORM" : 27.766666666666666 }
+{ "_id" : "HjRDMrgvphYD776oD", "totalWeight" : 20, "totalReps" : 10, "bestORM" : 26.666666666666664 }
+{ "_id" : "gsbPTog3ecaSjWm6g", "totalWeight" : 27, "totalReps" : 31, "bestORM" : 23.5 }
+{ "_id" : "iubozCu2go55R2ZWb", "totalWeight" : 48, "totalReps" : 55, "bestORM" : 23 }
+{ "_id" : "BcxwrjCHKTk2rxAxH", "totalWeight" : 32, "totalReps" : 37, "bestORM" : 23 }
+{ "_id" : "na5xRdb.sets.aggregate([{$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+{ "_id" : "J87skosyLxwPjSi8y", "totalWeight" : 269, "totalReps" : 347, "bestORM" : 2761.2000000000003 }
+{ "_id" : "M3jJWnRpK9ep7nNKZ", "totalWeight" : 120, "totalReps" : 30, "bestORM" : 240 }
+{ "_id" : "8CC8rzunQsvFKgJsZ", "totalWeight" : 107, "totalReps" : 182, "bestORM" : 200 }
+{ "_id" : null, "totalWeight" : 144, "totalReps" : 42, "bestORM" : 199.99999999999997 }
+{ "_id" : "GQXMMe3hNTe3WzXCc", "totalWeight" : 180, "totalReps" : 36, "bestORM" : 156 }
+{ "_id" : "3WBAfT7ZjoiQjPmdN", "totalWeight" : 90, "totalReps" : 12, "bestORM" : 125.99999999999999 }
+{ "_id" : "GB6qga3wwxSxCDzeh", "totalWeight" : 92, "totalReps" : 22, "bestORM" : 112 }
+{ "_id" : "DosTrqM5qjzQKSetv", "totalWeight" : 37, "totalReps" : 91, "bestORM" : 63.33333333333333 }
+{ "_id" : "BNvogHMMRywh3mmP5", "totalWeight" : 60, "totalReps" : 45, "bestORM" : 60 }
+{ "_id" : "iWonpNfahKQXwBgga", "totalWeight" : 86, "totalReps" : 97, "bestORM" : 52 }
+{ "_id" : "2rTDpR7xvfJyAqt2u", "totalWeight" : 28, "totalReps" : 29, "bestORM" : 28.2 }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "totalWeight" : 54, "totalReps" : 57, "bestORM" : 27.766666666666666 }
+{ "_id" : "jW2PXQrnQj7tCey4Z", "totalWeight" : 54, "totalReps" : 53, "bestORM" : 27.766666666666666 }
+{ "_id" : "HjRDMrgvphYD776oD", "totalWeight" : 20, "totalReps" : 10, "bestORM" : 26.666666666666664 }
+{ "_id" : "gsbPTog3ecaSjWm6g", "totalWeight" : 27, "totalReps" : 31, "bestORM" : 23.5 }
+{ "_id" : "iubozCu2go55R2ZWb", "totalWeight" : 48, "totalReps" : 55, "bestORM" : 23 }
+{ "_id" : "BcxwrjCHKTk2rxAxH", "totalWeight" : 32, "totalReps" : 37, "bestORM" : 23 }
+{ "_id" : "na5xR7FaxgtDT43tm", "totalWeight" : 40, "totalReps" : 44, "bestORM" : 21.466666666666665 }
+{ "_id" : "NQ9Yy7SgCHKnxtier", "totalWeight" : 38, "totalReps" : 41, "bestORM" : 21 }
+{ "_id" : "ZquNassJK7GfBGT8a", "totalWeight" : 30, "totalReps" : 38, "bestORM" : 18.4 }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "}},{$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+2019-03-15T04:30:08.590-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:109
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}},{$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+{ "_id" : "J87skosyLxwPjSi8y", "totalWeight" : 269, "totalReps" : 347, "bestORM" : 2761.2000000000003 }
+{ "_id" : "M3jJWnRpK9ep7nNKZ", "totalWeight" : 120, "totalReps" : 30, "bestORM" : 240 }
+{ "_id" : "8CC8rzunQsvFKgJsZ", "totalWeight" : 107, "totalReps" : 182, "bestORM" : 200 }
+{ "_id" : null, "totalWeight" : 144, "totalReps" : 42, "bestORM" : 199.99999999999997 }
+{ "_id" : "GQXMMe3hNTe3WzXCc", "totalWeight" : 180, "totalReps" : 36, "bestORM" : 156 }
+{ "_id" : "3WBAfT7ZjoiQjPmdN", "totalWeight" : 90, "totalReps" : 12, "bestORM" : 125.99999999999999 }
+{ "_id" : "GB6qga3wwxSxCDzeh", "totalWeight" : 92, "totalReps" : 22, "bestORM" : 112 }
+{ "_id" : "DosTrqM5qjzQKSetv", "totalWeight" : 37, "totalReps" : 91, "bestORM" : 63.33333333333333 }
+{ "_id" : "BNvogHMMRywh3mmP5", "totalWeight" : 60, "totalReps" : 45, "bestORM" : 60 }
+{ "_id" : "iWonpNfahKQXwBgga", "totalWeight" : 86, "totalReps" : 97, "bestORM" : 52 }
+{ "_id" : "2rTDpR7xvfJyAqt2u", "totalWeight" : 28, "totalReps" : 29, "bestORM" : 28.2 }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "totalWeight" : 54, "totalReps" : 57, "bestORM" : 27.766666666666666 }
+{ "_id" : "jW2PXQrnQj7tCey4Z", "totalWeight" : 54, "totalReps" : 53, "bestORM" : 27.766666666666666 }
+{ "_id" : "HjRDMrgvphYD776oD", "totalWeight" : 20, "totalReps" : 10, "bestORM" : 26.666666666666664 }
+{ "_id" : "gsbPTog3ecaSjWm6g", "totalWeight" : 27, "totalReps" : 31, "bestORM" : 23.5 }
+{ "_id" : "iubozCu2go55R2ZWb", "totalWeight" : 48, "totalReps" : 55, "bestORM" : 23 }
+{ "_id" : "BcxwrjCHKTk2rxAxH", "totalWeight" : 32, "totalReps" : 37, "bestORM" : 23 }
+{ "_id" : "na5xR7FaxgtDT43tm", "totalWeight" : 40, "totalReps" : 44, "bestORM" : 21.466666666666665 }
+{ "_id" : "NQ9Yy7SgCHKnxtier", "totalWeight" : 38, "totalReps" : 41, "bestORM" : 21 }
+{ "_id" : "ZquNassJK7GfBGT8a", "totalWeight" : 30, "totalReps" : 38, "bestORM" : 18.4 }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}])
+{ "_id" : "fqPS2NTqRR4nNwZxc", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 20, "orm" : 199.99999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "chsPfHysRScznTvQQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "Y2Bnqpozm9dAcziy3", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "6dwX9CjZtrBL3EYaD", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 1, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "SEreZ9Kb7r4SASeZQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 8, "orm" : 15.2, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 2, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "g9Nd695hmf3nQYe9A", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 3, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "LryuKLWHF459coDFP", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 1, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "b5qSDi6rS5GdLee8z", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 2, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "NNRk2FAaQ5ij3v9Ze", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 3, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "kduXGsRT86v8D7LQv", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "Deemns6DAJd4BXQzH", "setNumber" : 1, "set_exercises" : [ { "_id" : "Deemns6DAJd4BXQzH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322 } ] }
+{ "_id" : "7DBJ4aZpDedrpsoxo", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "AwoQMhh4RRtrfzTWt", "setNumber" : 1, "set_exercises" : [ { "_id" : "AwoQMhh4RRtrfzTWt", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643 } ] }
+{ "_id" : "fCMFFWE2mqjMWyPjZ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 20, "reps" : 10, "orm" : 26.666666666666664, "exerciseId" : "HjRDMrgvphYD776oD", "setNumber" : 1, "set_exercises" : [ { "_id" : "HjRDMrgvphYD776oD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870 } ] }
+{ "_id" : "Mij7Bo6wSsaLXMhNX", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 30, "orm" : 240, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 1, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "aKQnMDs5NsyphdBqN", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 2, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "j4h297TLgGn54eN77", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "NqhYH7psX4X3AsDtK", "setNumber" : 1, "set_exercises" : [ { "_id" : "NqhYH7psX4X3AsDtK", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172 } ] }
+{ "_id" : "Yb4ZLPBC5eRp5JCHy", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "vvMFk7SRZW3Cd9HPY", "setNumber" : 1, "set_exercises" : [ { "_id" : "vvMFk7SRZW3Cd9HPY", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300 } ] }
+{ "_id" : "wQcPfE3GYKNdR6BQ2", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "exerciseId" : "GkbCAjoJGLR8gxudL", "setNumber" : 1, "set_exercises" : [ { "_id" : "GkbCAjoJGLR8gxudL", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707 } ] }
+{ "_id" : "tYADpMxZ5Ptr4sGjq", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8gR9zEF7EPiPxMy97", "setNumber" : 1, "set_exercises" : [ { "_id" : "8gR9zEF7EPiPxMy97", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749 } ] }
+{ "_id" : "FmeSWyH2SYwprtnve", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8hBdGbJQfsWiBt44W", "setNumber" : 1, "set_exercises" : [ { "_id" : "8hBdGbJQfsWiBt44W", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825 } ] }
+{ "_id" : "e2BqX9SfE2hBSg7pM", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 11, "reps" : 13, "orm" : 15.766666666666667, "exerciseId" : "fab2RekCfjP8SbRuN", "setNumber" : 1, "set_exerc
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}])
+{ "_id" : "fqPS2NTqRR4nNwZxc", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 20, "orm" : 199.99999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "chsPfHysRScznTvQQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "Y2Bnqpozm9dAcziy3", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "6dwX9CjZtrBL3EYaD", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 1, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "SEreZ9Kb7r4SASeZQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 8, "orm" : 15.2, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 2, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "g9Nd695hmf3nQYe9A", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 3, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "LryuKLWHF459coDFP", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 1, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "b5qSDi6rS5GdLee8z", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 2, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "NNRk2FAaQ5ij3v9Ze", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 3, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "kduXGsRT86v8D7LQv", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "Deemns6DAJd4BXQzH", "setNumber" : 1, "set_exercises" : [ { "_id" : "Deemns6DAJd4BXQzH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322 } ] }
+{ "_id" : "7DBJ4aZpDedrpsoxo", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "AwoQMhh4RRtrfzTWt", "setNumber" : 1, "set_exercises" : [ { "_id" : "AwoQMhh4RRtrfzTWt", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643 } ] }
+{ "_id" : "fCMFFWE2mqjMWyPjZ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 20, "reps" : 10, "orm" : 26.666666666666664, "exerciseId" : "HjRDMrgvphYD776oD", "setNumber" : 1, "set_exercises" : [ { "_id" : "HjRDMrgvphYD776oD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870 } ] }
+{ "_id" : "Mij7Bo6wSsaLXMhNX", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 30, "orm" : 240, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 1, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "aKQnMDs5NsyphdBqN", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 2, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "j4h297TLgGn54eN77", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "NqhYH7psX4X3AsDtK", "setNumber" : 1, "set_exercises" : [ { "_id" : "NqhYH7psX4X3AsDtK", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172 } ] }
+{ "_id" : "Yb4ZLPBC5eRp5JCHy", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "vvMFk7SRZW3Cd9HPY", "setNumber" : 1, "set_exercises" : [ { "_id" : "vvMFk7SRZW3Cd9HPY", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300 } ] }
+{ "_id" : "wQcPfE3GYKNdR6BQ2", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "exerciseId" : "GkbCAjoJGLR8gxudL", "setNumber" : 1, "set_exercises" : [ { "_id" : "GkbCAjoJGLR8gxudL", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707 } ] }
+{ "_id" : "tYADpMxZ5Ptr4sGjq", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8gR9zEF7EPiPxMy97", "setNumber" : 1, "set_exercises" : [ { "_id" : "8gR9zEF7EPiPxMy97", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749 } ] }
+{ "_id" : "FmeSWyH2SYwprtnve", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8hBdGbJQfsWiBt44W", "setNumber" : 1, "set_exercises" : [ { "_id" : "8hBdGbJQfsWiBt44W", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825 } ] }
+{ "_id" : "e2BqX9SfE2hBSg7pM", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 11, "reps" : 13, "orm" : 15.766666666666667, "exerciseId" : "fab2RekCfjP8SbRuN", "setNumber" : 1, "set_exercises" : [ { "_id" : "fab2RekCfjP8SbRuN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166891 } ] }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["set_exercises", 0]}, "$$ROOT"]}}}])
+2019-03-15T04:43:02.693-0700 E QUERY    [js] Error: command failed: {
+	"operationTime" : Timestamp(1552650182, 1),
+	"ok" : 0,
+	"errmsg" : "$arrayElemAt's first argument must be an array, but is string",
+	"code" : 28689,
+	"codeName" : "Location28689",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552650182, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+} : aggregate failed :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+doassert@src/mongo/shell/assert.js:18:14
+_assertCommandWorked@src/mongo/shell/assert.js:534:17
+assert.commandWorked@src/mongo/shell/assert.js:618:16
+DB.prototype._runAggregate@src/mongo/shell/db.js:260:9
+DBCollection.prototype.aggregate@src/mongo/shell/collection.js:1056:12
+@(shell):1:1
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}])
+{ "_id" : "fqPS2NTqRR4nNwZxc", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 20, "orm" : 199.99999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "chsPfHysRScznTvQQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "Y2Bnqpozm9dAcziy3", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "6dwX9CjZtrBL3EYaD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 1, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "SEreZ9Kb7r4SASeZQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 8, "orm" : 15.2, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 2, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "g9Nd695hmf3nQYe9A", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 3, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "LryuKLWHF459coDFP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 1, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "b5qSDi6rS5GdLee8z", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 2, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "NNRk2FAaQ5ij3v9Ze", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 3, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "kduXGsRT86v8D7LQv", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "Deemns6DAJd4BXQzH", "setNumber" : 1, "set_exercises" : [ { "_id" : "Deemns6DAJd4BXQzH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322 } ] }
+{ "_id" : "7DBJ4aZpDedrpsoxo", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "AwoQMhh4RRtrfzTWt", "setNumber" : 1, "set_exercises" : [ { "_id" : "AwoQMhh4RRtrfzTWt", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643 } ] }
+{ "_id" : "fCMFFWE2mqjMWyPjZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870, "weight" : 20, "reps" : 10, "orm" : 26.666666666666664, "exerciseId" : "HjRDMrgvphYD776oD", "setNumber" : 1, "set_exercises" : [ { "_id" : "HjRDMrgvphYD776oD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870 } ] }
+{ "_id" : "Mij7Bo6wSsaLXMhNX", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 120, "reps" : 30, "orm" : 240, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 1, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "aKQnMDs5NsyphdBqN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 2, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "j4h297TLgGn54eN77", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "NqhYH7psX4X3AsDtK", "setNumber" : 1, "set_exercises" : [ { "_id" : "NqhYH7psX4X3AsDtK", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172 } ] }
+{ "_id" : "Yb4ZLPBC5eRp5JCHy", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "vvMFk7SRZW3Cd9HPY", "setNumber" : 1, "set_exercises" : [ { "_id" : "vvMFk7SRZW3Cd9HPY", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300 } ] }
+{ "_id" : "wQcPfE3GYKNdR6BQ2", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707, "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "exerciseId" : "GkbCAjoJGLR8gxudL", "setNumber" : 1, "set_exercises" : [ { "_id" : "GkbCAjoJGLR8gxudL", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707 } ] }
+{ "_id" : "tYADpMxZ5Ptr4sGjq", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8gR9zEF7EPiPxMy97", "setNumber" : 1, "set_exercises" : [ { "_id" : "8gR9zEF7EPiPxMy97", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749 } ] }
+{ "_id" : "FmeSWyH2SYwprtnve", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8hBdGbJQfsWiBt44W", "setNumber" : 1, "set_exercises" : [ { "_id" : "8hBdGbJQfsWiBt44W", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825 } ] }
+{ "_id" : "e2BqXdb.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}])
+{ "_id" : "fqPS2NTqRR4nNwZxc", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 20, "orm" : 199.99999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "chsPfHysRScznTvQQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "Y2Bnqpozm9dAcziy3", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "6dwX9CjZtrBL3EYaD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 1, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "SEreZ9Kb7r4SASeZQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 8, "orm" : 15.2, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 2, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "g9Nd695hmf3nQYe9A", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 3, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "LryuKLWHF459coDFP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 1, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "b5qSDi6rS5GdLee8z", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 2, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "NNRk2FAaQ5ij3v9Ze", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 3, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "kduXGsRT86v8D7LQv", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "Deemns6DAJd4BXQzH", "setNumber" : 1, "set_exercises" : [ { "_id" : "Deemns6DAJd4BXQzH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322 } ] }
+{ "_id" : "7DBJ4aZpDedrpsoxo", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "AwoQMhh4RRtrfzTWt", "setNumber" : 1, "set_exercises" : [ { "_id" : "AwoQMhh4RRtrfzTWt", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643 } ] }
+{ "_id" : "fCMFFWE2mqjMWyPjZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870, "weight" : 20, "reps" : 10, "orm" : 26.666666666666664, "exerciseId" : "HjRDMrgvphYD776oD", "setNumber" : 1, "set_exercises" : [ { "_id" : "HjRDMrgvphYD776oD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870 } ] }
+{ "_id" : "Mij7Bo6wSsaLXMhNX", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 120, "reps" : 30, "orm" : 240, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 1, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "aKQnMDs5NsyphdBqN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 2, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "j4h297TLgGn54eN77", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "NqhYH7psX4X3AsDtK", "setNumber" : 1, "set_exercises" : [ { "_id" : "NqhYH7psX4X3AsDtK", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172 } ] }
+{ "_id" : "Yb4ZLPBC5eRp5JCHy", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "vvMFk7SRZW3Cd9HPY", "setNumber" : 1, "set_exercises" : [ { "_id" : "vvMFk7SRZW3Cd9HPY", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300 } ] }
+{ "_id" : "wQcPfE3GYKNdR6BQ2", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707, "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "exerciseId" : "GkbCAjoJGLR8gxudL", "setNumber" : 1, "set_exercises" : [ { "_id" : "GkbCAjoJGLR8gxudL", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707 } ] }
+{ "_id" : "tYADpMxZ5Ptr4sGjq", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8gR9zEF7EPiPxMy97", "setNumber" : 1, "set_exercises" : [ { "_id" : "8gR9zEF7EPiPxMy97", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749 } ] }
+{ "_id" : "FmeSWyH2SYwprtnve", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8hBdGbJQfsWiBt44W", "setNumber" : 1, "set_exercises" : [ { "_id" : "8hBdGbJQfsWiBt44W", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825 } ] }
+{ "_id" : "e2BqX9SfE2hBSg7pM", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166891, "weight" : 11, "reps" : 13, "orm" : 15.766666666666667, "exerciseId" : "fab2RekCfjP8SbRuN", "setNumber" : 1, "set_exercises" : [ { "_id" : "fab2RekCfjP8SbRuN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166891 } ] }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$sdb.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$sdb.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}])
+{ "_id" : "fqPS2NTqRR4nNwZxc", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 20, "orm" : 199.99999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "chsPfHysRScznTvQQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "Y2Bnqpozm9dAcziy3", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "setNumber" : 1, "set_exercises" : [ ] }
+{ "_id" : "6dwX9CjZtrBL3EYaD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 1, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "SEreZ9Kb7r4SASeZQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 8, "orm" : 15.2, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 2, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "g9Nd695hmf3nQYe9A", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 3, "set_exercises" : [ { "_id" : "ie9oTtyrGTSAZscQa", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975 } ] }
+{ "_id" : "LryuKLWHF459coDFP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 1, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "b5qSDi6rS5GdLee8z", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 2, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "NNRk2FAaQ5ij3v9Ze", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 3, "set_exercises" : [ { "_id" : "oYdN3fq9yNvRAdPsd", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030 } ] }
+{ "_id" : "kduXGsRT86v8D7LQv", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "Deemns6DAJd4BXQzH", "setNumber" : 1, "set_exercises" : [ { "_id" : "Deemns6DAJd4BXQzH", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322 } ] }
+{ "_id" : "7DBJ4aZpDedrpsoxo", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "AwoQMhh4RRtrfzTWt", "setNumber" : 1, "set_exercises" : [ { "_id" : "AwoQMhh4RRtrfzTWt", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643 } ] }
+{ "_id" : "fCMFFWE2mqjMWyPjZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870, "weight" : 20, "reps" : 10, "orm" : 26.666666666666664, "exerciseId" : "HjRDMrgvphYD776oD", "setNumber" : 1, "set_exercises" : [ { "_id" : "HjRDMrgvphYD776oD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870 } ] }
+{ "_id" : "Mij7Bo6wSsaLXMhNX", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 120, "reps" : 30, "orm" : 240, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 1, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "aKQnMDs5NsyphdBqN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 2, "set_exercises" : [ { "_id" : "M3jJWnRpK9ep7nNKZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159 } ] }
+{ "_id" : "j4h297TLgGn54eN77", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "NqhYH7psX4X3AsDtK", "setNumber" : 1, "set_exercises" : [ { "_id" : "NqhYH7psX4X3AsDtK", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172 } ] }
+{ "_id" : "Yb4ZLPBC5eRp5JCHy", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "vvMFk7SRZW3Cd9HPY", "setNumber" : 1, "set_exercises" : [ { "_id" : "vvMFk7SRZW3Cd9HPY", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300 } ] }
+{ "_id" : "wQcPfE3GYKNdR6BQ2", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707, "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "exerciseId" : "GkbCAjoJGLR8gxudL", "setNumber" : 1, "set_exercises" : [ { "_id" : "GkbCAjoJGLR8gxudL", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707 } ] }
+{ "_id" : "tYADpMxZ5Ptr4sGjq", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8gR9zEF7EPiPxMy97", "setNumber" : 1, "set_exercises" : [ { "_id" : "8gR9zEF7EPiPxMy97", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749 } ] }
+{ "_id" : "FmeSWyH2SYwprtnve", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8hBdGbJQfsWiBt44W", "setNumber" : 1, "set_exercises" : [ { "_id" : "8hBdGbJQfsWiBt44W", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825 } ] }
+{ "_id" : "e2BqX9SfE2hBSg7pM", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166891, "weight" : 11, "reps" : 13, "orm" : 15.766666666666667, "exerciseId" : "fab2RekCfjP8SbRuN", "setNumber" : 1, "set_exercises" : [ { "_id" : "fab2RekCfjP8SbRuN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166891 } ] }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {"$set_exercises": 0}}])
+2019-03-15T04:45:49.635-0700 E QUERY    [js] Error: command failed: {
+	"operationTime" : Timestamp(1552650342, 1),
+	"ok" : 0,
+	"errmsg" : "Invalid $project :: caused by :: FieldPath field names may not start with '$'.",
+	"code" : 16410,
+	"codeName" : "Location16410",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552650342, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+} : aggregate failed :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+doassert@src/mongo/shell/assert.js:18:14
+_assertCommandWorked@src/mongo/shell/assert.js:534:17
+assert.commandWorked@src/mongo/shell/assert.js:618:16
+DB.prototype._runAggregate@src/mongo/shell/db.js:260:9
+DBCollection.prototype.aggregate@src/mongo/shell/collection.js:1056:12
+@(shell):1:1
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}])
+{ "_id" : "fqPS2NTqRR4nNwZxc", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 120, "reps" : 20, "orm" : 199.99999999999997, "setNumber" : 1 }
+{ "_id" : "chsPfHysRScznTvQQ", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 10, "orm" : 16, "setNumber" : 1 }
+{ "_id" : "Y2Bnqpozm9dAcziy3", "user" : "3SAGFCw7tMrGkkkbh", "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "setNumber" : 1 }
+{ "_id" : "6dwX9CjZtrBL3EYaD", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 1 }
+{ "_id" : "SEreZ9Kb7r4SASeZQ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 12, "reps" : 8, "orm" : 15.2, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 2 }
+{ "_id" : "g9Nd695hmf3nQYe9A", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551164959, "endTime" : 1551164975, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "ie9oTtyrGTSAZscQa", "setNumber" : 3 }
+{ "_id" : "LryuKLWHF459coDFP", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 1 }
+{ "_id" : "b5qSDi6rS5GdLee8z", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 2 }
+{ "_id" : "NNRk2FAaQ5ij3v9Ze", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551165020, "endTime" : 1551165030, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "oYdN3fq9yNvRAdPsd", "setNumber" : 3 }
+{ "_id" : "kduXGsRT86v8D7LQv", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165142, "endTime" : 1551165322, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "Deemns6DAJd4BXQzH", "setNumber" : 1 }
+{ "_id" : "7DBJ4aZpDedrpsoxo", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551165590, "endTime" : 1551165643, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "AwoQMhh4RRtrfzTWt", "setNumber" : 1 }
+{ "_id" : "fCMFFWE2mqjMWyPjZ", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551165870, "weight" : 20, "reps" : 10, "orm" : 26.666666666666664, "exerciseId" : "HjRDMrgvphYD776oD", "setNumber" : 1 }
+{ "_id" : "Mij7Bo6wSsaLXMhNX", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 120, "reps" : 30, "orm" : 240, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 1 }
+{ "_id" : "aKQnMDs5NsyphdBqN", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "K49GAigmK2bB8YuMp", "startTime" : 1551166121, "endTime" : 1551166159, "weight" : 0, "reps" : 0, "orm" : 0, "exerciseId" : "M3jJWnRpK9ep7nNKZ", "setNumber" : 2 }
+{ "_id" : "j4h297TLgGn54eN77", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166167, "endTime" : 1551166172, "weight" : 10, "reps" : 12, "orm" : 14, "exerciseId" : "NqhYH7psX4X3AsDtK", "setNumber" : 1 }
+{ "_id" : "Yb4ZLPBC5eRp5JCHy", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166287, "endTime" : 1551166300, "weight" : 12, "reps" : 10, "orm" : 16, "exerciseId" : "vvMFk7SRZW3Cd9HPY", "setNumber" : 1 }
+{ "_id" : "wQcPfE3GYKNdR6BQ2", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166707, "weight" : 12, "reps" : 12, "orm" : 16.799999999999997, "exerciseId" : "GkbCAjoJGLR8gxudL", "setNumber" : 1 }
+{ "_id" : "tYADpMxZ5Ptr4sGjq", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "jhwRethjsJE8SdYs7", "startTime" : 1551166749, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8gR9zEF7EPiPxMy97", "setNumber" : 1 }
+{ "_id" : "FmeSWyH2SYwprtnve", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166825, "weight" : 10, "reps" : 13, "orm" : 14.333333333333334, "exerciseId" : "8hBdGbJQfsWiBt44W", "setNumber" : 1 }
+{ "_id" : "e2BqX9SfE2hBSg7pM", "user" : "3SAGFCw7tMrGkkkbh", "templateId" : "Q7rAFXMfsJBo7Dexj", "startTime" : 1551166891, "weight" : 11, "reps" : 13, "orm" : 15.766666666666667, "exerciseId" : "fab2RekCfjP8SbRuN", "setNumber" : 1 }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+{ "_id" : "J87skosyLxwPjSi8y", "totalWeight" : 269, "totalReps" : 347, "bestORM" : 2761.2000000000003 }
+{ "_id" : "M3jJWnRpK9ep7nNKZ", "totalWeight" : 120, "totalReps" : 30, "bestORM" : 240 }
+{ "_id" : "8CC8rzunQsvFKgJsZ", "totalWeight" : 107, "totalReps" : 182, "bestORM" : 200 }
+{ "_id" : null, "totalWeight" : 144, "totalReps" : 42, "bestORM" : 199.99999999999997 }
+{ "_id" : "GQXMMe3hNTe3WzXCc", "totalWeight" : 180, "totalReps" : 36, "bestORM" : 156 }
+{ "_id" : "3WBAfT7ZjoiQjPmdN", "totalWeight" : 90, "totalReps" : 12, "bestORM" : 125.99999999999999 }
+{ "_id" : "GB6qga3wwxSxCDzeh", "totalWeight" : 92, "totalReps" : 22, "bestORM" : 112 }
+{ "_id" : "DosTrqM5qjzQKSetv", "totalWeight" : 37, "totalReps" : 91, "bestORM" : 63.33333333333333 }
+{ "_id" : "BNvogHMMRywh3mmP5", "totalWeight" : 60, "totalReps" : 45, "bestORM" : 60 }
+{ "_id" : "iWonpNfahKQXwBgga", "totalWeight" : 86, "totalReps" : 97, "bestORM" : 52 }
+{ "_id" : "2rTDpR7xvfJyAqt2u", "totalWeight" : 28, "totalReps" : 29, "bestORM" : 28.2 }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "totalWeight" : 54, "totalReps" : 57, "bestORM" : 27.766666666666666 }
+{ "_id" : "jW2PXQrnQj7tCey4Z", "totalWeight" : 54, "totalReps" : 53, "bestORM" : 27.766666666666666 }
+{ "_id" : "HjRDMrgvphYD776oD", "totalWeight" : 20, "totalReps" : 10, "bestORM" : 26.666666666666664 }
+{ "_id" : "gsbPTog3ecaSjWm6g", "totalWeight" : 27, "totalReps" : 31, "bestORM" : 23.5 }
+{ "_id" : "iubozCu2go55R2ZWb", "totalWeight" : 48, "totalReps" : 55, "bestORM" : 23 }
+{ "_id" : "BcxwrjCHKTk2rxAxH", "totalWeight" : 32, "totalReps" : 37, "bestORM" : 23 }
+{ "_id" : "na5xR7FaxgtDT43tm", "totalWeight" : 40, "totalReps" : 44, "bestORM" : 21.466666666666665 }
+{ "_id" : "NQ9Yy7SgCHKnxtier", "totalWeight" : 38, "totalReps" : 41, "bestORM" : 21 }
+{ "_id" : "ZquNassJK7GfBGT8a", "totalWeight" : 30, "totalReps" : 38, "bestORM" : 18.4 }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", templateId: "$templateId",totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+2019-03-15T04:50:49.321-0700 E QUERY    [js] Error: command failed: {
+	"operationTime" : Timestamp(1552650642, 1),
+	"ok" : 0,
+	"errmsg" : "The field 'templateId' must be an accumulator object",
+	"code" : 40234,
+	"codeName" : "Location40234",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552650642, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+} : aggregate failed :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+doassert@src/mongo/shell/assert.js:18:14
+_assertCommandWorked@src/mongo/shell/assert.js:534:17
+assert.commandWorked@src/mongo/shell/assert.js:618:16
+DB.prototype._runAggregate@src/mongo/shell/db.js:260:9
+DBCollection.prototype.aggregate@src/mongo/shell/collection.js:1056:12
+@(shell):1:1
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", templateId: "$templateId",totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+2019-03-15T05:02:50.847-0700 E QUERY    [js] Error: command failed: {
+	"operationTime" : Timestamp(1552651362, 1),
+	"ok" : 0,
+	"errmsg" : "The field 'templateId' must be an accumulator object",
+	"code" : 40234,
+	"codeName" : "Location40234",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552651362, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+} : aggregate failed :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+doassert@src/mongo/shell/assert.js:18:14
+_assertCommandWorked@src/mongo/shell/assert.js:534:17
+assert.commandWorked@src/mongo/shell/assert.js:618:16
+DB.prototype._runAggregate@src/mongo/shell/db.js:260:9
+DBCollection.prototype.aggregate@src/mongo/shell/collection.js:1056:12
+@(shell):1:1
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", "tempId": {$first:"$templateId}, "$totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+... 
+... }
+2019-03-15T05:06:13.957-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:315
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", "$tempId": {$first:"$templateId}, "$totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+... }
+2019-03-15T05:07:29.542-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:316
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, "$tempId": {$first:"$templateId"},}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+2019-03-15T05:08:23.970-0700 E QUERY    [js] Error: command failed: {
+	"operationTime" : Timestamp(1552651702, 1),
+	"ok" : 0,
+	"errmsg" : "The field name '$tempId' cannot be an operator name",
+	"code" : 40236,
+	"codeName" : "Location40236",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1552651702, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	}
+} : aggregate failed :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+doassert@src/mongo/shell/assert.js:18:14
+_assertCommandWorked@src/mongo/shell/assert.js:534:17
+assert.commandWorked@src/mongo/shell/assert.js:618:16
+DB.prototype._runAggregate@src/mongo/shell/db.js:260:9
+DBCollection.prototype.aggregate@src/mongo/shell/collection.js:1056:12
+@(shell):1:1
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$sort: {"bestORM": -1, "totalWeight": -1, "totalReps": -1}}])
+{ "_id" : "J87skosyLxwPjSi8y", "totalWeight" : 269, "totalReps" : 347, "bestORM" : 2761.2000000000003, "templateId" : "y6YFGBFpAMEEvra2r" }
+{ "_id" : "M3jJWnRpK9ep7nNKZ", "totalWeight" : 120, "totalReps" : 30, "bestORM" : 240, "templateId" : "K49GAigmK2bB8YuMp" }
+{ "_id" : "8CC8rzunQsvFKgJsZ", "totalWeight" : 107, "totalReps" : 182, "bestORM" : 200, "templateId" : "jhwRethjsJE8SdYs7" }
+{ "_id" : null, "totalWeight" : 144, "totalReps" : 42, "bestORM" : 199.99999999999997, "templateId" : null }
+{ "_id" : "GQXMMe3hNTe3WzXCc", "totalWeight" : 180, "totalReps" : 36, "bestORM" : 156, "templateId" : "jhwRethjsJE8SdYs7" }
+{ "_id" : "3WBAfT7ZjoiQjPmdN", "totalWeight" : 90, "totalReps" : 12, "bestORM" : 125.99999999999999, "templateId" : "Q7rAFXMfsJBo7Dexj" }
+{ "_id" : "GB6qga3wwxSxCDzeh", "totalWeight" : 92, "totalReps" : 22, "bestORM" : 112, "templateId" : "Q7rAFXMfsJBo7Dexj" }
+{ "_id" : "DosTrqM5qjzQKSetv", "totalWeight" : 37, "totalReps" : 91, "bestORM" : 63.33333333333333, "templateId" : "Q7rAFXMfsJBo7Dexj" }
+{ "_id" : "BNvogHMMRywh3mmP5", "totalWeight" : 60, "totalReps" : 45, "bestORM" : 60, "templateId" : "Q7rAFXMfsJBo7Dexj" }
+{ "_id" : "iWonpNfahKQXwBgga", "totalWeight" : 86, "totalReps" : 97, "bestORM" : 52, "templateId" : "K49GAigmK2bB8YuMp" }
+{ "_id" : "2rTDpR7xvfJyAqt2u", "totalWeight" : 28, "totalReps" : 29, "bestORM" : 28.2, "templateId" : "PDvqE7ZYfsvK7dqai" }
+{ "_id" : "5YNxPp4AKmwKK8bPy", "totalWeight" : 54, "totalReps" : 57, "bestORM" : 27.766666666666666, "templateId" : "Jms6M7G9yPh9mXion" }
+{ "_id" : "jW2PXQrnQj7tCey4Z", "totalWeight" : 54, "totalReps" : 53, "bestORM" : 27.766666666666666, "templateId" : "Jms6M7G9yPh9mXion" }
+{ "_id" : "HjRDMrgvphYD776oD", "totalWeight" : 20, "totalReps" : 10, "bestORM" : 26.666666666666664, "templateId" : "jhwRethjsJE8SdYs7" }
+{ "_id" : "gsbPTog3ecaSjWm6g", "totalWeight" : 27, "totalReps" : 31, "bestORM" : 23.5, "templateId" : "jhwRethjsJE8SdYs7" }
+{ "_id" : "iubozCu2go55R2ZWb", "totalWeight" : 48, "totalReps" : 55, "bestORM" : 23, "templateId" : "tgHZyd2ofGXswkjrs" }
+{ "_id" : "BcxwrjCHKTk2rxAxH", "totalWeight" : 32, "totalReps" : 37, "bestORM" : 23, "templateId" : "tgHZyd2ofGXswkjrs" }
+{ "_id" : "na5xR7FaxgtDT43tm", "totalWeight" : 40, "totalReps" : 44, "bestORM" : 21.466666666666665, "templateId" : "DeXWhBq6aYqzRpqdb" }
+{ "_id" : "NQ9Yy7SgCHKnxtier", "totalWeight" : 38, "totalReps" : 41, "bestORM" : 21, "templateId" : "DeXWhBq6aYqzRpqdb" }
+{ "_id" : "ZquNassJK7GfBGT8a", "totalWeight" : 30, "totalReps" : 38, "bestORM" : 18.4, "templateId" : "jhwRethjsJE8SdYs7" }
+Type "it" for more
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}}])
+... }
+2019-03-15T05:11:58.036-0700 E QUERY    [js] SyntaxError: invalid property id @(shell):1:530
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplate, localField: "_id", foreignField: "_id", as: calcExTemps}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}], "$$ROOT"}}}])
+2019-03-15T05:23:59.824-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:636
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplate, localField: "_id", foreignField: "_id", as: calcExTemps}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}])
+2019-03-15T05:24:56.023-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:636
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplate, localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}])
+2019-03-15T05:26:29.884-0700 E QUERY    [js] SyntaxError: missing } after property list @(shell):1:636
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplate", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003, "calcExTemps" : [ ] }
+{ "_id" : "K49GAigmK2bB8YuMp", "topWeight" : 120, "topReps" : 97, "topORM" : 240, "calcExTemps" : [ ] }
+{ "_id" : "jhwRethjsJE8SdYs7", "topWeight" : 180, "topReps" : 182, "topORM" : 200, "calcExTemps" : [ ] }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997, "calcExTemps" : [ ] }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999, "calcExTemps" : [ ] }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2, "calcExTemps" : [ ] }
+{ "_id" : "Jms6M7G9yPh9mXion", "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666, "calcExTemps" : [ ] }
+{ "_id" : "tgHZyd2ofGXswkjrs", "topWeight" : 48, "topReps" : 55, "topORM" : 23, "calcExTemps" : [ ] }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665, "calcExTemps" : [ ] }
+{ "_id" : "7kRfMgveFfeZzoi99", "topWeight" : 3, "topReps" : 0, "topORM" : 3, "calcExTemps" : [ ] }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ ], "routineTemplateIds" : [ ], "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003, "calcExTemps" : [ { "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ ], "routineTemplateIds" : [ ] } ] }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "T8etedw6aQbyTMugw", "isW2Nci588wsCC7bc", "KTNNM8zQznCwrkEvh" ], "topWeight" : 120, "topReps" : 97, "topORM" : 240, "calcExTemps" : [ { "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "T8etedw6aQbyTMugw", "isW2Nci588wsCC7bc", "KTNNM8zQznCwrkEvh" ] } ] }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ ], "topWeight" : 180, "topReps" : 182, "topORM" : 200, "calcExTemps" : [ { "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ ] } ] }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997, "calcExTemps" : [ ] }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "tagIds" : [ "3xyqckaNeYXPcJiEo", "7FzyW7EuWC8yYpr64", "LJpnNgci8qLcBXGYR", "T8etedw6aQbyTMugw", "Y22szDeBSfTiEaxHB", "oNeHhEeBMsmreDi7w", "yjW69KbpEaynjPyQM", "JitJ2Q6DrKuWyaaBY" ], "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999, "calcExTemps" : [ { "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "tagIds" : [ "3xyqckaNeYXPcJiEo", "7FzyW7EuWC8yYpr64", "LJpnNgci8qLcBXGYR", "T8etedw6aQbyTMugw", "Y22szDeBSfTiEaxHB", "oNeHhEeBMsmreDi7w", "yjW69KbpEaynjPyQM", "JitJ2Q6DrKuWyaaBY" ] } ] }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "rpJJJnD5szJqY9B7K", "isW2Nci588wsCC7bc", "KTNNM8zQznCwrkEvh", "T8etedw6aQbyTMugw" ], "topWeight" : 28, "topReps" : 29, "topORM" : 28.2, "calcExTemps" : [ { "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "rpJJJnD5szJqY9B7K", "isW2Nci588wsCC7bc", "KTNNM8zQznCwrkEvh", "T8etedw6aQbyTMugw" ] } ] }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "tagIds" : [ "KTNNM8zQznCwrkEvh", "T8etedw6aQbyTMugw", "ZAduSRZPNAeGMfcEB" ], "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666, "calcExTemps" : [ { "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "tagIds" : [ "KTNNM8zQznCwrkEvh", "T8etedw6aQbyTMugw", "ZAduSRZPNAeGMfcEB" ] } ] }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "KTNNM8zQznCwrkEvh", "f8pFWx4E5QAwfHmea", "m3hwFMubnfewyombG" ], "topWeight" : 48, "topReps" : 55, "topORM" : 23, "calcExTemps" : [ { "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "KTNNM8zQznCwrkEvh", "f8pFWx4E5QAwfHmea", "m3hwFMubnfewyombG" ] } ] }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665, "calcExTemps" : [ { "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ] } ] }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "T8etedw6aQbyTMugw", "rpJJJnD5szJqY9B7K", "KTNNM8zQznCwrkEvh" ], "topWeight" : 3, "topReps" : 0, "topORM" : 3, "calcExTemps" : [ { "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "T8etedw6aQbyTMugw", "rpJJJnD5szJqY9B7K", "KTNNM8zQznCwrkEvh" ] } ] }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, {$project: {calcExTemps: 0}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ ], "routineTemplateIds" : [ ], "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "T8etedw6aQbyTMugw", "isW2Nci588wsCC7bc", "KTNNM8zQznCwrkEvh" ], "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ ], "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "tagIds" : [ "3xyqckaNeYXPcJiEo", "7FzyW7EuWC8yYpr64", "LJpnNgci8qLcBXGYR", "T8etedw6aQbyTMugw", "Y22szDeBSfTiEaxHB", "oNeHhEeBMsmreDi7w", "yjW69KbpEaynjPyQM", "JitJ2Q6DrKuWyaaBY" ], "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "rpJJJnD5szJqY9B7K", "isW2Nci588wsCC7bc", "KTNNM8zQznCwrkEvh", "T8etedw6aQbyTMugw" ], "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "tagIds" : [ "KTNNM8zQznCwrkEvh", "T8etedw6aQbyTMugw", "ZAduSRZPNAeGMfcEB" ], "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "KTNNM8zQznCwrkEvh", "f8pFWx4E5QAwfHmea", "m3hwFMubnfewyombG" ], "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "tagIds" : [ "T8etedw6aQbyTMugw", "rpJJJnD5szJqY9B7K", "KTNNM8zQznCwrkEvh" ], "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, {$project: {calcExTemps: 0, tagIds: 0}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ ], "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ ], "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> DBQuery.prototype._prettyShell = true
+true
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, {$project: {calcExTemps: 0, tagIds: 0}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ ], "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ ], "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "createdBy" : "3SAGFCw7tMrGkkkbh", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "createdBy" : "3SAGFCw7tMrGkkkbh", "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, {$project: {calcExTemps: 0, tagIds: 0, createdBy: 0}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "routineTemplateIds" : [ ], "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "routineTemplateIds" : [ ], "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, {$project: {calcExTemps: 0, tagIds: 0, createdBy: 0, routineTemplates: 0}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "routineTemplateIds" : [ ], "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "routineTemplateIds" : [ ], "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, {$project: {calcExTemps: 0, tagIds: 0, createdBy: 0, routineTemplateIfs: 0}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "routineTemplateIds" : [ ], "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar","routineTemplateIds" : [ ], "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "gPKdT74FC8W57JT42", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "routineTemplateIds" : [ "3WcBpDPGcMiPmeDNF", "vAjEGPpcsW9EdznXg", "AZ4eobsoiSd2Xi7AZ" ], "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> db.sets.aggregate([{$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}}, {$project: {set_exercises: 0}}, {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, bestORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}}, {$group: {_id: "$templateId", topWeight: {$max: "$totalWeight"}, topReps: {$max: "$totalReps"}, topORM: {$max: "$bestORM"}}}, {$sort: {"topORM": -1, "topWeight": -1, "topReps": -1}},{$lookup: {from: "exerciseTemplates", localField: "_id", foreignField: "_id", as: "calcExTemps"}}, {$replaceRoot: { newRoot: {$mergeObjects: [{$arrayElemAt: ["$calcExTemps", 0]}, "$$ROOT"]}}}, {$project: {calcExTemps: 0, tagIds: 0, createdBy: 0, routineTemplateIds: 0}}])
+{ "_id" : "y6YFGBFpAMEEvra2r", "name" : "New", "topWeight" : 269, "topReps" : 347, "topORM" : 2761.2000000000003 }
+{ "_id" : "K49GAigmK2bB8YuMp", "name" : "Smith Rows", "topWeight" : 120, "topReps" : 97, "topORM" : 240 }
+{ "_id" : "jhwRethjsJE8SdYs7", "name" : "T-Bar", "topWeight" : 180, "topReps" : 182, "topORM" : 200 }
+{ "_id" : null, "topWeight" : 144, "topReps" : 42, "topORM" : 199.99999999999997 }
+{ "_id" : "Q7rAFXMfsJBo7Dexj", "name" : "Pull-ups", "topWeight" : 92, "topReps" : 91, "topORM" : 125.99999999999999 }
+{ "_id" : "PDvqE7ZYfsvK7dqai", "name" : "Triangle Pull Downs", "topWeight" : 28, "topReps" : 29, "topORM" : 28.2 }
+{ "_id" : "Jms6M7G9yPh9mXion", "name" : "Lateral Pull-Down", "topWeight" : 80, "topReps" : 80, "topORM" : 27.766666666666666 }
+{ "_id" : "tgHZyd2ofGXswkjrs", "name" : "Sevens", "topWeight" : 48, "topReps" : 55, "topORM" : 23 }
+{ "_id" : "DeXWhBq6aYqzRpqdb", "name" : "Cable Rows", "topWeight" : 40, "topReps" : 44, "topORM" : 21.466666666666665 }
+{ "_id" : "7kRfMgveFfeZzoi99", "name" : "Under-Hand Pull Downs", "topWeight" : 3, "topReps" : 0, "topORM" : 3 }
+meteor:PRIMARY> quit()

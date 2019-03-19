@@ -6,6 +6,7 @@ import gql from "graphql-tag";
 import { Query } from 'react-apollo';
 import { graphql, compose } from 'react-apollo';
 import AddCircle from '@material-ui/icons/AddCircle';
+import AddExerciseTemplate from './AddExerciseTemplate';
 
 const createSet = gql`
     mutation createSet($weight: Float!, $reps: Int!, $setNumber: Int!, $exerciseId: String!) {
@@ -61,6 +62,14 @@ const endExercise = gql`
     }
 `;
 
+const addExercise = gql`
+    mutation addExercise($_id: String!, $exerciseTemplateId: String!){
+        addExercise(_id: $_id, exerciseTemplateId: $exerciseTemplateId){
+            _id
+        }
+    }
+`
+
 const routineQuery = gql`
   query routine($_id: String!) {
     routine(_id: $_id) {
@@ -78,6 +87,31 @@ const routineQuery = gql`
           orm
           setNumber
         }
+        exerciseStats{
+            totalWeight
+            totalReps
+            topORM
+        }
+        exerciseTemplate{
+            topExerciseStats{
+                totalWeight
+                totalReps
+                topORM
+            }
+        }
+        previousExercise {
+            exerciseStats {
+                totalWeight
+                totalReps
+                topORM
+            }
+            sets {
+                setNumber,
+                weight,
+                reps,
+                orm
+            }
+        }
       }
     }
   }
@@ -91,6 +125,7 @@ class Workout extends React.Component {
             selectRoutineModal: false,
             activeExercise: null,
             finishedExercises: [],
+            addExerciseModal: false
         }
     }
 
@@ -113,6 +148,11 @@ class Workout extends React.Component {
                             weight: 0,
                             reps: 0,
                             setNumber: 1
+                        }
+                    } else if (exercise.previousExercise && exercise.previousExercise.sets.length > exercise.sets.length){
+                        activeExercise = {
+                            _id: exercise._id,
+                            ...exercise.previousExercise.sets[exercise.sets.length]
                         }
                     } else {
                         activeExercise = {
@@ -166,21 +206,30 @@ class Workout extends React.Component {
         })
     }
     
-    startExercise = (_id) => (e) => {
+    startExercise = (_id, previousExercise = null) => (e) => {
         e.preventDefault();
         this.props.startExercise({
             variables: {
                 _id
             }
         }).then(({data}) => {
-            this.setState({
-                activeExercise: {
-                    _id,
-                    weight: 0,
-                    reps: 0,
-                    setNumber: 1,
-                }
-            })
+            if (previousExercise && previousExercise.sets.length > 0){
+                this.setState({
+                    activeExercise: {
+                        _id,
+                        ...previousExercise.sets[0]
+                    }
+                })
+            } else {
+                this.setState({
+                    activeExercise: {
+                        _id,
+                        weight: 0,
+                        reps: 0,
+                        setNumber: 1,
+                    }
+                })
+            }
         }).catch((error) => {
             console.log('startExercise', error)
         })
@@ -205,6 +254,12 @@ class Workout extends React.Component {
             }
         }).then(({data}) => {
             console.log('deleteSet', data)
+            this.setState((prevState) => ({
+                activeExercise: {
+                    ...prevState.activeExercise,
+                    setNumber: prevState.activeExercise.setNumber - 1
+                }
+            }))
             refetch();
         }).catch((error) => {
             console.log('deleteSet', error)
@@ -245,7 +300,7 @@ class Workout extends React.Component {
         })
     }
 
-    addSet = (refetch) => (e) => {
+    addSet = (refetch, previousExercise = null) => (e) => {
         e.preventDefault();
         const {weight, reps, setNumber} = this.state.activeExercise;
         this.props.createSet({
@@ -256,15 +311,24 @@ class Workout extends React.Component {
                 exerciseId: this.state.activeExercise._id
             }
         }).then(({data}) => {
-            this.setState((prevState) => ({
-                activeExercise: {
-                    _id: prevState.activeExercise._id,
-                    weight,
-                    reps,
-                    setNumber: prevState.activeExercise.setNumber + 1,
-                },
-                newSet: true
-            }))
+            // console.log('previousExercise', previousExercise, previousExercise.sets.length > setNumber, previousExercise.sets[setNumber] )
+            if (previousExercise && previousExercise.sets.length > setNumber){
+                this.setState((prevState) => ({
+                    activeExercise: {
+                        _id: prevState.activeExercise._id,
+                        ...previousExercise.sets[setNumber]
+                    }
+                }))
+            } else {
+                this.setState((prevState) => ({
+                    activeExercise: {
+                        _id: prevState.activeExercise._id,
+                        weight,
+                        reps,
+                        setNumber: prevState.activeExercise.setNumber + 1,
+                    }
+                }))
+            }
             refetch();
         }).catch((error) => {
             console.log('createSet', error);
@@ -317,9 +381,29 @@ class Workout extends React.Component {
         })
     }
 
+    toggleAddExercise = (e) => {
+        e.preventDefault();
+        this.setState((prevState) => ({addExerciseModal: !prevState.addExerciseModal}))
+    }
+
+    addExercise = (refetch) => (exerciseTemplate) => (e) => {
+        e.preventDefault();
+        this.props.addExercise({
+            variables: {
+                _id: this.state.routine._id,
+                exerciseTemplateId: exerciseTemplate._id
+            }
+        }).then(({data}) => {
+            refetch();
+            this.setState({addExerciseModal: false})
+        }).catch((error) => {
+            console.log('addExercise', error)
+        })
+    }
+
     render(){
-        const {routine, activeExercise, finishedExercises, selectRoutineModal, newSet} = this.state;
-        const {routineTemplates, routines, loading, ...data} = this.props;
+        const {routine, activeExercise, finishedExercises, selectRoutineModal, addExerciseModal} = this.state;
+        const {routineTemplates, exerciseTemplates, routines, loading, ...data} = this.props;
         console.log(data);
         if (loading) return <div>Loading...</div>
         return (
@@ -346,7 +430,13 @@ class Workout extends React.Component {
                             if (error) return <div>{error}</div>;
                             return (
                                 <React.Fragment>
-                                    <h1>{routine.name}</h1>
+                                    <div className="section-title">
+                                        <h1>{routine.name}</h1>
+                                        <button onClick={this.toggleAddExercise} className="button button--link-text">
+                                            <AddCircle className="icon"/>
+                                            Add Exercise
+                                        </button>
+                                    </div>
                                     <Exercises
                                         exercises={data.routine.exercises}
                                         startExercise={this.startExercise}
@@ -365,6 +455,13 @@ class Workout extends React.Component {
                                             <button onClick={this.finishWorkout} type="submit" className="button button--margin-top">Finish Workout</button>
                                         </form>
                                     }
+                                    {addExerciseModal &&
+                                        <AddExerciseTemplate 
+                                            exerciseTemplates={exerciseTemplates}
+                                            closeAddExerciseTemplateModal={this.toggleAddExercise}
+                                            selectExerciseTemplate={this.addExercise(refetch)}
+                                        />
+                                    }
                                 </React.Fragment>
                             )
                         }}
@@ -376,7 +473,6 @@ class Workout extends React.Component {
                         closeSelectRoutineModal={this.closeSelectRoutineModal}
                         selectRoutine={this.selectRoutine}
                     />
-
                 }
             </React.Fragment>
         )
@@ -385,9 +481,12 @@ class Workout extends React.Component {
 
 export default compose(
 graphql(createSet, {
-        name: "createSet"
+    name: "createSet"
 }), graphql(createRoutine, {
-    name: "createRoutine"
+    name: "createRoutine",
+    options: {
+        refetchQueries: ['getMostRecentRoutine']
+    }
 }), 
 graphql(startExercise, {
     name: "startExercise"
@@ -403,6 +502,12 @@ graphql(endRoutine, {
     name: 'endRoutine',
     options: {
         refetchQueries: ['getMostRecentRoutine' , 'Routines']
+    }
+}),
+graphql(addExercise, {
+    name: "addExercise", 
+    options: {
+        refetchQueries: ['Routines']
     }
 })
 )(Workout);

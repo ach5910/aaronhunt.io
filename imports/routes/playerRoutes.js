@@ -2,10 +2,12 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { Switch, Router, Route } from 'react-router-dom';
 import Signup from '../ui/Signup';
-import Dashboard from '../ui/workout/WorkoutDashBoard';
+// import Dashboard from '../ui/workout/WorkoutDashBoard';
 import EmbeddedPlayer from '../ui/workout/EmbeddedPlayer';
+import FullPlayer from '../ui/workout/FullPlayer';
 import NotFound from '../ui/NotFound';
 import Login from '../ui/Login';
+import DemoExample from '../ui/workout/DemoExample';
 
 const unauthenticatedPages = ['/', '/signup'];
 const authenticatedPages = ['/dashboard'];
@@ -50,13 +52,15 @@ export default class Routes extends React.Component{
   // };
 
   render(){
-    // if (Meteor.userId() == "T2B4hnfHKARehAyWA" || Meteor.userId() == "3SAGFCw7tMrGkkkbh") return <EmbeddedPlayer/>;
+    if (Meteor.userId() != "T2B4hnfHKARehAyWA" && Meteor.userId() != "3SAGFCw7tMrGkkkbh") return <div>Error</div>;
     return (
       <Router history={this.props.history}>
         <Switch >
           <Route path="/" exact component={Login} onEnter={this.onEnterPublicPage}/>
           <Route path="/signup" exact component={Signup} onEnter={this.onEnterPublicPage}/>
-          <Route path="/dashboard" exact component={Dashboard} onEnter={this.onEnterPrivatePage}/>
+          <Route path="/inline" exact component={EmbeddedPlayer} onEnter={this.onEnterPrivatePage}/>
+          <Route path="/demo" exact component={DemoExample} onEnter={this.onEnterPrivatePage}/>
+          <Route path="/full" exact component={FullPlayer} onEnter={this.onEnterPrivatePage} />
           {/* <Route path="*" component={NotFound}/> */}
         </Switch>
       </Router>

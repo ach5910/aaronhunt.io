@@ -41,7 +41,7 @@ const clientConfig = (env) => {
     new webpack.HotModuleReplacementPlugin()
   ],
   resolve: {
-    extensions: ['.js', '.jsx', '.graphql']
+    extensions: ['.js', '.jsx', '.graphql', '.png', '.svg']
   },
   externals: [
     meteorExternals()

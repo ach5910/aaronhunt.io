@@ -1,8 +1,15 @@
+type TopExerciseStats {
+    _id: String!
+    totalWeight: Float
+    totalReps: Int
+    topORM: Float
+}
 type ExerciseTemplate {
     _id: String!
     createBy: String!
     name: String!
     exercises: Exercise
+    topExerciseStats: TopExerciseStats
     tags: [Tag]
 }
 

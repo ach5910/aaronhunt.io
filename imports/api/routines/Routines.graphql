@@ -17,4 +17,5 @@ extend type Mutation {
     createRoutine(templateId: String!, exerciseTemplateIds: [String]): Routine
     startRoutine(_id: String!): Routine
     endRoutine(_id: String!): Routine
+    addExercise(_id: String!, exerciseTemplateId: String!): Routine
 }

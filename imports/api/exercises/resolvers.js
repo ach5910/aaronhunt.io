@@ -7,6 +7,9 @@ export default {
     Query: {
         exercises(obj, args, { userId }){
             return Exercises.find({user: userId}).fetch()
+        },
+        exercise(obj, {_id}, {userId}){
+            return Exercises.findOne(_id)
         }
     },
     Exercise: {
@@ -16,6 +19,32 @@ export default {
         name: (exercise) => {
             const exerciseTemplate = ExerciseTemplates.findOne(exercise.templateId);
             return exerciseTemplate.name;
+        },
+        previousExercise: (exercise) => {
+            return Exercises.find({templateId: exercise.templateId, user: exercise.user, endTime: {$type: "string"}, endTime: {$lt: exercise.startTime}}, {sort: {endTime: -1}}).fetch()[0]
+            // const pipeline = [
+            //     {$match: { templateId: exercise.templateId , user: exercise.user}},
+            //     {$sort: { endTime: -1}},
+            //     {$limit: 1},
+            //     ];
+            // return Exercises.aggregate(pipeline);
+        },
+        exerciseTemplate: (exercise) => {
+            return ExerciseTemplates.findOne(exercise.templateId)
+        },
+        exerciseStats: (exercise) => {
+            const result = Sets.aggregate([
+                {$match: { exerciseId: exercise._id}},
+                {$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, 
+                {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}},
+                {$project: {set_exercises: 0}}, 
+                {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, topORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}},
+                {$project: {calcExTemps: 0, tagIds: 0, name: 0, createdBy: 0, routineTemplateIds: 0}}
+            ])
+            if (result.length === 0){
+                return {totalWeight: 0, totalReps: 0, topORM: 0}
+            }
+            return result[0];
         }
     },
     Mutation: {

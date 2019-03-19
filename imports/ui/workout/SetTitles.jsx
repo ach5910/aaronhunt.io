@@ -1,10 +1,11 @@
 import React from 'react';
 
 const SetTitles = () => (
-    <div className="exercise--set">
-        <div className='exercise--weight'><h3>Weight</h3></div>
-        <div className="exercise--reps"><h3>Reps</h3></div>
-        <div className="exercise--orm"><h3>1RM</h3></div>
+    <div className="exercise--set exercise--set__header">
+        <h3 className="exercise--title">Set</h3>
+        <h3 className='exercise--weight'>Weight</h3>
+        <h3 className="exercise--reps">Reps</h3>
+        <h3 className="exercise--orm">1RM</h3>
     </div>
 )
 

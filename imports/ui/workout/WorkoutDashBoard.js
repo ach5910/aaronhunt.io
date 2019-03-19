@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from "graphql-tag";
-import { graphql, withApollo, compose } from "react-apollo";
+import { graphql, withApollo, compose, Query } from "react-apollo";
 import ExerciseTemplates from './ExerciseTemplates';
 import RoutineTemplates from './RoutineTemplates';
 import PrivateHeader from './PrivateHeader';
@@ -8,6 +8,37 @@ import Workout from './Workout';
 import {
   WORKOUT_PAGE, ROUTINES_PAGE, EXERCISES_PAGE
 } from '../../startup/client/constants';
+
+const getMostRecentRoutine = gql`
+    query getMostRecentRoutine{
+        getMostRecentRoutine{
+            _id
+            name
+            startTime
+            endTime
+            exercises{
+                _id
+                startTime
+                endTime
+                sets{
+                    _id
+                    weight
+                    reps
+                    setNumber
+                }
+                previousExercise {
+                  sets{
+                    weight,
+                    reps,
+                    setNumber,
+                    orm
+                  }
+                }
+            }
+        }
+    }
+`;
+
 
 class Dashboard extends React.Component{
   constructor(props){
@@ -23,7 +54,7 @@ class Dashboard extends React.Component{
   }
 
   render(){
-    const {exerciseTemplates, loading, routineTemplates, tags, routines, getMostRecentRoutine} = this.props;
+    const {exerciseTemplates, loading, routineTemplates, tags, routines} = this.props;
     const {page} = this.state;
     if (loading) return <div>Loading</div>
     return (
@@ -31,7 +62,15 @@ class Dashboard extends React.Component{
         <PrivateHeader {...this.props} onPageChange={this.onPageChange} title="Workout Dashboard"/>
         <div className="page-content">
           {page === WORKOUT_PAGE &&
-            <Workout routineTemplates={routineTemplates} routines={routines} getMostRecentRoutine={getMostRecentRoutine}/>
+            <Query query={getMostRecentRoutine}>
+              {({loading, error, data}) => {
+                if (loading) return <div>Loading</div>;
+                if (error) return <div>{error}</div>;
+                return (
+                  <Workout routineTemplates={routineTemplates} routines={routines} getMostRecentRoutine={data.getMostRecentRoutine}  exerciseTemplates={exerciseTemplates}/>
+                )
+              }}
+            </Query>
           }
           {page === ROUTINES_PAGE &&
             <RoutineTemplates loading={loading} exerciseTemplates={exerciseTemplates} routineTemplates={routineTemplates}/>
@@ -91,28 +130,6 @@ const routinesQuery = gql`
   }
 `;
 
-const getMostRecentRoutine = gql`
-    query getMostRecentRoutine{
-        getMostRecentRoutine{
-            _id
-            name
-            startTime
-            endTime
-            exercises{
-                _id
-                startTime
-                endTime
-                sets{
-                    _id
-                    weight
-                    reps
-                    setNumber
-                }
-            }
-        }
-    }
-`;
-
 const tagsQuery = gql`
   query Tags{
     tags {
@@ -129,7 +146,8 @@ export default compose (graphql(exerciseTemplatesQuery, {
   props: ({data}) => ({...data})
 }), graphql( routinesQuery, {
   props: ({ data }) => ({ ...data })
-}),graphql(getMostRecentRoutine, {
-  props: ({ data }) => ({ ...data })
-})
-)(withApollo(Dashboard));
+}))(withApollo(Dashboard));
+
+// ,graphql(getMostRecentRoutine, {
+//   props: ({ data }) => ({ ...data })
+// })

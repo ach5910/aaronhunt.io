@@ -69,6 +69,24 @@ export default {
                 }
             })
             return Routines.findOne(_id);
+        },
+        addExercise(obj, {_id, exerciseTemplateId}, {userId}){
+            const routine = Routines.findOne(_id);
+            RoutineTemplates.update({_id: routine.templateId}, {
+                $addToSet:{
+                    exerciseTemplateIds: exerciseTemplateId
+                }
+            })
+            const exerciseId = Exercises.insert({
+                user: userId,
+                templateId: exerciseTemplateId
+            })
+            Routines.update({_id}, {
+                $addToSet: {
+                    exerciseIds: exerciseId
+                }
+            })
+            return Routines.findOne(_id);
         }
     }
 }
