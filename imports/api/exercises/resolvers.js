@@ -21,7 +21,7 @@ export default {
             return exerciseTemplate.name;
         },
         previousExercise: (exercise) => {
-            return Exercises.find({templateId: exercise.templateId, user: exercise.user, endTime: {$type: "string"}, endTime: {$lt: exercise.startTime}}, {sort: {endTime: -1}}).fetch()[0]
+            return Exercises.find({templateId: exercise.templateId, user: exercise.user, endTime: {$type: "string"}, _id : {$ne: exercise._id}}, {sort: {endTime: -1}}).fetch()[0]
             // const pipeline = [
             //     {$match: { templateId: exercise.templateId , user: exercise.user}},
             //     {$sort: { endTime: -1}},

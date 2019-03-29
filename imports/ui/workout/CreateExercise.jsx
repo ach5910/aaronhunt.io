@@ -99,7 +99,7 @@ class CreateExercise extends React.Component{
             <div className='boxed-view__box boxed-view__box--vert'>
                 <div className='section-title section-title__margin-bottom'>
                     <h2 style={{marginBottom: "0px"}}>{exercise.name}</h2>
-                    <button onClick={finishExercise(refetch)} className="button button--margin">Finish Exercise</button>
+                    <button onClick={finishExercise(refetch, setActive)} className="button button--margin">Finish Exercise</button>
                 </div>
                 {/* <h3 style={{marginBottom: "0px", textAlign: "center"}}>vs</h3>
                 <h3 style={{marginBottom: "0px", textAlign: "center"}}>Current</h3> */}

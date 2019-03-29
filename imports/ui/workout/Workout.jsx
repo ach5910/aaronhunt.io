@@ -9,8 +9,8 @@ import AddCircle from '@material-ui/icons/AddCircle';
 import AddExerciseTemplate from './AddExerciseTemplate';
 
 const createSet = gql`
-    mutation createSet($weight: Float!, $reps: Int!, $setNumber: Int!, $exerciseId: String!) {
-        createSet(weight: $weight, reps: $reps, setNumber: $setNumber, exerciseId: $exerciseId){
+    mutation createSet($weight: Float!, $reps: Int!, $exerciseId: String!) {
+        createSet(weight: $weight, reps: $reps, exerciseId: $exerciseId){
             _id,
             orm
         }
@@ -142,24 +142,27 @@ class Workout extends React.Component {
                 if (exercise.startTime !== null && exercise.endTime === null){
                     const tempSets = [...exercise.sets];
                     const lastSet = tempSets.pop();
-                    if (lastSet == undefined){
+                    if (exercise.previousExercise && exercise.previousExercise.sets.length > exercise.sets.length){
+                        console.log('previous exercise')
+                        activeExercise = {
+                            _id: exercise._id,
+                            ...exercise.previousExercise.sets[exercise.sets.length]
+                        }
+                    }else if (lastSet == undefined){
+                        console.log('lastSet === undefined')
                         activeExercise = {
                             _id: exercise._id,
                             weight: 0,
                             reps: 0,
                             setNumber: 1
                         }
-                    } else if (exercise.previousExercise && exercise.previousExercise.sets.length > exercise.sets.length){
-                        activeExercise = {
-                            _id: exercise._id,
-                            ...exercise.previousExercise.sets[exercise.sets.length]
-                        }
                     } else {
+                        console.log('continue exercise')
                         activeExercise = {
                             _id: exercise._id,
                             weight: lastSet.weight,
                             reps: lastSet.reps,
-                            setNumber: exercise.sets.length
+                            setNumber: exercise.sets.length + 1
                         }
                     }
                 }
@@ -307,11 +310,11 @@ class Workout extends React.Component {
             variables: {
                 weight: parseFloat(weight),
                 reps: parseInt(reps),
-                setNumber,
+                // setNumber,
                 exerciseId: this.state.activeExercise._id
             }
         }).then(({data}) => {
-            // console.log('previousExercise', previousExercise, previousExercise.sets.length > setNumber, previousExercise.sets[setNumber] )
+            console.log('previousExercise', previousExercise, setNumber );
             if (previousExercise && previousExercise.sets.length > setNumber){
                 this.setState((prevState) => ({
                     activeExercise: {
@@ -352,32 +355,44 @@ class Workout extends React.Component {
         })
     }
 
-    finishExercise = (refetch) => (e) => {
+    finishExercise = (refetch, setActive) => (e) => {
         e.preventDefault();
+        if (setActive){
+            this.finishSetEndExercise(refetch);
+        } else {
+            this.endExercise(refetch);
+        }
+    }
+
+    finishSetEndExercise = (refetch) => {
         const {weight, reps, setNumber} = this.state.activeExercise;
         this.props.createSet({
             variables: {
                 weight: parseFloat(weight),
                 reps: parseInt(reps),
-                setNumber,
+                // setNumber,
                 exerciseId: this.state.activeExercise._id
             }
         }).then(({data}) => {
-            this.props.endExercise({
-                variables: {
-                    _id: this.state.activeExercise._id
-                }
-            }).then(({data}) => {
-                this.setState((prevState) => ({
-                    finishedExercises: [...prevState.finishedExercises, prevState.activeExercise._id],
-                    activeExercise: null
-                }))
-                refetch()
-            }).catch((error) => {
-                console.log('endExercise', error)
-            })
+            this.endExercise(refetch);
         }).catch((error) => {
             console.log('createSet', error);
+        })
+    }
+
+    endExercise = (refetch) => {
+        this.props.endExercise({
+            variables: {
+                _id: this.state.activeExercise._id
+            }
+        }).then(({data}) => {
+            this.setState((prevState) => ({
+                finishedExercises: [...prevState.finishedExercises, prevState.activeExercise._id],
+                activeExercise: null
+            }))
+            refetch()
+        }).catch((error) => {
+            console.log('endExercise', error)
         })
     }
 

@@ -12,7 +12,7 @@ extend type Query {
 }
 
 extend type Mutation {
-    createSet(weight: Float!, reps: Int!, setNumber: Int!, exerciseId: String!): Set
+    createSet(weight: Float!, reps: Int!, exerciseId: String!): Set
     addToExercise(_id: String!, exerciseId: String!): Set
     editSet(_id: String!, weight: Float!, reps: Int!): Set
     deleteSet(_id: String!): Int

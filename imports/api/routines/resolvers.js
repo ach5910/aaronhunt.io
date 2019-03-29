@@ -5,7 +5,7 @@ import moment from 'moment';
 export default {
     Query: {
         routines(obj, args, {userId}){
-            return Routines.find({user: userId, endTime: {$exists: true}}).fetch()
+            return Routines.find({user: userId, endTime: {$exists: true}}, {sort: {endTime: -1}}).fetch()
         },
         routine(obj, {_id}, context){
             return Routines.findOne(_id);

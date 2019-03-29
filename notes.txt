@@ -28,8 +28,10 @@ Workout:
     X DONE: display highlighest orm on each exercise
 	X DONE: Calc totalWeight, totalReps and Max 1RM records for exercise template
 	X DONE: Calc totalWeight, totalReps, and Max 1RM for an exercise
+	X DONE: Don't added unadded sets to a finished exercises
+	X DONE: Removed setNumber tracking in react, only track in backend and pass via api
+	X DONE: Sort workouts by most recent
 	- Determine how to surface records
-	- Removed setNumber tracking in react, only track in backend and pass via api
     - Determine exercise and workout point system
     - Add decimal values for weight
     - Pull data with user id
@@ -70,8 +72,13 @@ MyPage:
     - My Routines - Add
     - My Records
 
+python /Users/ahunt/thuuz/base/src/scripts/reelz/generate_and_upload_mp4.py -s thuuz -u https://www.thuuz.com/reelz/manifest/index.m3u8?asset_filter=%7B%22asset%22%3A+%5B%22thuuz_THUUZ-PRIMARY_4249a5c0-11c3-4594-8da2-f013b9bd7fd1_2018.10.26T00.20.00%22%5D%7D&type=content&content_filter=%7B%22requested_duration%22%3A+510%2C+%22perspective%22%3A+%22neutral%22%2C+%22plays%22%3A+%5B%22touchdown%22%5D%7D -bu thuuz-dev.partner-portal -k video_assets/6/45/2/2856/a1a0c8ba-320f-4123-9386-962cabb13e1a -t mp4 -n 2018.10.26_mia-at-hou_plays-touchdown_8.30 -pid 2856 -z local -l FARGATE -f 0.4 -c 0.3
 
+python /Users/ahunt/thuuz/base/src/scripts/reelz/generate_and_upload_mp4.py -s thuuz -u https://www.thuuz.com/reelz/manifest/index.m3u8?asset_filter=%7B%22asset%22%3A+%5B%22thuuz_THUUZ-PRIMARY_4249a5c0-11c3-4594-8da2-f013b9bd7fd1_2018.10.26T00.20.00%22%5D%7D&type=content&content_filter=%7B%22perspective%22%3A+%22neutral%22%2C+%22plays%22%3A+%5B%22turnover%22%5D%7D -bu thuuz-dev.partner-portal -k video_assets/6/45/2/2857/275faf66-9db6-429a-8c0d-fd07734c62c9 -t mp4 -n 2018.10.26_mia-at-hou_plays-turnover -pid 2857 -z local -l FARGATE -f 0.7 -c 0.05
 
+python /Users/ahunt/thuuz/base/src/scripts/reelz/generate_and_upload_mp4.py -s thuuz -u https://www.thuuz.com/reelz/manifest/index.m3u8?asset_filter=%7B%22asset%22%3A+%5B%22thuuz_THUUZ-PRIMARY_4249a5c0-11c3-4594-8da2-f013b9bd7fd1_2018.10.26T00.20.00%22%5D%7D&type=content&content_filter=%7B%22requested_duration%22%3A+510%2C+%22perspective%22%3A+%22neutral%22%2C+%22plays%22%3A+%5B%22touchdown%22%5D%7D -bu thuuz-dev.partner-portal -k video_assets/6/45/2/2858/3980073b-433b-461f-96c5-b306b3008c04 -t mp4 -n 2018.10.26_mia-at-hou_plays-touchdown_8.30 -pid 2858 -z local -l FARGATE -f 0.7 -c 0.4
+
+python /Users/ahunt/thuuz/base/src/scripts/reelz/generate_and_upload_mp4.py -s thuuz -u https://www.thuuz.com/reelz/manifest/index.m3u8?asset_filter=%7B%22asset%22%3A+%5B%22thuuz_THUUZ-PRIMARY_4249a5c0-11c3-4594-8da2-f013b9bd7fd1_2018.10.26T00.20.00%22%5D%7D&type=content&content_filter=%7B%22perspective%22%3A+%22neutral%22%2C+%22plays%22%3A+%5B%22turnover%22%5D%7D -bu thuuz-dev.partner-portal -k video_assets/6/45/2/2860/19c321f5-6a44-4e76-aaa3-b00c879214ac -t mp4 -n 2018.10.26_mia-at-hou_plays-turnover -pid 2860 -z local -l FARGATE -f 0.4 -c 0.3
 // How to get the totalWeight, totalReps and best ORM for every excerise and
 // How to get the topTotalWeight, topTotalReps and best ORM at the exercise template level
 db.sets.aggregate([

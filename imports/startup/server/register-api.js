@@ -33,7 +33,7 @@ import TagsSchema from '../../api/tags/Tags.graphql';
 // import UsersSchema from '../../api/users/Users.graphql';
 
 ////////dddssd/assdsssdfsasdsfsssadfasdddgsfasdasfdddsfsfsdddddddfdskk
-//////sfsaddddddrsadwsdsdppppssdpsssssfsssspssssssooooasssxasdfdfasDsdfiiidfsdddddssdddddss
+//////sfsaddddddrsadwsdsdppppssdpskkssssfsssspssssssooooasssxasdfdfasDsdfiiidfsdddddssdddddss
 const typeDefs = [
     QuestionsSchema,
     AnswersSchema,

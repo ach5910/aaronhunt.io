@@ -7,7 +7,7 @@ export default {
         }
     },
     Mutation: {
-        createSet(obj, {weight, reps, setNumber, exerciseId}, {userId}){
+        createSet(obj, {weight, reps, exerciseId}, {userId}){
             if (userId){
                 const orm = weight * (1 + (reps / 30))
                 const lastSet = Sets.aggregate([
@@ -18,9 +18,9 @@ export default {
                 if (lastSet.length !== 0){
                     nextSetNumber = lastSet[0].setNumber + 1;
                 }
-                if (nextSetNumber !== setNumber){
-                    console.log('error setNumber and nextSetNumber dont match - nextSetNumber - setNumber', nextSetNumber, setNumber )
-                }
+                // if (nextSetNumber !== setNumber){
+                //     console.log('error setNumber and nextSetNumber dont match - nextSetNumber - setNumber', nextSetNumber, setNumber )
+                // }
                 // @TODO - stop tracking setNumber in react state. The current set and updates should come from backend
                 const setId = Sets.insert({
                     user: userId,
