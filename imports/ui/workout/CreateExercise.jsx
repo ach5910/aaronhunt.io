@@ -62,8 +62,6 @@ class CreateExercise extends React.Component{
     }
 
     onClickSet = (setId) => {
-        console.log('setId', setId)
-        console.log('this.setId', this.setId)
         if (this.setId === setId){
             this.setState({editSetId: this.setId})
             clearTimeout(this.doublClickTimeOut)
@@ -81,7 +79,7 @@ class CreateExercise extends React.Component{
 
     getDifferences = (curr, best, prev, fixed) => (
         <React.Fragment>
-        <span style={{color: curr >= best ? "green" : "red"}}>{`${curr > best ? "+" : ""}${(curr - best).toFixed(fixed)}`}</span> / <span style={{color: curr >= prev ? "green" : "red"}}>{`${curr > prev ? "+" : ""}${(curr - prev).toFixed(fixed)}`}</span>
+            <span style={{color: curr >= best ? "green" : "red"}}>{`${curr > best ? "+" : ""}${(curr - best).toFixed(fixed)}`}</span> / <span style={{color: curr >= prev ? "green" : "red"}}>{`${curr > prev ? "+" : ""}${(curr - prev).toFixed(fixed)}`}</span>
         </React.Fragment>
     )
 
@@ -98,37 +96,9 @@ class CreateExercise extends React.Component{
         return (
             <div className='boxed-view__box boxed-view__box--vert'>
                 <div className='section-title section-title__margin-bottom'>
-                    <h2 style={{marginBottom: "0px"}}>{exercise.name}</h2>
+                    <h2 className="workout--h2" style={{marginBottom: "0px"}}>{exercise.name}</h2>
                     <button onClick={finishExercise(refetch, setActive)} className="button button--margin">Finish Exercise</button>
                 </div>
-                {/* <h3 style={{marginBottom: "0px", textAlign: "center"}}>vs</h3>
-                <h3 style={{marginBottom: "0px", textAlign: "center"}}>Current</h3> */}
-                {/* <div className="exercise--set exercise--set__header">
-                    <div className='exercise--weight'><h3 >Total Weight</h3></div>
-                    <div className="exercise--reps"><h3>Total Reps</h3></div>
-                    <div className="exercise--orm"><h3>Max 1RM</h3></div>
-                </div> */}
-                
-                
-                {/* <h3 style={{marginBottom: "0px", textAlign: "center"}}>vs</h3>
-                <h3 style={{marginBottom: "0px", textAlign: "center"}}>Current</h3> */}
-                {/* <div className="exercise--set exercise--set__header">
-                    <div className='exercise--weight'><h3 >Total Weight</h3></div>
-                    <div className="exercise--reps"><h3>Total Reps</h3></div>
-                    <div className="exercise--orm"><h3>Max 1RM</h3></div>
-                </div> */}
-                {/* <div className="exercise--set exercise--set__header" >
-                    <h4 className="exercise--title" style={{marginBottom: "0px"}}>Current </h4>
-                    <div className='exercise--weight'>Sum = {totalWeight.toFixed(2)}</div>
-                    <div className="exercise--reps">Sum = {totalReps}</div>
-                    <div className="exercise--orm">Max = {topORM.toFixed(2)}</div>
-                </div> */}
-                
-                
-                
-                {/* <h3>Total Weight ({topExerciseStats.totalWeight.toFixed(2)}/{exerciseStats.totalWeight.toFixed(2)}) Total Reps ({topExerciseStats.totalReps}/{exerciseStats.totalReps}) Max 1RM ({topExerciseStats.topORM.toFixed(2)}/{exerciseStats.topORM.toFixed(2)})</h3>
-                <h3 style={{marginBottom: "0px"}}>Last Exercise</h3>
-            <h3 style={{marginLeft: "2rem"}}>Total Weight ({exerciseStats.totalWeight.toFixed(2)}) Total Reps ({exerciseStats.totalReps}) Max 1RM ({exerciseStats.topORM.toFixed(2)})</h3> */}
                 <SetTitles />
                 <SetList deleteSet={this.deleteSet} editSet={this.editSet} getRef={this.getRef} exercise={exercise} handleClick={this.onClickSet} editSetId={this.state.editSetId}/>
                 <div noValidate className="exercise--set exercise--set__header exercise--set__large-rows">
@@ -139,40 +109,34 @@ class CreateExercise extends React.Component{
                             ? <button onClick={this.addSet} className="button button--secondary exercise--orm">Add Set</button>
                             : <button onClick={this.finishSet(refetch, exercise.previousExercise)} className="button button--secondary exercise--orm">Finish Set</button>
                         }
-                        {/* <div className="pseudo-input exercise--orm" value>{this.getORM(activeExercise)}</div> */}
                 </div>
-                {/* <div className="exercise--set ">
-                    <div className='exercise--weight'><h3 >Total</h3></div>
-                    <div className="exercise--reps"><h3>Total</h3></div>
-                    <div className="exercise--orm"><h3>Max</h3></div>
-                </div> */}
-                <div className="exercise--set exercise--set__header">
-                    <div className='exercise--weight'><h3 >Total Weight</h3></div>
-                    <div className="exercise--reps"><h3>Total Reps</h3></div>
-                    <div className="exercise--orm"><h3>Max 1RM</h3></div>
+                {/* <div className="exercise--set exercise--set__header">
+                    <div className='exercise--weight'><h3 className="workout--h3" >Total Weight</h3></div>
+                    <div className="exercise--reps"><h3 className="workout--h3">Total Reps</h3></div>
+                    <div className="exercise--orm"><h3 className="workout--h3">Max 1RM</h3></div>
                 </div>
                 <div className="exercise--set exercise--set__header " >
-                    <h3 className="exercise--title">Total</h3>
-                    <h4 className='exercise--weight'>{totalWeight.toFixed(2)}</h4>
-                    <h4 className="exercise--reps">{totalReps}</h4>
-                    <h4 className="exercise--orm">{topORM.toFixed(2)}</h4>
+                    <h3 className="workout--h3 exercise--title">Total</h3>
+                    <h4 className='workout--h4 exercise--weight'>{totalWeight.toFixed(2)}</h4>
+                    <h4 className="workout--h4 exercise--reps">{totalReps}</h4>
+                    <h4 className=" workout--h4 exercise--orm">{topORM.toFixed(2)}</h4>
                 </div>
                 <div className="exercise--set exercise--set__header">
-                    <h3 className="exercise--title" style={{marginBottom: "0px"}}>Best / Last</h3>
-                    <h4 className='exercise--weight'>{topExerciseStats.totalWeight.toFixed(2)} / {exerciseStats.totalWeight.toFixed(2)}</h4>
-                    <h4 className="exercise--reps">{topExerciseStats.totalReps} / {exerciseStats.totalReps}</h4>
-                    <h4 className="exercise--orm">{topExerciseStats.topORM.toFixed(2)} / {exerciseStats.topORM.toFixed(2)}</h4>
+                    <h3 className="workout--h3 exercise--title" style={{marginBottom: "0px"}}>Best / Last</h3>
+                    <h4 className='workout--h4 exercise--weight'>{topExerciseStats.totalWeight.toFixed(2)} / {exerciseStats.totalWeight.toFixed(2)}</h4>
+                    <h4 className="workout--h4 exercise--reps">{topExerciseStats.totalReps} / {exerciseStats.totalReps}</h4>
+                    <h4 className="workout--h4 exercise--orm">{topExerciseStats.topORM.toFixed(2)} / {exerciseStats.topORM.toFixed(2)}</h4>
                 </div>
                 <div className="exercise--set exercise--set__header" >
-                    <h3 className="exercise--title" style={{marginBottom: "0px"}}>Difference</h3>
-                    <div className='exercise--weight'>{this.getDifferences(totalWeight, topExerciseStats.totalWeight, exerciseStats.totalWeight, 2)}</div>
-                    <div className="exercise--reps">{this.getDifferences(totalReps, topExerciseStats.totalReps, exerciseStats.totalReps, 0)}</div>
-                    <div className="exercise--orm">{this.getDifferences(topORM, topExerciseStats.topORM.toFixed(2), exerciseStats.topORM.toFixed(2), 2)}</div>
+                    <h3 className="workout--h3 exercise--title" style={{marginBottom: "0px"}}>Difference</h3>
+                    <div className='workout--h4 exercise--weight'>{this.getDifferences(totalWeight, topExerciseStats.totalWeight, exerciseStats.totalWeight, 2)}</div>
+                    <div className="workout--h4 exercise--reps">{this.getDifferences(totalReps, topExerciseStats.totalReps, exerciseStats.totalReps, 0)}</div>
+                    <div className="workout--h4 exercise--orm">{this.getDifferences(topORM, topExerciseStats.topORM.toFixed(2), exerciseStats.topORM.toFixed(2), 2)}</div>
                 </div>
                 <div className="button__container">
                     {/* <button onClick={this.addSet(refetch, exercise.previousExercise)} className="button button--secondary button--margin">Add Set</button> */}
                     
-                </div>
+                {/*</div> */}
             </div>
         )
     }

@@ -7,6 +7,9 @@ import { Query } from 'react-apollo';
 import { graphql, compose } from 'react-apollo';
 import AddCircle from '@material-ui/icons/AddCircle';
 import AddExerciseTemplate from './AddExerciseTemplate';
+import moment from 'moment';
+import InfiniteCalendar, { Calendar, withMultipleDates, defaultMultipleDateInterpolation} from 'react-infinite-calendar';
+import 'react-infinite-calendar/styles.css'; // Make sure to import the default stylesheet
 
 const createSet = gql`
     mutation createSet($weight: Float!, $reps: Int!, $exerciseId: String!) {
@@ -125,7 +128,8 @@ class Workout extends React.Component {
             selectRoutineModal: false,
             activeExercise: null,
             finishedExercises: [],
-            addExerciseModal: false
+            addExerciseModal: false,
+            date: new Date()
         }
     }
 
@@ -416,26 +420,60 @@ class Workout extends React.Component {
         })
     }
 
+    handleSelectedDate = (date) => {
+        this.setState({selectedDate: moment(date).format("YYYY-MM-DD")});
+    }
+
+    onChangeDate = date => {
+        const formattedDate = moment(date).format("YYYY-MM-DD");
+        console.log('formattedDate', formattedDate);
+        this.setState({date: formattedDate})
+    }
     render(){
         const {routine, activeExercise, finishedExercises, selectRoutineModal, addExerciseModal} = this.state;
         const {routineTemplates, exerciseTemplates, routines, loading, ...data} = this.props;
         console.log(data);
+        const routineDates = routines.map(routine => moment(routine.startTime, "x").format("YYYY-MM-DD"));
         if (loading) return <div>Loading...</div>
         return (
             <React.Fragment>
                 {routine === null &&
                     <React.Fragment>
                         <div className='section-title'>
-                            <h1>Workouts</h1>
+                            <h1 className="workout--h1">Workouts</h1>
                             <button onClick={this.openSelectRoutineModal} className="button button--link-text">
                                 <AddCircle className="icon" />
                                 Add Workout
                             </button>
                         </div>
+                        {/* <InfiniteCalendar
+                            Component={withMultipleDates(Calendar)}
+                            interpolateSelection={this.handleSelectedDate}
+                            showToday={this.state.selectedDate == undefined}
+                            theme={{
+                                selectionColor: date => {
+                                    console.log(date, this.state.selectedDate)
+                                    // const dateMs = moment(date).valueOf();
+                                    return date === this.state.selectedDate
+                                        ? "#5a5c5e"
+                                        : routineDates.includes(date)
+                                        ? "#559FFF"
+                                        : "#FFFFFF"
+                                }
+                            }}
+                            onScroll={(scrollTop) => {
+                                return false;
+                                console.log('scrollTop', scrollTop)
+                            }}
+                            onSelect={(date) => {
+                                console.log('e', date)
+                            }}
+                            selected={routineDates}
+                        /> */}
                         <Routines routines={routines} />
-                        {/* <form noValidate className="boxed-view__form">
+                        <form noValidate className="boxed-view__form">
                             <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
-                        </form> */}
+                        </form>
                     </React.Fragment>
                 }
                 {routine !== null && routine._id &&
@@ -446,7 +484,7 @@ class Workout extends React.Component {
                             return (
                                 <React.Fragment>
                                     <div className="section-title">
-                                        <h1>{routine.name}</h1>
+                                        <h1 className="workout--h1">{routine.name}</h1>
                                         <button onClick={this.toggleAddExercise} className="button button--link-text">
                                             <AddCircle className="icon"/>
                                             Add Exercise

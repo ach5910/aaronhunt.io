@@ -115,12 +115,12 @@ class CreateExerciseTemplate extends React.Component{
                 <div className="boxed-view boxed-view--modal" style={{display: !this.state.tagModalOpen ? "flex" : "none"}}>
                     <div className="page-content page-content--modal">
                         <div className="boxed-view__box boxed-view--modal-item">
-                            <h1>Create Exercise</h1>
+                            <h1 className="workout--h1">Create Exercise</h1>
                             {this.state.error !== "" && <span style={{color: 'red'}}>{this.state.error}</span>}
                             <form noValidate className="boxed-view__form" style={{zIndex: 6}}>
                                 <input type="text" ref={el => this.name = el} placeholder="Enter Exercise Name"/>
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <h2>Tags</h2>
+                                    <h2 className="workout--h2">Tags</h2>
                                     <button onClick={this.openTagModal} className="button button--link-text" type="submit">
                                         <AddCircle className="icon" />
                                         Add Tag
@@ -129,7 +129,7 @@ class CreateExerciseTemplate extends React.Component{
                                 <div style={{marginBottom: '1.4rem'}}>
                                     {this.state.tags.length > 0
                                         ? this.state.tags.map(tag => (<Chip name={tag.name} value={tag} deleteable onDelete={this.deleteTag} />))
-                                        : <h3>No tags have been added to this exercise yet</h3>
+                                        : <h3 className="workout--h3">No tags have been added to this exercise yet</h3>
                                     }
                                 </div>
                                 <button onClick={this.saveExerciseTemplate} className="button">Save Exercise</button>

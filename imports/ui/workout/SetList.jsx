@@ -3,7 +3,7 @@ import Edit from '@material-ui/icons/Edit';
 import DeleteForever from '@material-ui/icons/DeleteForever';
 
 const SetList = ({exercise, getRef = undefined, handleClick = undefined, editSetId = null, editSet, deleteSet}) => (
-    <ul ref={(el) => { if(getRef !== undefined) getRef(el);}} >
+    <ul className="workout--list" ref={(el) => { if(getRef !== undefined) getRef(el);}} >
         {exercise.sets.map(set => (
             <React.Fragment>
                 {set._id === editSetId ?

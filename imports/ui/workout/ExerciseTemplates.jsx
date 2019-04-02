@@ -33,7 +33,7 @@ class ExerciseTemplates extends React.Component{
         return (
             <React.Fragment>
                 <div className='section-title'>
-                    <h1>Exercises</h1>
+                    <h1 className="workout--h1">Exercises</h1>
                     <button onClick={this.openExerciseTemplateModal} className="button button--link-text" >
                         <AddCircle className="icon" />
                         Add Exercise

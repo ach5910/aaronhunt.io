@@ -10,7 +10,7 @@ const PrivateHeader = (props) => {
   return (
     <div className="header">
       <div className="header__content">
-        <h1 className="header__title">{props.title}</h1>
+        <h1 className="workout--h1 header__title">{props.title}</h1>
         <div className="header__links">
           <button 
             className="button button--link-text" 

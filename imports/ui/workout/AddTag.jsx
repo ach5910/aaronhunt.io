@@ -56,7 +56,7 @@ class AddTag extends React.Component{
                 <div className="page-content page-content--modal">
                     <div className="boxed-view__box boxed-view--modal-item modal--center-text">
                         <form noValidate className="boxed-view__form" style={{zIndex: 8}}>
-                            <h2>Tags</h2>
+                            <h2 className="workout--h2">Tags</h2>
                             <div style={{display: 'flex', flexDirection: "row", justifyContent: "center", alignItems: 'center'}}>
                                 <input type="text" style={{marginTop: "1.4rem"}} value={searchTag} onChange={this.updateSearchTag} placeholder="Search Tags"/>
                                 <AddCircle onClick={() => {if (canCreate) this.saveTag()}} className={`icon ${canCreate ? "" : "icon--disabled"}`}/>

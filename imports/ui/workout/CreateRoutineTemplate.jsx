@@ -129,22 +129,22 @@ class CreateRoutine extends React.Component {
                 <div className="boxed-view boxed-view--modal" style={{display: !exerciseTemplateModal ? "flex" : "none"}}>
                     <div className="page-content page-content--modal">
                         <div className="boxed-view__box boxed-view--modal-item">
-                            <h1>Create Routine</h1>
+                            <h1 className="workout--h1">Create Routine</h1>
                             {this.state.error !== "" && <span style={{color: 'red'}}>{this.state.error}</span>}
                             <form onSubmit={this.saveRoutine} noValidate className="boxed-view__form" style={{zIndex: 6}}>
                                 <input type="text" ref={el => this.name = el} placeholder="Enter Routine Name"/>
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <h2>Exercises</h2>
+                                    <h2 className="workout--h2">Exercises</h2>
                                     <button onClick={this.addExerciseTemplate} className="button button--link-text" >
                                         <AddCircle className="icon" />
                                         Add Exercise
                                     </button>
                                 </div>
-                                <ul>
+                                <ul className="workout--list">
                                     {this.state.exerciseTemplates.length > 0 ?
                                         this.state.exerciseTemplates.map((exerciseTemplate, idx) => (
                                         <li className="item">
-                                            <h3>{exerciseTemplate.name}</h3>
+                                            <h3 className="workout--h3">{exerciseTemplate.name}</h3>
                                             <div className="item__icons">
                                                 {idx !== this.state.exerciseTemplates.length - 1 && 
                                                     <ArrowDownward onClick={this.changeOrder(idx, idx + 1)} className="icon"/>
@@ -155,7 +155,7 @@ class CreateRoutine extends React.Component {
                                                 <DeleteForever onClick={this.removeExerciseTemplate(exerciseTemplate._id)}className='icon' />
                                             </div>
                                         </li>))
-                                        : <h3 style={{marginBottom: '1.4rem'}}>No exercises have been added to this routine yet</h3>
+                                        : <h3 className="workout--h3" style={{marginBottom: '1.4rem'}}>No exercises have been added to this routine yet</h3>
                                     }
                                 </ul>
                                 <button type="submit" className="button button--margin-top">Save Routine</button>

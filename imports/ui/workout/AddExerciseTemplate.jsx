@@ -23,9 +23,9 @@ class AddExerciseTemplate extends React.Component{
                 <div className="page-content page-content--modal">
                     <div className="boxed-view__box boxed-view--modal-item">
                         <form noValidate className="boxed-view__form" style={{zIndex: 8}}>
-                            <h2>Exercises</h2>
+                            <h2 className="workout--h2">Exercises</h2>
                             <input type="text" value={searchName} onChange={this.updateSearchName} placeholder="Search Exercise"/>
-                            <ul>
+                            <ul className="workout--list">
                                 {exerciseTemplates && exerciseTemplates.filter(exer => rabinKarp(searchName.toLowerCase(), exer.name.toLowerCase())).map(exerciseTemplate => (
                                     <li onClick={selectExerciseTemplate(exerciseTemplate)} >{exerciseTemplate.name}</li>
                                 ))}

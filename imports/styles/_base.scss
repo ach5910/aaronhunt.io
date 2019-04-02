@@ -14,39 +14,39 @@ body {
   background-color: $background-gray;
 }
 
-h1 {
+h1.workout--h1 {
   font-weight: 300;
   margin-bottom: $space;
   color: $brand-primary;
 }
 
-h2 {
+h2.workout--h2 {
   font-size: $large-font-size;
   margin-bottom: $space;
   color: $title-text;
   font-weight: 500;
 }
 
-h3 {
+h3.workout--h3 {
   color: $brand-primary;
 }
 
-p {
+p.workout--paragraph {
   margin-bottom: $space;
   color: $secondary-text;
 }
 
-a {
+a.workout--anchor {
   color: black;
 }
 
-ul {
+ul.workout--list {
   list-style-type: none;
   max-height: 300px;
   overflow-y: auto;
 }
 
-li {
+.workout--list li {
   font-size: $medium-font-size;
   padding: $space 0px;
   border-bottom: 1px solid $item-border;

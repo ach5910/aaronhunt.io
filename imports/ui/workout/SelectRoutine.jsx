@@ -23,9 +23,9 @@ class SelectRoutine extends React.Component{
                 <div className="page-content page-content--modal">
                     <div className="boxed-view__box boxed-view--modal-item">
                         <form noValidate className="boxed-view__form" style={{zIndex: 8}}>
-                            <h2>Routines</h2>
+                            <h2 className="workout--h2">Routines</h2>
                             <input type="text" value={searchRoutine} onChange={this.updateSearchRoutine} placeholder="Search Routines"/>
-                            <ul>
+                            <ul className="workout--list">
                                 {routineTemplates && routineTemplates.filter(routTemplate => rabinKarp(searchRoutine.toLowerCase(), routTemplate.name.toLowerCase())).map(routineTemplate => (
                                     <li onClick={selectRoutine(routineTemplate)} >{routineTemplate.name}</li>
                                 ))}

@@ -69,7 +69,7 @@ class RoutineTemplates extends React.Component{
         return (
             <React.Fragment>
                 <div className='section-title'>
-                    <h1>Routines</h1>
+                    <h1 className="workout--h1">Routines</h1>
                     <form onSubmit={this.onSubmit} noValidate >
                         <button className="button button--link-text" type="submit">
                             <AddCircle className="icon" />

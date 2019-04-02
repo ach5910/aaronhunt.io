@@ -64,7 +64,7 @@ class QuestionForm extends React.Component{
         const {radio} = this.state;
         return(
             <React.Fragment>
-                <h1>Create a new question</h1>
+                <h1 className="workout--h1">Create a new question</h1>
                 <div className="boxed-view__box boxed-view__question-box">
                     <form onSubmit={this.onSubmit.bind(this)} noValidate className="boxed-view__form">
                     <input type="text" ref={el => this.question = el} placeholder="Question"/>
