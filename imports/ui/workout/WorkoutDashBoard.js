@@ -118,6 +118,9 @@ const routinesQuery = gql`
       endTime
       exercises {
         _id
+        name
+        startTime
+        endTime
         sets {
           _id
           weight

@@ -20,6 +20,15 @@ h1.workout--h1 {
   color: $brand-primary;
 }
 
+.Cal__Slider__arrow{
+  display: none !important;
+}
+
+.Cal__Container__root{
+  border: 1px solid $gray;
+  box-shadow: $box-shadow;
+}
+
 h2.workout--h2 {
   font-size: $large-font-size;
   margin-bottom: $space;
@@ -42,7 +51,7 @@ a.workout--anchor {
 
 ul.workout--list {
   list-style-type: none;
-  max-height: 300px;
+  max-height: 320px;
   overflow-y: auto;
 }
 
@@ -51,13 +60,19 @@ ul.workout--list {
   padding: $space 0px;
   border-bottom: 1px solid $item-border;
   text-align: center;
+  &:nth-child(odd){
+    background-color: $list-item-odd;
+    &:hover{
+      background-color: darken($list-item-odd, 5);
+    }
+  }
   &:hover {
     background-color: darken(white, 5);
     cursor: pointer;
   }
-  &:first-child{
-    border-top: 1px solid $item-border;
-  }
+  // &:first-child{
+  //   border-top: 1px solid $item-border;
+  // }
 }
 
 input[type=text], input[type=email], input[type=number],input[type=password] {

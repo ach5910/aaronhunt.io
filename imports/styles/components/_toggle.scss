@@ -1,0 +1,41 @@
+.toggle{
+    margin: 0px ($space / 4);
+    transition: background-color 200ms ease-in-out;
+    padding: $space / 2;
+    border-radius: 20px;
+    &.toggle--selected{
+      background-color: $brand-primary;
+    }
+    &:first-child{
+        margin-left: 0;
+    }
+}
+
+.toggle__container {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-bottom: $space;
+    
+}
+
+.toggle__seperator {
+    font-weight: 500;
+    color: $brand-primary;
+    font-size: 2 * $base-font-size;
+}
+.toggle__radio{
+    display: none;
+}
+
+.toggle__label {
+    font-size: $medium-font-size;
+    color: $brand-primary;
+    user-select: none;
+    &:hover{
+        cursor: pointer;
+    }
+    &.toggle--selected{
+        color: $gray-text;
+    }
+}

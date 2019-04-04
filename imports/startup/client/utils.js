@@ -1,3 +1,12 @@
+import moment from 'moment';
+
+export const getDuration = (startTime, endTime) => {
+    if (!endTime) return "";
+    const start = moment(startTime, "x");
+    const end = moment(endTime, "x")
+    return moment.utc(end.diff(start)).format("HH:mm:ss");
+}
+
 export const rabinKarp = (pat, txt) => { 
     const M = pat.length; 
     const N = txt.length;

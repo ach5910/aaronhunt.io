@@ -26,7 +26,7 @@ export default {
                 {$group :{_id: "$set_exercises.exerciseId", tWeight: {$sum: "$set_exercises.weight"}, tReps: {$sum: "$set_exercises.reps"}, bestORM: {$max: "$set_exercises.orm"}, templateId: {$first:"$templateId"},}},
                 {$group: {_id: "$templateId", totalWeight: {$max: "$tWeight"}, totalReps: {$max: "$tReps"}, topORM: {$max: "$bestORM"}}},
             ])
-            console.log('result', result)
+            // console.log('result', result)
             if (result.length === 0){
                 return {totalWeight: 0, totalReps: 0, topORM: 0}
             }

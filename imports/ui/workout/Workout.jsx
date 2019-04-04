@@ -7,9 +7,12 @@ import { Query } from 'react-apollo';
 import { graphql, compose } from 'react-apollo';
 import AddCircle from '@material-ui/icons/AddCircle';
 import AddExerciseTemplate from './AddExerciseTemplate';
+import Toggle from '../Components/Toggle';
+import CalendarView from './CalendarView';
 import moment from 'moment';
-import InfiniteCalendar, { Calendar, withMultipleDates, defaultMultipleDateInterpolation} from 'react-infinite-calendar';
+
 import 'react-infinite-calendar/styles.css'; // Make sure to import the default stylesheet
+import { getDuration } from '../../startup/client/utils';
 
 const createSet = gql`
     mutation createSet($weight: Float!, $reps: Int!, $exerciseId: String!) {
@@ -129,7 +132,11 @@ class Workout extends React.Component {
             activeExercise: null,
             finishedExercises: [],
             addExerciseModal: false,
-            date: new Date()
+            selectedView: "Calendar View",
+            routineDates: [],
+            routinesForDay: [],
+            viewWorkout: false,
+
         }
     }
 
@@ -420,21 +427,71 @@ class Workout extends React.Component {
         })
     }
 
-    handleSelectedDate = (date) => {
-        this.setState({selectedDate: moment(date).format("YYYY-MM-DD")});
+    viewWorkout = (routine) => (e) => {
+        this.setState({
+            routine,
+            finishedExercises: routine.exercises.filter(exercise => exercise.endTime != null).map(exercise => exercise._id),
+            viewWorkout: true
+        })
     }
 
-    onChangeDate = date => {
-        const formattedDate = moment(date).format("YYYY-MM-DD");
-        console.log('formattedDate', formattedDate);
-        this.setState({date: formattedDate})
+    cancelViewWorkout = () => {
+        this.setState({
+            routine: null,
+            finishedExercises: [],
+            viewWorkout: false
+        })
+    }
+
+    // handleSelectedDate = (date) => {
+    //     console.log('interpolate selection');
+    //     this.setState({selectedDate: moment(date).format("YYYY-MM-DD")});
+    // }
+
+    // onChangeDate = date => {
+    //     const formattedDate = moment(date).format("YYYY-MM-DD");
+    //     console.log('formattedDate', formattedDate);
+    //     this.setState({date: formattedDate})
+    // }
+    dateOfRoutine = (routineDate) => {
+        let firstIndex = true
+        for(let routine of this.state.routineDates){
+            if (firstIndex){
+                firstIndex = false;
+                continue;
+            }
+            if (routine === routineDate){
+                return true;
+            }
+        }
+        
+    }
+    onSelectDate = (date, state = undefined) => {
+        let _routineDates = state ? state : [...this.state.routineDates];
+        _routineDates[0] = state ? date : moment(date, "x").format("YYYY-MM-DD");
+        let routinesForDay = []
+        if (state || this.dateOfRoutine(_routineDates[0])){
+            routinesForDay = this.props.routines.filter(routine => 
+                moment(routine.startTime, "x").format("YYYY-MM-DD") === _routineDates[0])
+        } 
+        this.setState({routineDates: _routineDates, routinesForDay})
+        
+    }
+    toggleView = (selectedView) => (e) => {
+        this.setState({selectedView})
     }
     render(){
-        const {routine, activeExercise, finishedExercises, selectRoutineModal, addExerciseModal} = this.state;
+        const {routine, activeExercise, finishedExercises, viewWorkout, selectRoutineModal, routinesForDay, addExerciseModal, selectedView, routineDates} = this.state;
         const {routineTemplates, exerciseTemplates, routines, loading, ...data} = this.props;
         console.log(data);
-        const routineDates = routines.map(routine => moment(routine.startTime, "x").format("YYYY-MM-DD"));
         if (loading) return <div>Loading...</div>
+        if (routineDates.length === 0 && routines && routines.length && routines.length > 0 ){
+            const routineDates = routines.map(routine => moment(routine.startTime, "x").format("YYYY-MM-DD"));
+
+            this.onSelectDate(moment().format("YYYY-MM-DD"), [routineDates[0], ...routineDates]);
+        }
+        console.log('lastRoutine Date', routineDates[routineDates.length - 1])
+        console.log('startOf', moment(routineDates[routineDates.length - 1], "YYYY-MM-DD").startOf('month'))
         return (
             <React.Fragment>
                 {routine === null &&
@@ -446,37 +503,70 @@ class Workout extends React.Component {
                                 Add Workout
                             </button>
                         </div>
-                        {/* <InfiniteCalendar
-                            Component={withMultipleDates(Calendar)}
-                            interpolateSelection={this.handleSelectedDate}
-                            showToday={this.state.selectedDate == undefined}
-                            theme={{
-                                selectionColor: date => {
-                                    console.log(date, this.state.selectedDate)
-                                    // const dateMs = moment(date).valueOf();
-                                    return date === this.state.selectedDate
-                                        ? "#5a5c5e"
-                                        : routineDates.includes(date)
-                                        ? "#559FFF"
-                                        : "#FFFFFF"
-                                }
-                            }}
-                            onScroll={(scrollTop) => {
-                                return false;
-                                console.log('scrollTop', scrollTop)
-                            }}
-                            onSelect={(date) => {
-                                console.log('e', date)
-                            }}
-                            selected={routineDates}
-                        /> */}
-                        <Routines routines={routines} />
-                        <form noValidate className="boxed-view__form">
+                        <div className="toggle__container">
+                            {/* <div className="toggle__header">View:</div> */}
+                            <Toggle
+                                name="workout-view" 
+                                label="Calendar View"
+                                id="workout-view__CalendarView"
+                                selected={selectedView === "Calendar View"}
+                                onChange={this.toggleView("Calendar View")}
+                            />
+                            <div className="toggle__seperator">/</div>
+                            <Toggle 
+                                name="workout-view"
+                                label="List View"
+                                id="workout-view__ListView"
+                                selected={selectedView === "List View"}
+                                onChange={this.toggleView("List View")}
+                            />
+                        </div>
+                        {selectedView === "Calendar View"
+                            ?
+                            <CalendarView 
+                                routineDates={routineDates}
+                                routinesForDay={routinesForDay}
+                                onSelect={this.onSelectDate}
+                                openSelectRoutineModal={this.openSelectRoutineModal}
+                                today={moment().format("YYYY-MM-DD")}
+                                viewWorkout={this.viewWorkout}
+                            />
+                            :
+                            <Routines viewWorkout={this.viewWorkout} routines={routines} />
+                        }
+                        {/*<form noValidate className="boxed-view__form">
                             <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
+                        </form>  */}
+                    </React.Fragment >
+                }
+                {viewWorkout && routine !== null && routine._id &&
+                    <React.Fragment>
+                        <div className="section-title">
+                            <h1 className="workout--h1">{routine.name} {getDuration(routine.startTime, routine.endTime)}</h1>
+                            <button onClick={this.cancelViewWorkout} className="button button--link-text">
+                                Return
+                            </button>
+                        </div>
+                        <Exercises
+                            exercises={routine.exercises.filter(exer => finishedExercises.includes(exer._id))}
+                            startExercise={this.startExercise}
+                            activeExercise={activeExercise}
+                            addSet={this.addSet}
+                            finishExercise={this.finishExercise}
+                            finishedExercises={this.state.finishedExercises}
+                            onChange={this.onChange}
+                            refetch={() => {}}
+                            editSet={this.editSet}
+                            deleteSet={this.deleteSet}
+                            startEdittingSet={this.startEdittingSet}
+                        />
+                        <form noValidate className="boxed-view__form">
+                            <button onClick={this.cancelViewWorkout} type="submit" className="button button--margin-top">Return</button>
                         </form>
                     </React.Fragment>
+
                 }
-                {routine !== null && routine._id &&
+                {!viewWorkout && routine !== null && routine._id &&
                     <Query query={routineQuery} variables={{_id: routine._id}}>
                         {({loading, error, data, refetch}) => {
                             if (loading) return <div>Loading</div>;
