@@ -483,15 +483,15 @@ class Workout extends React.Component {
     render(){
         const {routine, activeExercise, finishedExercises, viewWorkout, selectRoutineModal, routinesForDay, addExerciseModal, selectedView, routineDates} = this.state;
         const {routineTemplates, exerciseTemplates, routines, loading, ...data} = this.props;
-        console.log(data);
+        // console.log(data);
         if (loading) return <div>Loading...</div>
         if (routineDates.length === 0 && routines && routines.length && routines.length > 0 ){
             const routineDates = routines.map(routine => moment(routine.startTime, "x").format("YYYY-MM-DD"));
 
             this.onSelectDate(moment().format("YYYY-MM-DD"), [routineDates[0], ...routineDates]);
         }
-        console.log('lastRoutine Date', routineDates[routineDates.length - 1])
-        console.log('startOf', moment(routineDates[routineDates.length - 1], "YYYY-MM-DD").startOf('month'))
+        // console.log('lastRoutine Date', routineDates[routineDates.length - 1])
+        // console.log('startOf', moment(routineDates[routineDates.length - 1], "YYYY-MM-DD").startOf('month'))
         return (
             <React.Fragment>
                 {routine === null &&
@@ -534,9 +534,9 @@ class Workout extends React.Component {
                             :
                             <Routines viewWorkout={this.viewWorkout} routines={routines} />
                         }
-                        {/*<form noValidate className="boxed-view__form">
+                        <form noValidate className="boxed-view__form">
                             <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
-                        </form>  */}
+                        </form> 
                     </React.Fragment >
                 }
                 {viewWorkout && routine !== null && routine._id &&

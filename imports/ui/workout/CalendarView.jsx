@@ -35,13 +35,13 @@ const CalendarView = ({routineDates, routinesForDay, onSelect, today, viewWorkou
         </div>
         {routinesForDay.length > 0 
             ? <Routines viewWorkout={viewWorkout} routines={routinesForDay} />
-            : today === routineDates[0]
-            ?
-                <form noValidate className="boxed-view__form">
-                    <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
-                </form>
-            :
-            <h2>No Workouts for this day</h2>
+            : <h2>No Workouts for this day</h2>
+            
+                // <form noValidate className="boxed-view__form">
+                //     <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
+                // </form>
+            
+            
 
         }
     </div>
