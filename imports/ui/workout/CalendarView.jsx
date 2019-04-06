@@ -4,7 +4,7 @@ import Routines from './Routines';
 import moment from 'moment';
 
 const CalendarView = ({routineDates, routinesForDay, onSelect, today, viewWorkout}) => (
-    <React.Fragment>
+    <div style={{paddingBottom: "30px"}}>
         <div className="calendar-view">
             <InfiniteCalendar
                 Component={withMultipleDates(Calendar)}
@@ -44,7 +44,7 @@ const CalendarView = ({routineDates, routinesForDay, onSelect, today, viewWorkou
             <h2>No Workouts for this day</h2>
 
         }
-    </React.Fragment>
+    </div>
 )
 
 export default CalendarView;
