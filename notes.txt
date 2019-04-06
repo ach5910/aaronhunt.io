@@ -36,6 +36,13 @@ Workout:
 	X DONE: Display completed exercise times
 	X DONE: Display completed workout times
 	X DONE: Incorporate Calendar View / List View toggle for workouts
+	X DONE: Remove Calendar auto focus
+	X DONE: Center Calendar on Mobile
+	- The "Add Set" button needs to be moved. Current loc is dangerous on mobile
+	X DONE: Weight Input should be first tab index to auto select input box when add set is clicked
+	- Finished exercise should be loaded when returning to workouts view
+	- Text for "Finish Set" button is too big on mobile, label wraps multiple lines
+	- Modal should be fixed -- typing in the search box reorientates the modal position; see mobile
 	- Record set durations
 	- Determine how to surface records
     - Determine exercise and workout point system

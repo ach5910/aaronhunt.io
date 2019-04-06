@@ -11,6 +11,7 @@ class CreateExercise extends React.Component{
             setActive: false
         }
         this.setId = null;
+        this.weightInput = React.createRef();
         this.doublClickTimeOut = null;
     }
 
@@ -48,7 +49,13 @@ class CreateExercise extends React.Component{
     }
 
     addSet = () => {
-        this.setState({setActive: true})
+        this.setState({setActive: true});
+        setTimeout(() => {
+            if (this.weightInput && this.weightInput.current){
+                this.weightInput.current.focus();
+                this.weightInput.current.select();
+            }
+        }, 100)
     }
 
     deleteSet = (e) => {
@@ -103,11 +110,11 @@ class CreateExercise extends React.Component{
                 <SetList deleteSet={this.deleteSet} editSet={this.editSet} getRef={this.getRef} exercise={exercise} handleClick={this.onClickSet} editSetId={this.state.editSetId}/>
                 <div noValidate className="exercise--set exercise--set__header exercise--set__large-rows">
                         <div className={`pseudo-input exercise--title ${setActive? "" : "disabled"}`} value>{activeExercise.setNumber}</div>
-                        <input disabled={!setActive} className="exercise--weight" onFocus={(e) => {e.target.select()}} type="number" pattern="[0-9]*" onChange={onChange("weight")} value={activeExercise.weight} />
-                        <input disabled={!setActive} className="exercise--reps" onFocus={(e) => {e.target.select()}} type="number" pattern="[0-9]*" onChange={onChange("reps")} value={activeExercise.reps} />
+                        <input ref={this.weightInput} tabIndex={1} autoFocus={setActive} disabled={!setActive} className="exercise--weight"  type="number" pattern="[0-9]*" onChange={onChange("weight")} value={activeExercise.weight} />
+                        <input tabIndex={2} disabled={!setActive} className="exercise--reps"  type="number" pattern="[0-9]*" onChange={onChange("reps")} value={activeExercise.reps} />
                         {!setActive
                             ? <button onClick={this.addSet} className="button button--secondary exercise--orm">Add Set</button>
-                            : <button onClick={this.finishSet(refetch, exercise.previousExercise)} className="button button--secondary exercise--orm">Finish Set</button>
+                            : <button autoFocus={false} tabIndex={3} onClick={this.finishSet(refetch, exercise.previousExercise)} className="button button--secondary exercise--orm">Finish Set</button>
                         }
                 </div>
                 {/* <div className="exercise--set exercise--set__header">

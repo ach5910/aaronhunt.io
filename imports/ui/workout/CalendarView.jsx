@@ -12,6 +12,10 @@ const CalendarView = ({routineDates, routinesForDay, onSelect, today, viewWorkou
                 showToday={routineDates.length === 0}
                 min={moment(routineDates[routineDates.length - 1], "YYYY-MM-DD").startOf('month')}
                 max={moment(today).endOf('month')}
+                width={window.innerWidth <= 650 ? window.innerWidth - 40 : 400}
+                height={window.innerWidth <= 650 ? 250 : 600}
+                autoFocus={false}
+                displayOptions={{showTodayHelper:  false}}
                 theme={{
                     headerColor: "#5a5c5e",
                     weekdayColor: "#cad1db",
