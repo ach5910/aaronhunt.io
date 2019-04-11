@@ -8,11 +8,14 @@ export default {
     },
     Mutation: {
         createTag(obj, {name}, {userId}){
-            const tagId = Tags.insert({
-                name,
-                user: userId
-            });
-            return Tags.findOne(tagId);
+            if (userId){
+                const tagId = Tags.insert({
+                    name,
+                    user: userId
+                });
+                return Tags.findOne(tagId);
+            }
+            throw new Error("Unauthorized");
         }
     }
 }

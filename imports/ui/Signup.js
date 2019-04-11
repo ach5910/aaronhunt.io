@@ -21,18 +21,13 @@ export default class Signup extends React.Component {
     }
 
     Accounts.createUser({email, password}, (err) => {
-      console.log('Create User')
       if (err) {
-        console.log('create user error')
         this.setState({error: err.reason});
       } else {
         Meteor.loginWithPassword({email}, password, (err) => {
-          console.log('Meteor Login')
           if (err) {
-            console.log('Meteor login error')
             this.setState({error: 'Unable to login. Check email and password.'});
           } else {
-            console.log('Meteor login success')
             this.setState({error: ''});
             this.props.history.replace('/dashboard');
           }

@@ -6,7 +6,10 @@ import Routines from '../routines/routines';
 export default {
     Query: {
         routineTemplates(obj, args, {userId}){
-            return RoutineTemplates.find({createdBy: userId}).fetch()
+            if (userId){
+                return RoutineTemplates.find({createdBy: userId}).fetch()
+            }
+            throw new Error("Unauthorized");
         }
     },
     RoutineTemplate: {

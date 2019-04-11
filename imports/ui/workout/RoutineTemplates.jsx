@@ -27,7 +27,6 @@ class RoutineTemplates extends React.Component{
     onSubmit = (e) => {
         e.preventDefault();
         this.setState({addRoutine: true})
-        console.log('clicked');
     }
 
     closeAddRoutineModal = () => {
@@ -50,10 +49,9 @@ class RoutineTemplates extends React.Component{
                 _id: this.state.routineTemplateToDelete._id
             }
         }).then(({data}) => {
-            console.log(data);
             this.setState({routineTemplateToDelete: {}, deleteModalOpen: false})
         }).catch((error) => {
-            console.log(error)
+            console.log('delete routine template', error)
         })
     }
 

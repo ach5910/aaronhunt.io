@@ -80,7 +80,6 @@ class CreateExerciseTemplate extends React.Component{
                         tagIds: this.state.tags.map(tag => tag._id)
                     }
                 }).then(({data}) => {
-                    console.log('updateExerciseTemplate', data);
                     this.name.value = "";
                     this.setState({error: ""})
                     this.props.closeExerciseTemplateModal();
@@ -95,7 +94,6 @@ class CreateExerciseTemplate extends React.Component{
                         tagIds: this.state.tags.map(tag => tag._id)
                     }
                 }).then(({data}) => {
-                    console.log(data);
                     this.name.value = "";
                     this.setState({error: ""})
                     this.props.closeExerciseTemplateModal()

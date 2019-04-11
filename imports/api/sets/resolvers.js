@@ -3,7 +3,10 @@ import Sets from './sets';
 export default {
     Query: {
         sets(obj, args, {userId}){
-            return Sets.find({user: userId}).fetch()
+            if (userId){
+                return Sets.find({user: userId}).fetch()
+            }
+            throw new Error("Unauthorized");
         }
     },
     Mutation: {

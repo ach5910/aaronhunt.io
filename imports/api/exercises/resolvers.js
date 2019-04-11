@@ -6,7 +6,10 @@ import  moment from 'moment';
 export default {
     Query: {
         exercises(obj, args, { userId }){
-            return Exercises.find({user: userId}).fetch()
+            if (userId){
+                return Exercises.find({user: userId}).fetch()
+            }
+            throw new Error("Unauthorized");
         },
         exercise(obj, {_id}, {userId}){
             return Exercises.findOne(_id)

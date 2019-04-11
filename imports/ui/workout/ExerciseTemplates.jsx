@@ -23,7 +23,6 @@ class ExerciseTemplates extends React.Component{
     openExerciseTemplateModal = (e) => {
         e.preventDefault();
         this.setState({exerciseTemplateModalOpen: true})
-        console.log('clicked');
     }
 
     render(){

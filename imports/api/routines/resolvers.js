@@ -5,13 +5,19 @@ import moment from 'moment';
 export default {
     Query: {
         routines(obj, args, {userId}){
-            return Routines.find({user: userId, endTime: {$exists: true}}, {sort: {endTime: -1}}).fetch()
+            if (userId){
+                return Routines.find({user: userId, endTime: {$exists: true}}, {sort: {endTime: -1}}).fetch()
+            }
+            throw new Error("Unauthorized");
         },
         routine(obj, {_id}, context){
             return Routines.findOne(_id);
         },
         getMostRecentRoutine(obj, args, {userId}){
-            return Routines.findOne({user: userId}, {sort: {$natural: -1}})
+            if (userId){
+                return Routines.findOne({user: userId}, {sort: {$natural: -1}})
+            }
+            throw new Error("Unauthorized");
         }
     },
     Routine: {
@@ -71,22 +77,25 @@ export default {
             return Routines.findOne(_id);
         },
         addExercise(obj, {_id, exerciseTemplateId}, {userId}){
-            const routine = Routines.findOne(_id);
-            RoutineTemplates.update({_id: routine.templateId}, {
-                $addToSet:{
-                    exerciseTemplateIds: exerciseTemplateId
-                }
-            })
-            const exerciseId = Exercises.insert({
-                user: userId,
-                templateId: exerciseTemplateId
-            })
-            Routines.update({_id}, {
-                $addToSet: {
-                    exerciseIds: exerciseId
-                }
-            })
-            return Routines.findOne(_id);
+            if (userId){
+                const routine = Routines.findOne(_id);
+                RoutineTemplates.update({_id: routine.templateId}, {
+                    $addToSet:{
+                        exerciseTemplateIds: exerciseTemplateId
+                    }
+                })
+                const exerciseId = Exercises.insert({
+                    user: userId,
+                    templateId: exerciseTemplateId
+                })
+                Routines.update({_id}, {
+                    $addToSet: {
+                        exerciseIds: exerciseId
+                    }
+                })
+                return Routines.findOne(_id);
+            }
+            throw new Error("Unauthorized");
         }
     }
 }

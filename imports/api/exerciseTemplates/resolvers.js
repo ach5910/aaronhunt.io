@@ -6,7 +6,10 @@ import Sets from '../sets/sets';
 export default {
     Query: {
         exerciseTemplates(obj, args, { userId }){
-            return ExerciseTemplates.find({createdBy: userId}).fetch()
+            if (userId){
+                return ExerciseTemplates.find({createdBy: userId}).fetch()
+            }
+            throw new Error("Unauthorized");
         }
     },
     ExerciseTemplate: {

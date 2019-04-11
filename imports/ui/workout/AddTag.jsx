@@ -34,14 +34,12 @@ class AddTag extends React.Component{
                 name: this.state.searchTag
             }
         }).then(({data}) => {
-            console.log('createTag', data)
             const newTag = {
                 name: data.createTag.name,
                 _id: data.createTag._id
             }
             this.props.selectTag(newTag);
         }).catch(error => {
-            console.log('saveTag');
             console.log(error)
         })
     }

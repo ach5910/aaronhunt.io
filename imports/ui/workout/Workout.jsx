@@ -154,13 +154,11 @@ class Workout extends React.Component {
                     const tempSets = [...exercise.sets];
                     const lastSet = tempSets.pop();
                     if (exercise.previousExercise && exercise.previousExercise.sets.length > exercise.sets.length){
-                        console.log('previous exercise')
                         activeExercise = {
                             _id: exercise._id,
                             ...exercise.previousExercise.sets[exercise.sets.length]
                         }
                     }else if (lastSet == undefined){
-                        console.log('lastSet === undefined')
                         activeExercise = {
                             _id: exercise._id,
                             weight: 0,
@@ -168,7 +166,6 @@ class Workout extends React.Component {
                             setNumber: 1
                         }
                     } else {
-                        console.log('continue exercise')
                         activeExercise = {
                             _id: exercise._id,
                             weight: lastSet.weight,
@@ -252,7 +249,6 @@ class Workout extends React.Component {
     onChange = (field) => (e) => {
         e.preventDefault();
         e.persist();
-        console.log('e',e)
         this.setState((prevState) => ({
             activeExercise: {
                 ...prevState.activeExercise,
@@ -267,7 +263,6 @@ class Workout extends React.Component {
                 _id: setId
             }
         }).then(({data}) => {
-            console.log('deleteSet', data)
             this.setState((prevState) => ({
                 activeExercise: {
                     ...prevState.activeExercise,
@@ -325,7 +320,6 @@ class Workout extends React.Component {
                 exerciseId: this.state.activeExercise._id
             }
         }).then(({data}) => {
-            console.log('previousExercise', previousExercise, setNumber );
             if (previousExercise && previousExercise.sets.length > setNumber){
                 this.setState((prevState) => ({
                     activeExercise: {
@@ -485,13 +479,14 @@ class Workout extends React.Component {
         const {routineTemplates, exerciseTemplates, routines, loading, ...data} = this.props;
         // console.log(data);
         if (loading) return <div>Loading...</div>
-        if (routineDates.length === 0 && routines && routines.length && routines.length > 0 ){
-            const routineDates = routines.map(routine => moment(routine.startTime, "x").format("YYYY-MM-DD"));
-
-            this.onSelectDate(moment().format("YYYY-MM-DD"), [routineDates[0], ...routineDates]);
+        if (routineDates.length === 0) {
+            if (routines && routines.length && routines.length > 0 ){
+                const routineDates = routines.map(routine => moment(routine.startTime, "x").format("YYYY-MM-DD"));
+                this.onSelectDate(moment().format("YYYY-MM-DD"), [routineDates[0], ...routineDates]);
+            } else {
+                this.onSelectDate(moment().valueOf())
+            }
         }
-        // console.log('lastRoutine Date', routineDates[routineDates.length - 1])
-        // console.log('startOf', moment(routineDates[routineDates.length - 1], "YYYY-MM-DD").startOf('month'))
         return (
             <React.Fragment>
                 {routine === null &&
@@ -504,7 +499,6 @@ class Workout extends React.Component {
                             </button>
                         </div>
                         <div className="toggle__container">
-                            {/* <div className="toggle__header">View:</div> */}
                             <Toggle
                                 name="workout-view" 
                                 label="Calendar View"

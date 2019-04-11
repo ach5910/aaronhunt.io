@@ -46,7 +46,6 @@ class CreateRoutine extends React.Component {
     }
 
     saveRoutine = (e) => {
-        console.log('saveRoutine', e);
         e.preventDefault();
         const name = this.name.value.trim();
         const editName = this.props.routineTemplateToEdit ? this.props.routineTemplateToEdit.name : "";
@@ -62,7 +61,6 @@ class CreateRoutine extends React.Component {
 
                     }
                 }).then(({data}) => {
-                    console.log('update routine template', data);
                     this.name.value = "";
                 }).catch((error) => {
                     console.log('update routine template', error);
@@ -74,7 +72,6 @@ class CreateRoutine extends React.Component {
                         exerciseTemplateIds: this.state.exerciseTemplates.map(exer => exer._id)
                     }
                 }).then(({data}) => {
-                    console.log(data);
                     this.name.value = "";
                 }).catch((error) => {
                     console.log('create routine template', error)
