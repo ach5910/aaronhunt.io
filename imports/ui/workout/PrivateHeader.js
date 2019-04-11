@@ -17,7 +17,7 @@ const PrivateHeader = (props) => {
             onClick={() => {props.onPageChange(WORKOUT_PAGE)}}
             style={{marginRight: "10px"}}
           >
-            Workout
+            Workouts
           </button>
           <button 
             className="button button--link-text" 
@@ -31,7 +31,7 @@ const PrivateHeader = (props) => {
             onClick={() => {props.onPageChange(EXERCISES_PAGE)}}
             style={{marginRight: "10px"}}
           >
-            Exercise
+            Exercises
           </button>
           <button className="button button--link-text" onClick={() => {
             Meteor.logout(() => {props.history.replace('/')});
