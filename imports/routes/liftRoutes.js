@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
-import { Switch, Router, Route } from 'react-router-dom';
+import { Switch, Router, Route, Redirect } from 'react-router-dom';
 import Signup from '../ui/Signup';
 import Dashboard from '../ui/workout/WorkoutDashBoard';
 import EmbeddedPlayer from '../ui/workout/EmbeddedPlayer';
@@ -15,49 +15,35 @@ export default class Routes extends React.Component{
     super(props);
   }
 
-  // componentDidMount = () => {
-  //   this.onAuthChange(this.props.isAuthenticated);
-  // }
-
-  // componentDidUpdate = (prevProps) => {
-  //   if (prevProps.isAuthenticated !== this.props.isAuthenticated){
-  //     this.onAuthChange(this.props.isAuthenticated);
-  //   }
-  // }
-  
-  onEnterPublicPage = () => {
+  onEnterPublicPage = (RouteComponent) => {
+    console.log('public page')
     if (Meteor.userId()) {
-      this.props.history.replace('/dashboard');
+      console.log('public page logged in')
+      return (<Redirect to="/dashboard" />)
     }
+    console.log('public page logged not in')
+    return <RouteComponent history={this.props.history} />
   };
   
-  onEnterPrivatePage = () => {
+  onEnterPrivatePage = (RouteComponent)  => {
+    console.log('private page')
     if (!Meteor.userId()) {
-      this.props.history.replace('/');
+      console.log('private page no logged in')
+      return (<Redirect to="/" />)
     }
+    console.log('private page logged in')
+    return <RouteComponent history={this.props.history} />
   };
 
-  // onAuthChange = (isAuthenticated) => {
-  //   const pathname = this.props.history.location.pathname;
-  //   const isUnauthenticatedPage = unauthenticatedPages.includes(pathname);
-  //   const isAuthenticatedPage = authenticatedPages.includes(pathname);
-  
-  //   if (isUnauthenticatedPage && isAuthenticated) {
-  //     this.props.history.replace('/dashboard');
-  //   } else if (isAuthenticatedPage && !isAuthenticated) {
-  //     this.props.history.replace('/');
-  //   }
-  // };
 
   render(){
-    // if (Meteor.userId() == "T2B4hnfHKARehAyWA" || Meteor.userId() == "3SAGFCw7tMrGkkkbh") return <EmbeddedPlayer/>;
     return (
       <Router history={this.props.history}>
         <Switch >
-          <Route path="/" exact component={Login} onEnter={this.onEnterPublicPage}/>
-          <Route path="/signup" exact component={Signup} onEnter={this.onEnterPublicPage}/>
-          <Route path="/dashboard" exact component={Dashboard} onEnter={this.onEnterPrivatePage}/>
-          {/* <Route path="*" component={NotFound}/> */}
+          <Route path="/" exact render={() => this.onEnterPublicPage(Login)}/>
+          <Route path="/signup" exact render={() => this.onEnterPublicPage(Signup)}/>
+          <Route path="/dashboard" exact render={() => this.onEnterPrivatePage(Dashboard)}/>
+          <Route path="*" component={NotFound}/>
         </Switch>
       </Router>
     )

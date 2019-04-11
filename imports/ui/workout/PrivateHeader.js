@@ -1,5 +1,5 @@
 import React from 'react';
-import { Accounts } from 'meteor/accounts-base';
+import { Meteor } from 'meteor/meteor';
 import {
   WORKOUT_PAGE,
   ROUTINES_PAGE,
@@ -34,8 +34,7 @@ const PrivateHeader = (props) => {
             Exercise
           </button>
           <button className="button button--link-text" onClick={() => {
-            Accounts.logout();
-            props.history.replace('/')
+            Meteor.logout(() => {props.history.replace('/')});
             }}>Logout</button>
         </div>
       </div>
