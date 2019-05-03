@@ -15,11 +15,18 @@
   right: 0;
   bottom: 0;
   z-index: 5;
+  visibility: visible;
+  transition: background 300ms ease-in-out;
+  &.hidden{
+    visibility: hidden;
+    background: transparent;
+  }
 }
+
 
 .boxed-view__box {
   background-color: $boxed-view-bg;
-  padding: 2.4rem;
+  padding: 2.4rem 1rem;
   text-align: center;
   border: 1px solid $gray;
   border-top: 2px solid $top-border;

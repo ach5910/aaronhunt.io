@@ -25,6 +25,7 @@ const getMostRecentRoutine = gql`
                     weight
                     reps
                     setNumber
+                    orm
                 }
                 previousExercise {
                   sets{

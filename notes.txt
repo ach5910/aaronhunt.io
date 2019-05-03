@@ -40,6 +40,13 @@ Workout:
 	X DONE: Center Calendar on Mobile
 	- The "Add Set" button needs to be moved. Current loc is dangerous on mobile
 	X DONE: Weight Input should be first tab index to auto select input box when add set is clicked
+	X DONE: Remove Number Inputs
+	X DONE: Implement Increment buttons
+	X DONE: Create increment scrolling animation
+	X DONE: Create set expansion panel
+	X DONE: Implement increment counter radio group
+	X DONE: Create set deletion and addition animation
+	X DONE: Add autoprefixer
 	- Finished exercise should be loaded when returning to workouts view
 	- Text for "Finish Set" button is too big on mobile, label wraps multiple lines
 	- Modal should be fixed -- typing in the search box reorientates the modal position; see mobile

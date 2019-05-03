@@ -28,12 +28,12 @@ import ExercisesSchema from '../../api/exercises/Exercises.graphql';
 import ExerciseTemplatesSchema from '../../api/exerciseTemplates/ExerciseTemplates.graphql';
 import SetsSchema from '../../api/sets/Sets.graphql';
 import TagsSchema from '../../api/tags/Tags.graphql';
-// import GoalsSchema from '../../api/goals/Goals.graphql';
+// import GoasssdflsScddllsshema from '../../api/goals/Goals.graphql';
 // import ResolutionsSchema from '../../api/resolutions/Resolutions.graphql';
-// import UsersSchema from '../../api/users/Users.graphql';
+// import sssUsersSciihema from '../../api/users/Users.graphql';
 
-////////dddssd/assdsssdfsasdsfsssadfasdddgsfasdasfdddsfsfsdddddddfdskk
-//////sfsaddddddrsadwsdsdppppssdpskkssssfsssspssssssooooasssxasdfdfasDsdfiiidfsdddddssdddddss
+////////dddssd/assdssddssdd ssssssssssssssdsdfsasdsfsssadfasdddgsfasdasfdddsfsfsdddddddfdskk
+//////sfsaddddddrsadwsdsdppppssdpskksddsssfsssspssssssooooasssxasdfdfasDsdfiiidfsdddddssdddddss
 const typeDefs = [
     QuestionsSchema,
     AnswersSchema,

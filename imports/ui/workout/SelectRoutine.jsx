@@ -17,11 +17,11 @@ class SelectRoutine extends React.Component{
 
     render(){
         const {searchRoutine} = this.state;
-        const {routineTemplates, closeSelectRoutineModal, selectRoutine} = this.props;
+        const {routineTemplates, closeSelectRoutineModal, selectRoutine, modalOpen} = this.props;
         return (
-            <div className="boxed-view boxed-view--modal">
+            <div className={`boxed-view boxed-view--modal ${modalOpen ? "" : "hidden"}`}>
                 <div className="page-content page-content--modal">
-                    <div className="boxed-view__box boxed-view--modal-item">
+                    <div className={`boxed-view__box boxed-view--modal-item ${modalOpen ? "" : "hidden"}`}>
                         <form noValidate className="boxed-view__form" style={{zIndex: 8}}>
                             <h2 className="workout--h2">Routines</h2>
                             <input type="text" value={searchRoutine} onChange={this.updateSearchRoutine} placeholder="Search Routines"/>

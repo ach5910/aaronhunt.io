@@ -37,6 +37,21 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        updateSets(obj, {sets, exerciseId}, {userId}){
+            if (userId){
+                sets.forEach(set => {
+                    Sets.update({_id: set._id},  {
+                        $set: {
+                            weight: set.weight,
+                            reps: set.reps,
+                            orm: set.weight * (1 + (set.reps / 30))
+                        }
+                    })
+                })
+                return Sets.find({exerciseId});
+            }
+            throw new Error('Unauthorized');
+        },
         addToExercise(obj, {_id, exerciseId}, context){
             Sets.insert(_id, {
                 $set: {
@@ -49,18 +64,11 @@ export default {
             Sets.update(_id, {
                 $set: {
                     weight,
-                    reps
+                    reps,
+                    orm: weight * (1 + (reps / 30))
                 }
             })
             return Sets.findOne(_id);
-        },
-        deleteSet(obj, {_id}, context){
-            const set = Sets.findOne(_id);
-            Sets.remove({_id});
-            return Sets.update(
-                {exerciseId: set.exerciseId,setNumber: {$gt: set.setNumber}},
-                {$inc: {setNumber: -1}},
-                {multi: true})
         }
     }
 }

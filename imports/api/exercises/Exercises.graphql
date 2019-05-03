@@ -4,6 +4,14 @@ type ExerciseStats {
     topORM: Float
 }
 
+input SetInput {
+    weight: Float
+    reps: Int
+    orm: Float
+    setNumber: Int
+    _id: String
+}
+
 type Exercise {
     _id: String!
     user: String!
@@ -24,6 +32,7 @@ extend type Query {
 extend type Mutation {
     createExercise(exerciseTemplateId: String!): Exercise
     addToRoutine(_id: String!, templateId: String!): Exercise
-    startExercise(_id: String!): Exercise
+    startExercise(_id: String!, sets: [SetInput]): Exercise
     endExercise(_id: String!): Exercise
+    deleteSet(setId: String!): Exercise
 }

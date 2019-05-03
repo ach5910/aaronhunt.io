@@ -1,7 +1,8 @@
-* {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 html {
@@ -9,14 +10,18 @@ html {
   overflow: hidden;
   height: 100%;
 }
-
+hr {
+  margin-bottom: $space;
+}
 body {
+  
   font-family: Helvetica, Arial, sans-serif;
   font-size: $base-font-size;
   background-color: $background-gray;
   overflow-y: auto;
   -webkit-overflow-scrolling:touch;
   height: 100%;
+  touch-action: manipulation;
 }
 
 h1.workout--h1 {
@@ -60,25 +65,51 @@ ul.workout--list {
   overflow-y: auto;
 }
 
+ul.workout--list {
+  list-style-type: none;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
 .workout--list li {
   font-size: $medium-font-size;
   padding: $space 0px;
   border-bottom: 1px solid $item-border;
   text-align: center;
-  &:nth-child(odd){
-    background-color: $list-item-odd;
-    &:hover{
-      background-color: darken($list-item-odd, 5);
-    }
-  }
+  // box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.3);
+  // &:nth-child(odd){
+  //   background-color: $list-item-odd;
+  //   &:hover{
+  //     background-color: darken($list-item-odd, 5);
+  //   }
+  // }
   &:hover {
-    background-color: darken(white, 5);
-    cursor: pointer;
+      background-color: darken(white, 5);
+      cursor: pointer;
   }
   // &:first-child{
   //   border-top: 1px solid $item-border;
   // }
 }
+// .workout--list li {
+//   font-size: $medium-font-size;
+//   padding: $space 0px;
+//   border-bottom: 1px solid $item-border;
+//   text-align: center;
+//   &:nth-child(odd){
+//     background-color: $list-item-odd;
+//     &:hover{
+//       background-color: darken($list-item-odd, 5);
+//     }
+//   }
+//   &:hover {
+//     background-color: darken(white, 5);
+//     cursor: pointer;
+//   }
+//   // &:first-child{
+//   //   border-top: 1px solid $item-border;
+//   // }
+// }
 
 input[type=text], input[type=email], input[type=number],input[type=password] {
   border: 1px solid $input-border;

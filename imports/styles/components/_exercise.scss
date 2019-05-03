@@ -1,7 +1,71 @@
+// .exercise--set {
+//     display: grid;
+//     grid-template-columns: 1fr 1fr 1fr;
+//     grid-gap: 5px;
+//     width: 100%;
+//     align-items: center;
+//     grid-template-rows: 45px;
+//     grid-template-areas: "exerciseWeight exerciseReps exerciseORM";
+//     &.exercise--set-edit{
+//         grid-template-columns: 1fr 1fr;
+//         grid-template-areas: "editSet deleteSet";
+//     }
+//     &.exercise--set__header{
+//         grid-template-rows: 3rem;
+//         grid-template-columns: 3fr 4fr 4fr 4fr;
+//         grid-template-areas: "exerciseTitle exerciseWeight exerciseReps exerciseORM";
+//     }
+//     &.exercise--set__large-rows{
+//         grid-template-rows: 6rem;
+//     }
+//     &.exercise--set__list-item{
+//         border: none;
+//         padding: 1.0rem 0px;
+//     }
+    
+// }
+
+// .exercise--edit-set{
+//     display: flex;
+//     justify-content: center;
+//     grid-area: editSet;
+//     width: 100%;
+// }
+
+// .exercise--delete-set{
+//     display: flex;
+//     justify-content: center;
+//     grid-area: deleteSet;
+//     width: 100%;
+// }
+
+// .exercise--weight{
+//     grid-area: exerciseWeight;
+//     width: 100%;
+//     text-align: center;
+// }
+
+// .exercise--title {
+//     grid-area: exerciseTitle;
+//     width: 100%;
+//     text-align: center;
+// }
+
+// .exercise--reps{
+//     grid-area: exerciseReps;
+//     width: 100%;
+//     text-align: center;
+// }
+
+// .exercise--orm {
+//     grid-area: exerciseORM;
+//     width: 100%;
+//     text-align: center;
+// }
 .exercise--set {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 5px;
+    // grid-gap: 5px;
     width: 100%;
     align-items: center;
     grid-template-rows: 45px;
@@ -11,54 +75,339 @@
         grid-template-areas: "editSet deleteSet";
     }
     &.exercise--set__header{
-        grid-template-rows: 3rem;
-        grid-template-columns: 3fr 4fr 4fr 4fr;
-        grid-template-areas: "exerciseTitle exerciseWeight exerciseReps exerciseORM";
+        grid-template-rows: 5rem;
+        grid-template-columns: 3fr 1fr 4fr 2fr 2fr 4fr 1fr 3fr;
+        grid-template-areas: "exerciseTitle exerciseWeight exerciseWeight exerciseWeight exerciseReps exerciseReps exerciseReps exerciseORM";
+        &.titles{
+            box-shadow: $box-shadow;
+            margin-bottom: 6px;
+        }
     }
     &.exercise--set__large-rows{
         grid-template-rows: 6rem;
     }
-    &.exercise--set__list{
-        border: none;
-        padding: 1.0rem 0px;
+    &.exercise--set__list-item{
+            // border: none;
+            // padding: 1.0rem 0px;
+        grid-template-rows: 5rem 7rem;
+        grid-template-areas: 
+        "exerciseTitle exerciseWeight exerciseWeight exerciseWeight exerciseReps exerciseReps exerciseReps exerciseORM"
+        "exerciseWeightInc exerciseWeightInc exerciseWeightInc exerciseDeleteSet exerciseDeleteSet exerciseRepsInc exerciseRepsInc exerciseRepsInc ";
+        max-height: 5rem;
+        overflow: hidden;
+        transition: all 300ms ease-in-out;
+        padding:  0;
+        &.added {
+            animation: set-added 300ms ease-in-out;
+        }
     }
     
 }
 
-.exercise--edit-set{
-    display: flex;
-    justify-content: center;
-    grid-area: editSet;
-    width: 100%;
+@keyframes set-added {
+    0%{
+        max-height: 0px;
+    }
+    100% {
+        max-height: 5rem;
+    }
 }
 
-.exercise--delete-set{
-    display: flex;
-    justify-content: center;
-    grid-area: deleteSet;
+// .exercise--edit-set{
+//     display: flex;
+//     justify-content: center;
+//     grid-area: editSet;
+//     width: 100%;
+// }
+
+// .exercise--delete-set{
+//     display: flex;
+//     justify-content: center;
+//     grid-area: deleteSet;
+//     width: 100%;
+// }
+
+.exercise--weight-inc {
+    grid-area: exerciseWeightInc;
+    z-index: 1;
     width: 100%;
+    height: 100%;
+    text-align: center;
+    align-self: center;
+    justify-self: center;
+    place-self: center;
+    border-top: 1px solid $brand-primary;
+    // border-right: 1px solid $brand-primary;
+    border-bottom: none;
+    background-color: darken($background-gray, 1)
 }
 
+.exercise--reps-inc {
+    grid-area: exerciseRepsInc;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    align-self: center;
+    justify-self: center;
+    place-self: center;
+    border-top: 1px solid $brand-primary;
+    // border-right: 1px solid $brand-primary;
+    // border-left: 1px solid $brand-primary;
+    // border-bottom: none;
+    background-color: darken($background-gray, 1)
+}
 .exercise--weight{
+    padding: 1.0rem 0px;
     grid-area: exerciseWeight;
+    z-index: 1;
     width: 100%;
     text-align: center;
+    align-self: center;
+    justify-self: center;
+    place-self: center;
+    // text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
+
+.exercise--set__list-item.selected {
+    &.exercise--set__list-item.deleted {
+        max-height: 0px;
+        opacity: 0;
+    }
+    &.expanded {
+        max-height: 12rem;
+        &.exercise--set__list-item.deleted {
+            max-height: 0px;
+            opacity: 0;
+        }
+    }
+    .exercise--inc-btn, .exercise--dec-btn {
+        transform: scale(1);
+        opacity: 1;
+        transition: transform 300ms ease-out, opacity 150ms ease-out;
+    }
+}
+.exercise--inc-btn, .exercise--dec-btn {
+    position: relative;
+    font-size: 2.4rem;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+    width: 3.2rem;
+    height: 3.2rem;
+    line-height: 3.0rem;
+    border-radius: 50%;
+    // margin-left: 10%;
+    background-color: $brand-primary;
+    // box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: $box-shadow;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    transform: scale(0);
+    // z-index: 1;
+    opacity: 0;
+    transition: transform 300ms ease-out, opacity 150ms ease-out 150ms;
+    &:before{
+        position: absolute;
+        content: "";
+        width: 3rem;
+        z-index: -1;
+        height: 3rem;
+        top: calc(50% - 1.5rem);
+        left: calc(50% - 1.5rem);
+        border-radius: 50%;
+        background-color: $brand-primary;
+        transform: scale(1);
+        opacity: 1;
+        pointer-events: none;
+        
+    }
+    &:active{
+        box-shadow: none;
+        // transform: scale(0.9) !important;
+        // // border: 9px solid rgba(0, 0, 0, 0);
+        // // width: 2.0rem;
+        // // height: 2.0rem;
+        // // line-height: 1.8rem;
+        // transition: none !important;
+        
+    }
+    &:not(:active){
+        &:before{
+            opacity: 0;
+            transition: all 300ms ease-out;
+            transform: scale(2);
+        }
+    }
+}
+
+// .exercise--dec-btn{
+//   margin-left: 0;
+//   // margin-right: 10%;
+// }
+
 
 .exercise--title {
     grid-area: exerciseTitle;
     width: 100%;
+    height: 100%;
+    line-height: 50px;
+    position: relative;
     text-align: center;
+    .set {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 300ms ease-in-out;
+        user-select: none;
+    }
+    .arrow {
+        position: absolute;
+        user-select: none;
+        top: 50%;
+        left: 50%;
+        width: 1px;
+        height: 1px;
+        border-width: 0.75rem;
+        border-style: solid;
+        border-color: $brand-primary transparent transparent transparent;
+        transform: translate(-50%) scale(0);
+        transform-origin: 50% 25%;
+        filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, .4));
+        opacity: 0;
+        transition: all 300ms ease-in-out;
+    }
+}
+
+.exercise--set__list-item.selected{
+    .set {
+        transform: translate(-50%, -70%) scale(0.9);
+    }
+    .arrow {
+        transform: translate(-50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.exercise--set__list-item.expanded {
+    // .set {
+    //     transform: translate(-50%, -50%);
+    // }
+    .arrow {
+        // transform-origin: 0 2.5rem;
+        // transform: scale(2) translate(-50%) rotateX(180deg);
+        transform: translate(-50%) rotate(180deg);
+        filter: drop-shadow(0px -2px 1px rgba(0, 0, 0, .4));
+        //filter: drop-shadow(0px -2px 1px rgba(0, 0, 0, .4));
+    }
+}
+
+.exercise--set__list-item.deleted {
+    max-height: 0px;
+    opacity: 0;
 }
 
 .exercise--reps{
     grid-area: exerciseReps;
     width: 100%;
     text-align: center;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
+.exercise--collapse-arrow{
+    grid-area: exerciseArrow;
+    width: 100%;
+    height: 100%;
+    border-top: 1px solid $brand-primary;
+    background-color: darken($background-gray, 1)
+}
+
+.exercise--delete-set{
+    position: relative;
+    grid-area: exerciseDeleteSet;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.exercise--delete-set-wrapper{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding-left: calc(50% - 1.3rem);
+    justify-content: flex-start;
+    align-items: center;
+    border-top: 1px solid $brand-primary;
+    background-color: darken($background-gray, 1);
+    transition: transform 300ms ease-in-out, width 300ms ease-in-out;
+    overflow: hidden;
+
+    &.delete-open{
+        transition: transform 300ms ease-in-out, width 500ms ease-in-out;
+        transform: translate(40%);
+        width: 500%;
+        justify-content: space-evenly;
+    }
+}
+
+p.workout--paragraph.delete-text {
+    margin: 0px;
+    width: 25%;
+}
+
+.delete-set--button{
+    line-height: 1;
+    max-height: 3.4rem;
+    opacity: 0;
+    transform: scale(0);
+    // display: none;
+    transition: all 400ms ease-in-out;
+    // flex: 1 1 auto;
+    // animation: button-in 0.4s ease-in-out forwards;
+
+    &.visible {
+        opacity: 1;
+        transform: scale(1);
+        // display: block;
+        // animation: button-out 0.4s ease-in-out forwards 0.2s;
+        transition: transform 400ms ease-in-out 200ms, opacity 400ms ease-in-out 200ms;
+    }
+}
+
+@keyframes button-in {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes button-out {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 .exercise--orm {
     grid-area: exerciseORM;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
 }

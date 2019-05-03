@@ -69,14 +69,23 @@ export default {
             })
             return Exercises.findOne(_id)
         },
-        startExercise(obj, {_id}, context){
-            const startTime = moment().valueOf().toString();
-            Exercises.update(_id, {
-                $set: {
-                    startTime
-                }
-            })
-            return Exercises.findOne(_id);
+        startExercise(obj, {_id, sets}, {userId}){
+            if(userId){
+                const startTime = moment().valueOf().toString();
+                sets.forEach((set) => {
+                    Sets.insert({...set, user: userId, exerciseId: _id})
+                })
+                // console.log('userSets', userSets)
+                // const result = Sets.insert(userSets);
+                // console.log(result);
+                Exercises.update(_id, {
+                    $set: {
+                        startTime
+                    }
+                })
+                return Exercises.findOne(_id);
+            }
+            throw new Error('Unauthorized');
         },
         endExercise(obj, {_id}, context){
             const endTime = moment().valueOf().toString();
@@ -86,6 +95,15 @@ export default {
                 }
             })
             return Exercises.findOne(_id);
+        },
+        deleteSet(obj, {setId}, context){
+            const set = Sets.findOne({_id: setId});
+            Sets.remove({_id: setId});
+            Sets.update(
+                {exerciseId: set.exerciseId,setNumber: {$gt: set.setNumber}},
+                {$inc: {setNumber: -1}},
+                {multi: true})
+            return Exercises.findOne({_id: set.exerciseId})
         }
     }
 }

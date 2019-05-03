@@ -3,13 +3,42 @@
   border: none;
   color: $button-color;
   cursor: pointer;
+  border-radius: 3px;
   font-size: $base-font-size;
   line-height: 1.2;
   margin-bottom: $space;
   padding: $input-spacing;
   text-transform: uppercase;
+  outline: none;
+  box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.3);
+  &:active {
+    box-shadow: none;
+  }
   &.button--margin-top{
     margin-top: $space;
+  }
+  &:disabled {
+    background-color: lighten($button-bg, 10);
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.button--icon {
+  border-radius: 50%;
+  width: 40px !important;
+  height: 40px !important;
+  margin-bottom: 0px;
+  padding: 0px;
+  background-color: transparent;
+  box-shadow: $box-shadow;
+  fill: $button-bg;
+  transition: all 200ms ease-in-out;
+  &.clicked {
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3);
+    transform: scale(0.8) rotate(90deg);
+    border-radius: 50%;
   }
 }
 
@@ -46,10 +75,21 @@
   text-transform: none;
   display: flex;
   align-items: center;
+  box-shadow: none;
 }
 
 .button__container {
   display: flex;
   flex-direction: row;
+  justify-content: center;
+  &.button__container--start{
+    justify-content: flex-start;
+    margin: 1rem 0;
+  }
+}
+
+.button__icon-container {
+  width: 15%;
+  display: flex;
   justify-content: center;
 }

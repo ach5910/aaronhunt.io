@@ -1,24 +1,29 @@
 import React from 'react';
 import SetTitles from './SetTitles';
 import SetList from './SetList';
+import EditSetList from './EditSetList';
+import RadioGroup from '../Components/RadioGroup';
+import AddCircle from '@material-ui/icons/AddCircle'
+import AddIcon from '../Components/AddIcon';
 
 class CreateExercise extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            setCount: props.exercise.sets.length,
-            editSetId: null,
-            setActive: false
+            // setCount: props.exercise.sets.length,
+            // editSetId: null,
+            // setActive: false,
+            selectedSetId: "",
+            increments: {
+                weight: 2.5,
+                reps: 1
+            },
+            expand: false
         }
         this.setId = null;
         this.weightInput = React.createRef();
+        this.selectItemTimeout = null;
         this.doublClickTimeOut = null;
-    }
-
-    componentDidUpdate = () => {
-        if (this.list && this.state.setCount + 1 === this.list.childElementCount){
-            this.list.lastElementChild.scrollIntoView({behavior: 'smooth'});
-        }
     }
 
     getORM = (activeExercise) => {
@@ -26,73 +31,86 @@ class CreateExercise extends React.Component{
         return isNaN(orm) ? 0 : orm.toFixed(2);
     }
 
-    finishSet = (refetch, previousExercise) => (e) => {
-        if (this.state.edittingSet){
-            this.props.editSet(this.state.editSetId, refetch);
-            this.setState({edittingSet: false, editSetId: null, setActive: false})
-        } else {
-            this.setState({setCount: this.list.childElementCount, setActive: false})
-            this.props.addSet(refetch, previousExercise)(e)
+    handleSelection = (setId) => {
+        console.log('handleClick')
+        if (this.state.selectedSetId !== setId) {
+            this.debounceSetItem(false);
+            this.setState({selectedSetId: setId, expand: false})
         }
     }
 
-    editSet = (e) => {
-        e.preventDefault();
-        let set = null;
-        for (set of this.props.exercise.sets){
-            if (set._id === this.state.editSetId){
-                this.props.startEdittingSet(set);
-                this.setState({edittingSet: true, setActive: true})
-                break;
-            }
+    deleteSet = (setId) => {
+        const {activeExercise} = this.props;
+        this.props.deleteSet(activeExercise._id, setId);
+    }
+
+    debounceSetItem = (expand) => {
+        if (this.selectItemTimeout){
+            clearTimeout(this.selectItemTimeout)
+        }
+        if (!expand){
+            this.selectItemTimeout = setTimeout(() => {
+                if (!this.state.expand){
+                    this.setState({selectedSetId: ""});
+                } else {
+                    clearTimeout(this.selectItemTimeout)
+                }
+            }, 3000)
         }
     }
+        
+      
 
-    addSet = () => {
-        this.setState({setActive: true});
-        setTimeout(() => {
-            if (this.weightInput && this.weightInput.current){
-                this.weightInput.current.focus();
-                this.weightInput.current.select();
+    updateSetByIncrement = (_id, field, value) => (e) => {
+        const {activeExercise} = this.props;
+        console.log('updateSetByInc CREATE NEW');
+        e.stopPropagation();
+        this.props.updateSetByIncrement(activeExercise._id, _id, field, value)(e);
+        this.debounceSetItem(this.state.expand);
+    }
+
+    changeIncrement = (counter) => (newIncrement) => {
+        this.setState((prevState) => ({
+            increments: {
+                ...prevState.increments,
+                [counter]: newIncrement
             }
-        }, 100)
+        }))
     }
 
-    deleteSet = (e) => {
-        e.preventDefault();
-        this.props.deleteSet(this.state.editSetId, this.props.refetch)
-        this.setState({edittingSet: false, editSetId: null})
+    handleExpand = (e) => {
+        this.debounceSetItem(!this.state.expand);
+        this.setState((prev) => ({expand: !prev.expand}))
     }
+    // getRef = (el) => {
+    //     this.list = el;
+    // }
 
-    getRef = (el) => {
-        this.list = el;
-    }
+    // onClickSet = (setId) => {
+    //     if (this.setId === setId){
+    //         this.setState({editSetId: this.setId})
+    //         clearTimeout(this.doublClickTimeOut)
+    //     } else {
+    //         if (this.state.editSetId !== null && this.state.editSetId !== setId){
+    //             this.setState({editSetId: null})
+    //         }
+    //         this.setId = setId;
+    //         this.doublClickTimeOut = setTimeout(() => {
+    //             this.setId = null;
+    //         },1000)
+    //     }
 
-    onClickSet = (setId) => {
-        if (this.setId === setId){
-            this.setState({editSetId: this.setId})
-            clearTimeout(this.doublClickTimeOut)
-        } else {
-            if (this.state.editSetId !== null && this.state.editSetId !== setId){
-                this.setState({editSetId: null})
-            }
-            this.setId = setId;
-            this.doublClickTimeOut = setTimeout(() => {
-                this.setId = null;
-            },1000)
-        }
+    // }
 
-    }
-
-    getDifferences = (curr, best, prev, fixed) => (
-        <React.Fragment>
-            <span style={{color: curr >= best ? "green" : "red"}}>{`${curr > best ? "+" : ""}${(curr - best).toFixed(fixed)}`}</span> / <span style={{color: curr >= prev ? "green" : "red"}}>{`${curr > prev ? "+" : ""}${(curr - prev).toFixed(fixed)}`}</span>
-        </React.Fragment>
-    )
+    // getDifferences = (curr, best, prev, fixed) => (
+    //     <React.Fragment>
+    //         <span style={{color: curr >= best ? "green" : "red"}}>{`${curr > best ? "+" : ""}${(curr - best).toFixed(fixed)}`}</span> / <span style={{color: curr >= prev ? "green" : "red"}}>{`${curr > prev ? "+" : ""}${(curr - prev).toFixed(fixed)}`}</span>
+    //     </React.Fragment>
+    // )
 
     render(){
-        const {exercise, refetch, activeExercise, onChange, finishExercise} = this.props;
-        const {setActive} = this.state;
+        const {exercise, refetch, activeExercise, addedSetId, onChange, finishExercise} = this.props;
+        // const {setActive} = this.state;
         const {topExerciseStats} = exercise.exerciseTemplate;
         const {previousExercise} = exercise;
         let exerciseStats = {totalWeight: 0, totalReps: 0, topORM: 0};
@@ -100,50 +118,47 @@ class CreateExercise extends React.Component{
             exerciseStats = previousExercise.exerciseStats;
         }
         const {totalWeight, totalReps, topORM} = exercise.exerciseStats;
+        console.log(activeExercise);
         return (
             <div className='boxed-view__box boxed-view__box--vert'>
                 <div className='section-title section-title__margin-bottom'>
                     <h2 className="workout--h2" style={{marginBottom: "0px"}}>{exercise.name}</h2>
-                    <button onClick={finishExercise(refetch, setActive)} className="button button--margin">Finish Exercise</button>
+                    <button onClick={finishExercise(activeExercise._id, refetch)} className="button button--margin">Finish Exercise</button>
                 </div>
-                <SetTitles />
-                <SetList deleteSet={this.deleteSet} editSet={this.editSet} getRef={this.getRef} exercise={exercise} handleClick={this.onClickSet} editSetId={this.state.editSetId}/>
-                <div noValidate className="exercise--set exercise--set__header exercise--set__large-rows">
-                        <div className={`pseudo-input exercise--title ${setActive? "" : "disabled"}`} value>{activeExercise.setNumber}</div>
-                        <input ref={this.weightInput} tabIndex={1} autoFocus={setActive} disabled={!setActive} className="exercise--weight"  type="number" pattern="[0-9]*" onChange={onChange("weight")} value={activeExercise.weight} />
-                        <input tabIndex={2} disabled={!setActive} className="exercise--reps"  type="number" pattern="[0-9]*" onChange={onChange("reps")} value={activeExercise.reps} />
-                        {!setActive
-                            ? <button onClick={this.addSet} className="button button--secondary exercise--orm">Add Set</button>
-                            : <button autoFocus={false} tabIndex={3} onClick={this.finishSet(refetch, exercise.previousExercise)} className="button button--secondary exercise--orm">Finish Set</button>
-                        }
+                <SetTitles className="titles" />
+                <EditSetList 
+                    exercise={activeExercise}
+                    increments={this.state.increments}
+                    addedSetId={addedSetId}
+                    handleExpand={this.handleExpand}
+                    expand={this.state.expand}
+                    updateSetByIncrement={this.updateSetByIncrement}
+                    selectedSetId={this.state.selectedSetId}
+                    deleteSet={this.deleteSet}
+                    handleClick={this.handleSelection}
+                    weightIncrementOptions={
+                        <RadioGroup  
+                            values={[2.5, 10, 50]}
+                            style={{borderRight: "none"}}
+                            selected={this.state.increments.weight}
+                            handleClick={this.changeIncrement("weight")}
+                            groupName="weight"
+                            groupId={`${activeExercise._id}-weight`}
+                        />}
+                    repIncrementOptions={
+                        <RadioGroup  
+                            values={[1, 10, 20]}
+                            selected={this.state.increments.reps}
+                            handleClick={this.changeIncrement('reps')}
+                            groupName="reps"
+                            groupId={`${activeExercise._id}-reps`}
+                        />}
+                />
+                <div className="button__container button__container--start">
+                    <div className="button__icon-container ">
+                        <AddIcon clickHandler={this.props.addSet(activeExercise._id)} />
+                    </div>
                 </div>
-                {/* <div className="exercise--set exercise--set__header">
-                    <div className='exercise--weight'><h3 className="workout--h3" >Total Weight</h3></div>
-                    <div className="exercise--reps"><h3 className="workout--h3">Total Reps</h3></div>
-                    <div className="exercise--orm"><h3 className="workout--h3">Max 1RM</h3></div>
-                </div>
-                <div className="exercise--set exercise--set__header " >
-                    <h3 className="workout--h3 exercise--title">Total</h3>
-                    <h4 className='workout--h4 exercise--weight'>{totalWeight.toFixed(2)}</h4>
-                    <h4 className="workout--h4 exercise--reps">{totalReps}</h4>
-                    <h4 className=" workout--h4 exercise--orm">{topORM.toFixed(2)}</h4>
-                </div>
-                <div className="exercise--set exercise--set__header">
-                    <h3 className="workout--h3 exercise--title" style={{marginBottom: "0px"}}>Best / Last</h3>
-                    <h4 className='workout--h4 exercise--weight'>{topExerciseStats.totalWeight.toFixed(2)} / {exerciseStats.totalWeight.toFixed(2)}</h4>
-                    <h4 className="workout--h4 exercise--reps">{topExerciseStats.totalReps} / {exerciseStats.totalReps}</h4>
-                    <h4 className="workout--h4 exercise--orm">{topExerciseStats.topORM.toFixed(2)} / {exerciseStats.topORM.toFixed(2)}</h4>
-                </div>
-                <div className="exercise--set exercise--set__header" >
-                    <h3 className="workout--h3 exercise--title" style={{marginBottom: "0px"}}>Difference</h3>
-                    <div className='workout--h4 exercise--weight'>{this.getDifferences(totalWeight, topExerciseStats.totalWeight, exerciseStats.totalWeight, 2)}</div>
-                    <div className="workout--h4 exercise--reps">{this.getDifferences(totalReps, topExerciseStats.totalReps, exerciseStats.totalReps, 0)}</div>
-                    <div className="workout--h4 exercise--orm">{this.getDifferences(topORM, topExerciseStats.topORM.toFixed(2), exerciseStats.topORM.toFixed(2), 2)}</div>
-                </div>
-                <div className="button__container">
-                    {/* <button onClick={this.addSet(refetch, exercise.previousExercise)} className="button button--secondary button--margin">Add Set</button> */}
-                    
-                {/*</div> */}
             </div>
         )
     }

@@ -11,7 +11,7 @@ import Routes from '../../routes/liftRoutes';
 import { createBrowserHistory } from 'history';
 // import App from '../../ui/App';
 const httpLink = new HttpLink({
-    uri: Meteor.absoluteUrl('graphql')
+    uri: "http://10.0.0.3:3000/graphql"//Meteor.absoluteUrl('graphql')/
 });
 
 // const answers = Answers.find({}).fetch();
