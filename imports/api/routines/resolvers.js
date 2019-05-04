@@ -96,6 +96,17 @@ export default {
                 return Routines.findOne(_id);
             }
             throw new Error("Unauthorized");
+        },
+        removeExercise(obj, {_id, exerciseId}, {userId}){
+            if (userId){
+                Routines.update({_id}, {
+                    $pull: {
+                        exerciseIds: exerciseId
+                    }
+                })
+                return Routines.findOne(_id);
+            }
+            throw new Error('Unauthorized');
         }
     }
 }

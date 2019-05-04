@@ -3,14 +3,14 @@
   border: none;
   color: $button-color;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 5px;
   font-size: $base-font-size;
   line-height: 1.2;
   margin-bottom: $space;
   padding: $input-spacing;
   text-transform: uppercase;
   outline: none;
-  box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: $box-shadow;//2px 2px 2px 0 rgba(0, 0, 0, 0.3);
   &:active {
     box-shadow: none;
   }
@@ -27,18 +27,19 @@
 
 .button--icon {
   border-radius: 50%;
-  width: 40px !important;
-  height: 40px !important;
+  width: 30px !important;
+  height: 30px !important;
   margin-bottom: 0px;
   padding: 0px;
   background-color: transparent;
-  box-shadow: $box-shadow;
+  margin-right: 1rem;
+  // box-shadow: $box-shadow;
+  box-shadow: none;
   fill: $button-bg;
-  transition: all 200ms ease-in-out;
+  transition: transform 300ms ease-in-out;
   &.clicked {
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3);
-    transform: scale(0.8) rotate(90deg);
-    border-radius: 50%;
+    // box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3);
+    transform: rotate(180deg);
   }
 }
 
@@ -58,8 +59,23 @@
 
 .button--secondary {
   background: $button-secondary-bg;
-  border: 1px solid $button-secondary-border-color;
-  color: $button-secondary-color;
+  //border: 1px solid $brand-primary;
+  box-shadow: $box-shadow;
+  color: $brand-primary;
+}
+
+.button--round {
+  border-radius: 40px;
+  line-height: 30px;
+  display: flex;
+  flex-direction: row;
+  padding: 0.5rem;
+  box-shadow: $box-shadow;
+  transition: transform 300ms ease-in-out, box-shadow 300ms ease-in-out;
+  &.clicked{
+    box-shadow: $click-box-shadow;//0px 0px 0px 0px rgba(0, 0, 0, 0);
+    transform: scale(0.8);
+  }
 }
 
 .button--margin {
@@ -82,6 +98,15 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
+  &.space-evenly {
+    justify-content: space-evenly;
+  }
+  &.margin-top{
+    margin-top: 2rem;
+    &--small{
+      margin-top: 1rem;
+    }
+  }
   &.button__container--start{
     justify-content: flex-start;
     margin: 1rem 0;

@@ -105,6 +105,14 @@ const updateSets = gql`
     }
 `
 
+const cancelExercise = gql`
+    mutation cancelExercise($_id: String!, $setIds: [String]){
+        cancelExercise(_id: $_id, setIds: $setIds){
+            _id
+        }
+    }
+`
+
 const routineQuery = gql`
   query routine($_id: String!) {
     routine(_id: $_id) {
@@ -197,28 +205,6 @@ class Workout extends React.Component {
                             sets: exercise.sets
                         }
                     }
-                    // const tempSets = [...exercise.sets];
-                    // const lastSet = tempSets.pop();
-                    // if (exercise.previousExercise && exercise.previousExercise.sets.length > exercise.sets.length){
-                    //     activeExercise = {
-                    //         _id: exercise._id,
-                    //         ...exercise.previousExercise.sets[exercise.sets.length]
-                    //     }
-                    // }else if (lastSet == undefined){
-                    //     activeExercise = {
-                    //         _id: exercise._id,
-                    //         weight: 0,
-                    //         reps: 0,
-                    //         setNumber: 1
-                    //     }
-                    // } else {
-                    //     activeExercise = {
-                    //         _id: exercise._id,
-                    //         weight: lastSet.weight,
-                    //         reps: lastSet.reps,
-                    //         setNumber: exercise.sets.length + 1
-                    //     }
-                    // }
                 }
             })
             this.setState({
@@ -274,8 +260,6 @@ class Workout extends React.Component {
             weight: set.weight,
             orm: set.orm
         }))
-        console.log('preloadValue Exercise', prevloadValue)
-        console.log('sets', sets);
         this.props.startExercise({
             variables: {
                 _id,
@@ -297,36 +281,15 @@ class Workout extends React.Component {
     }
 
     debounceUpdates = (exerciseId) => {
-        console.log('debounceId', this.debounceIds[exerciseId]);
         if (this.debounceIds[exerciseId]){
-            //this.setState({editSetId: this.setId})
-            console.log('clearTimeout')
             clearTimeout(this.debounceIds[exerciseId])
             this.debounceIds[exerciseId] = null;
         } 
-            // if (this.state.editSetId !== null && this.state.editSetId !== setId){
-            //     this.setState({editSetId: null})
-            // }
-            // this.setId = setId;
             this.debounceIds[exerciseId] = setTimeout(() => {
-                console.log('saveUpdatedSets');
                 this.saveUpdatedSets(exerciseId);
                 this.debounceIds[exerciseId] = null;
             },5000)
-            console.log('setTimeout', this.debounceIds[exerciseId]);
-        
     }
-
-    // onChange = (field) => (e) => {
-    //     e.preventDefault();
-    //     e.persist();
-    //     this.setState((prevState) => ({
-    //         activeExercise: {
-    //             ...prevState.activeExercise,
-    //             [field]: e.target.value
-    //         }
-    //     }))
-    // }
 
     deleteSet = (exerciseId, setId) => {
         if (this.debounceIds[exerciseId]) {
@@ -353,14 +316,12 @@ class Workout extends React.Component {
                     }
                 }
             }))
-            // refetch();
         }).catch((error) => {
             console.log('deleteSet', error)
         })
     }
 
     saveUpdatedSets = (exerciseId, callBack = undefined, callBackParams = undefined) => {
-        console.log('savUpdatesSet', callBack, callBackParams)
         const setInputs = this.state.activeExercises[exerciseId].sets.map(set => {
             const {__typename, ...setInput} = set
             return setInput;
@@ -371,23 +332,11 @@ class Workout extends React.Component {
                 exerciseId
             }
         }).then(({data}) => {
-            console.log('saveUpdatedSets', data)
             if (callBack) callBack(exerciseId, callBackParams);
         }).catch((error) => {
             console.log('saveUpdatedSets Error', error);
         })
     }
-    // startEdittingSet = (set) => {
-    //     this.setState((prevState) => ({
-    //         activeExercise: {
-    //             _id: prevState.activeExercise._id,
-    //             weight: set.weight,
-    //             reps: set.reps,
-    //             setNumber: prevState.activeExercise.setNumber
-    //         },
-    //         edittingSet: true
-    //     }))
-    // }
 
     updateSetByInput = (_id, field) => (e) => {
         e.preventDefault();
@@ -395,7 +344,6 @@ class Workout extends React.Component {
         this.updateSetByIncrement(_id, field, e.target.value)(e);
     }
     updateSetByIncrement = (exerciseId, _id, field, value) => (e) => {
-        console.log('updateSEtByInc', _id, field, value);
         this.setState((prevState) => ({
             activeExercises : {
                 ...prevState.activeExercises,
@@ -412,39 +360,15 @@ class Workout extends React.Component {
         }))
         this.debounceUpdates(exerciseId)
     }
-    // editSet = (setId, refetch) => {
-    //     const {weight, reps} = this.state.activeExercise;
-    //     this.props.editSet({
-    //         variables: {
-    //             _id: setId,
-    //             weight: parseFloat(weight),
-    //             reps: parseInt(reps)
-    //         }
-    //     }).then(({data}) => {
-    //         this.setState((prevState) => ({
-    //             activeExercise: {
-    //                 _id: prevState.activeExercise._id,
-    //                 weight,
-    //                 reps,
-    //                 setNumber: prevState.activeExercise.setNumber
-    //             }
-    //         }))
-    //         refetch();
-    //     }).catch((error) => {
-    //         console.log('editSet', error);
-    //     })
-    // }
 
     addSet = (exerciseId) => (e) => {
         e.preventDefault();
-        console.log('addSet')
         const activeExercise = this.state.activeExercises[exerciseId];
         const {weight, reps, setNumber} = activeExercise.sets[activeExercise.sets.length - 1];
         this.props.createSet({
             variables: {
                 weight: parseFloat(weight),
                 reps: parseInt(reps),
-                // setNumber,
                 exerciseId
             }
         }).then(({data}) => {
@@ -458,24 +382,6 @@ class Workout extends React.Component {
                 },
                 addedSetId: data.createSet._id
             }))
-            // if (previousExercise && previousExercise.sets.length > setNumber){
-            //     this.setState((prevState) => ({
-            //         activeExercise: {
-            //             _id: prevState.activeExercise._id,
-            //             ...previousExercise.sets[setNumber]
-            //         }
-            //     }))
-            // } else {
-            //     this.setState((prevState) => ({
-            //         activeExercise: {
-            //             _id: prevState.activeExercise._id,
-            //             weight,
-            //             reps,
-            //             setNumber: prevState.activeExercise.setNumber + 1,
-            //         }
-            //     }))
-            // }
-            // refetch();
             setTimeout(()=> {this.setState({addedSetId: null})}, 2000)
         }).catch((error) => {
             console.log('createSet', error);
@@ -485,14 +391,12 @@ class Workout extends React.Component {
 
     finishWorkout = (e = undefined) => {
         if(e) e.preventDefault();
-        console.log('fishishs');
         let savedExercise = false;
         const activeExerciseIds = Object.keys(this.state.activeExercises);
         for(let exerciseId of activeExerciseIds){
             if (this.debounceIds[exerciseId]){
                 clearTimeout(this.debounceIds[exerciseId]);
                 this.debounceIds[exerciseId] = null;
-                console.log('saveFinished')
                 this.saveUpdatedSets(exerciseId, this.endExercise, this.finishWorkout);
                 savedExercise = true;
                 break;
@@ -501,15 +405,9 @@ class Workout extends React.Component {
         if (!savedExercise){
             this.saveFinishedWorkout();
         }
-        // if (this.debounceId) {
-            // clearTimeout(this.debounceId);
-            // this.saveUpdatedSets(this.saveFinishedWorkout)
-        // } else {
-        // }
     }
 
     saveFinishedWorkout = () => {
-        console.log('saveFinishedWorkout')
         this.props.endRoutine({
             variables: {
                 _id: this.state.routine._id
@@ -536,24 +434,22 @@ class Workout extends React.Component {
         }
     }
 
-    // finishSetEndExercise = (refetch) => {
-    //     const {weight, reps, setNumber} = this.state.activeExercise;
-    //     this.props.createSet({
-    //         variables: {
-    //             weight: parseFloat(weight),
-    //             reps: parseInt(reps),
-    //             // setNumber,
-    //             exerciseId: this.state.activeExercise._id
-    //         }
-    //     }).then(({data}) => {
-    //         this.endExercise(refetch);
-    //     }).catch((error) => {
-    //         console.log('createSet', error);
-    //     })
-    // }
+    cancelExercise = (exerciseId, refetch) => (e) => {
+        const {[exerciseId]: exercise, ...activeExercises} = this.state.activeExercises;
+        this.props.cancelExercise({
+            variables: {
+                _id: exerciseId,
+                setIds: exercise.sets.map((set) => set._id)
+            }
+        }).then(({data}) => {
+            this.setState({activeExercises})
+            refetch();
+        }).catch((error) => {
+            console.log('cancelExercise error', error)
+        })
+    }
 
     endExercise = (exerciseId, refetch) => {
-        console.log('endExercise');
         const {[exerciseId]: value, ...activeExercises} = this.state.activeExercises;
         this.props.endExercise({
             variables: {
@@ -606,16 +502,6 @@ class Workout extends React.Component {
         })
     }
 
-    // handleSelectedDate = (date) => {
-    //     console.log('interpolate selection');
-    //     this.setState({selectedDate: moment(date).format("YYYY-MM-DD")});
-    // }
-
-    // onChangeDate = date => {
-    //     const formattedDate = moment(date).format("YYYY-MM-DD");
-    //     console.log('formattedDate', formattedDate);
-    //     this.setState({date: formattedDate})
-    // }
     dateOfRoutine = (routineDate) => {
         let firstIndex = true
         for(let routine of this.state.routineDates){
@@ -646,7 +532,6 @@ class Workout extends React.Component {
     render(){
         const {routine, activeExercises, finishedExercises, viewWorkout, selectRoutineModal, routinesForDay, addExerciseModal, selectedView, routineDates} = this.state;
         const {routineTemplates, exerciseTemplates, routines, loading, ...data} = this.props;
-        // console.log(data);
         if (loading) return <div>Loading...</div>
         if (routineDates.length === 0) {
             if (routines && routines.length && routines.length > 0 ){
@@ -753,6 +638,7 @@ class Workout extends React.Component {
                                         addedSetId={this.state.addedSetId}
                                         finishExercise={this.finishExercise}
                                         finishedExercises={this.state.finishedExercises}
+                                        cancelExercise={this.cancelExercise}
                                         updateSetByIncrement={this.updateSetByIncrement}
                                         updateSetByInput={this.updateSetByInput}
                                         refetch={refetch}
@@ -763,7 +649,6 @@ class Workout extends React.Component {
                                     
                                         <form noValidate className="boxed-view__form">
                                             <button
-                                                // disabled={Object.keys(activeExercises).length !== 0}
                                                 onClick={this.finishWorkout}
                                                 type="submit"
                                                 className={`button button--margin-top`}
@@ -784,14 +669,12 @@ class Workout extends React.Component {
                         }}
                     </Query>
                 }
-                
                     <SelectRoutine 
                         modalOpen={selectRoutineModal}
                         routineTemplates={routineTemplates} 
                         closeSelectRoutineModal={this.closeSelectRoutineModal}
                         selectRoutine={this.selectRoutine}
                     />
-            
             </React.Fragment>
         )
     }
@@ -810,6 +693,8 @@ graphql(startExercise, {
     name: "startExercise"
 }), graphql(endExercise, {
     name: "endExercise"
+}), graphql(cancelExercise, {
+    name: 'cancelExercise'
 }),
 graphql(editSet, {
     name: "editSet"

@@ -2,7 +2,7 @@ import React from 'react';
 import CreateExercise from './CreateExercise';
 import ExerciseListItem from './ExerciseListItem';
 
-const Exercises = ({exercises, activeExercises, startExercise, refetch, addSet, addedSetId, finishExercise, finishedExercises, updateSetByIncrement, updateSetByInput, editSet, deleteSet, startEdittingSet}) => {
+const Exercises = ({exercises, cancelExercise, activeExercises, startExercise, refetch, addSet, addedSetId, finishExercise, finishedExercises, updateSetByIncrement, updateSetByInput, editSet, deleteSet, startEdittingSet}) => {
     let completedExercises = [];
     let currentExercises = [];
     let remainingExercises = [];
@@ -29,6 +29,7 @@ const Exercises = ({exercises, activeExercises, startExercise, refetch, addSet, 
                         activeExercise={activeExercises[exercise._id]}
                         addSet={addSet}
                         finishExercise={finishExercise}
+                        cancelExercise={cancelExercise}
                         updateSetByIncrement={updateSetByIncrement}
                         updateSetByInput={updateSetByInput}
                         editSet={editSet}

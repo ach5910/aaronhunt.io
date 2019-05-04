@@ -33,6 +33,8 @@ extend type Mutation {
     createExercise(exerciseTemplateId: String!): Exercise
     addToRoutine(_id: String!, templateId: String!): Exercise
     startExercise(_id: String!, sets: [SetInput]): Exercise
+    cancelExercise(_id: String!, setIds: [String]): Exercise
+    deleteExercise(_id: String!): Boolean
     endExercise(_id: String!): Exercise
     deleteSet(setId: String!): Exercise
 }

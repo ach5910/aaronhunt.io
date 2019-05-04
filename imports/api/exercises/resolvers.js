@@ -51,6 +51,20 @@ export default {
         }
     },
     Mutation: {
+        cancelExercise(obj, {_id, setIds}, {userId}){
+            if (userId){
+                setIds.forEach((_id) => {
+                    Sets.remove({_id});
+                })
+                Exercises.update(_id, {
+                    $set: {
+                        startTime: null
+                    }
+                });
+                return Exercises.findOne(_id);
+            }
+            throw new Error('Unauthorized');
+        },
         createExercise(obj, {templateId}, {userId}) {
             if (userId){
                 const exerciseId = Exercises.insert({
@@ -58,6 +72,13 @@ export default {
                     templateId
                 });
                 return Exercises.findOne(exerciseId);
+            }
+            throw new Error('Unauthorized');
+        },
+        deleteExercise(obj, {_id}, {userId}){
+            if(userId){
+                Exercises.remove({_id});
+                return true;
             }
             throw new Error('Unauthorized');
         },

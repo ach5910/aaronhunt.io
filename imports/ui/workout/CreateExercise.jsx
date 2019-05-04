@@ -32,7 +32,6 @@ class CreateExercise extends React.Component{
     }
 
     handleSelection = (setId) => {
-        console.log('handleClick')
         if (this.state.selectedSetId !== setId) {
             this.debounceSetItem(false);
             this.setState({selectedSetId: setId, expand: false})
@@ -63,7 +62,6 @@ class CreateExercise extends React.Component{
 
     updateSetByIncrement = (_id, field, value) => (e) => {
         const {activeExercise} = this.props;
-        console.log('updateSetByInc CREATE NEW');
         e.stopPropagation();
         this.props.updateSetByIncrement(activeExercise._id, _id, field, value)(e);
         this.debounceSetItem(this.state.expand);
@@ -109,7 +107,7 @@ class CreateExercise extends React.Component{
     // )
 
     render(){
-        const {exercise, refetch, activeExercise, addedSetId, onChange, finishExercise} = this.props;
+        const {exercise, refetch, activeExercise, cancelExercise, addedSetId, onChange, finishExercise} = this.props;
         // const {setActive} = this.state;
         const {topExerciseStats} = exercise.exerciseTemplate;
         const {previousExercise} = exercise;
@@ -118,14 +116,13 @@ class CreateExercise extends React.Component{
             exerciseStats = previousExercise.exerciseStats;
         }
         const {totalWeight, totalReps, topORM} = exercise.exerciseStats;
-        console.log(activeExercise);
         return (
             <div className='boxed-view__box boxed-view__box--vert'>
-                <div className='section-title section-title__margin-bottom'>
+                <div className='section-title'>
                     <h2 className="workout--h2" style={{marginBottom: "0px"}}>{exercise.name}</h2>
-                    <button onClick={finishExercise(activeExercise._id, refetch)} className="button button--margin">Finish Exercise</button>
+                    <AddIcon clickHandler={this.props.addSet(activeExercise._id)} />
                 </div>
-                <SetTitles className="titles" />
+                <SetTitles />
                 <EditSetList 
                     exercise={activeExercise}
                     increments={this.state.increments}
@@ -154,10 +151,9 @@ class CreateExercise extends React.Component{
                             groupId={`${activeExercise._id}-reps`}
                         />}
                 />
-                <div className="button__container button__container--start">
-                    <div className="button__icon-container ">
-                        <AddIcon clickHandler={this.props.addSet(activeExercise._id)} />
-                    </div>
+                <div className="button__container space-evenly margin-top">
+                    <button onClick={cancelExercise(activeExercise._id, refetch)} className="button button--secondary">Cancel Exercise</button>
+                    <button onClick={finishExercise(activeExercise._id, refetch)} className="button">Finish Exercise</button>
                 </div>
             </div>
         )
