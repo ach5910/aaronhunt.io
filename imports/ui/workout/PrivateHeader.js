@@ -3,7 +3,8 @@ import { Meteor } from 'meteor/meteor';
 import {
   WORKOUT_PAGE,
   ROUTINES_PAGE,
-  EXERCISES_PAGE
+  EXERCISES_PAGE,
+  PROGRESS_PAGE
 } from '../../startup/client/constants';
 
 const PrivateHeader = (props) => {
@@ -32,6 +33,13 @@ const PrivateHeader = (props) => {
             style={{marginRight: "10px"}}
           >
             Exercises
+          </button>
+          <button 
+            className="button button--link-text" 
+            onClick={() => {props.onPageChange(PROGRESS_PAGE)}}
+            style={{marginRight: "10px"}}
+          >
+            Progress
           </button>
           <button className="button button--link-text" onClick={() => {
             Meteor.logout(() => {props.history.replace('/')});

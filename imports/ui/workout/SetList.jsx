@@ -1,6 +1,7 @@
 import React from 'react';
 import Edit from '@material-ui/icons/Edit';
 import DeleteForever from '@material-ui/icons/DeleteForever';
+import { getORM } from '../../startup/client/utils';
 
 const SetList = ({exercise, getRef = undefined, handleClick = undefined, editSetId = null, editSet, deleteSet}) => (
     <ul className="workout--list" ref={(el) => { if(getRef !== undefined) getRef(el);}} >
@@ -22,7 +23,7 @@ const SetList = ({exercise, getRef = undefined, handleClick = undefined, editSet
                         <div className="exercise--title">{set.setNumber}</div>
                         <div className='exercise--weight'>{set.weight}</div>
                         <div className="exercise--reps">{set.reps}</div>
-                        <div className="exercise--orm">{set.orm.toFixed(2)}</div>
+                        <div className="exercise--orm">{getORM(set)}</div>
                     </li>
                 }
             </React.Fragment>

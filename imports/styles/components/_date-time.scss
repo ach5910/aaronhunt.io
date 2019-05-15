@@ -1,0 +1,23 @@
+.date-time-container {
+    display: flex;
+    margin-bottom: $space * 2;
+}
+
+.date-time-calendar-list, .date-time-duration-list{
+    min-width: 0%;
+    top: 100%;
+    left: 0;
+    transform: scale(0) translateZ(-20px);
+}
+
+.date-time-duration-list {
+    max-height: 300px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.input__form-container.selected .select__list{
+    &.date-time-calendar-list, &.date-time-duration-list{
+        transform: scale(1) translateZ(0px);
+    }
+}

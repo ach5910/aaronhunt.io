@@ -1,10 +1,44 @@
 import moment from 'moment';
 
+export function isEmptyValue(value) {
+    if (value instanceof Set) {
+      return value.size <= 0;
+    } else if (Array.isArray(value)) {
+      return value.length <= 0;
+    } else if (value instanceof Function) {
+      return false;
+    } else if (typeof value === "string" || value instanceof String) {
+      return value.length <= 0;
+    } else if (typeof value === "object" && JSON.stringify(value) === JSON.stringify({})) {
+      return true;
+    }
+    return value === null || value === undefined || value === false;
+}
+
+export function isFalseyValue(value) {
+    return isEmptyValue(value) || value === 0;
+}
+  
+export const safeInject = (dependency, fallback = "", desired = false) => {
+    if (isFalseyValue(dependency)) {
+      return fallback;
+    } else if (desired === false) {
+      return dependency;
+    } else {
+      return desired;
+    }
+};
+  
 export const getDuration = (startTime, endTime) => {
     if (!endTime) return "";
     const start = moment(startTime, "x");
     const end = moment(endTime, "x")
     return moment.utc(end.diff(start)).format("HH:mm:ss");
+}
+
+export const getORM = (set) => {
+    const orm = parseInt(set.weight) * (1 + (parseInt(set.reps) / 30))
+    return isNaN(orm) ? 0 : orm.toFixed(2);
 }
 
 export const rabinKarp = (pat, txt) => { 

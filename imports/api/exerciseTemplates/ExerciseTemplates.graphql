@@ -8,7 +8,7 @@ type ExerciseTemplate {
     _id: String!
     createBy: String!
     name: String!
-    exercises: Exercise
+    exercises: [Exercise]
     topExerciseStats: TopExerciseStats
     tags: [Tag]
 }

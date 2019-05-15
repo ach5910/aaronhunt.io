@@ -13,6 +13,8 @@ import moment from 'moment';
 
 import 'react-infinite-calendar/styles.css'; // Make sure to import the default stylesheet
 import { getDuration } from '../../startup/client/utils';
+import ViewWorkout from './ViewWorkout';
+import WorkoutDate from './WorkoutDate';
 
 const createSet = gql`
     mutation createSet($weight: Float!, $reps: Int!, $exerciseId: String!) {
@@ -25,13 +27,13 @@ const createSet = gql`
     }
 `;
 
-const editSet = gql`
-    mutation editSet($_id: String!, $weight: Float!, $reps: Int!){
-        editSet(_id: $_id, weight: $weight, reps: $reps){
-            _id
-        }
-    }
-`;
+// const editSet = gql`
+//     mutation editSet($_id: String!, $weight: Float!, $reps: Int!){
+//         editSet(_id: $_id, weight: $weight, reps: $reps){
+//             _id
+//         }
+//     }
+// `;
 
 const deleteSet = gql`
     mutation deleteSet($_id: String!){
@@ -49,16 +51,16 @@ const deleteSet = gql`
     }
 `;
 const endRoutine = gql`
-    mutation endRoutine($_id: String!){
-        endRoutine(_id: $_id){
+    mutation endRoutine($_id: String!, $logged: Boolean, $date: String, $duration: String ){
+        endRoutine(_id: $_id, logged: $logged, date: $date, duration: $duration){
             _id
         }
     }
 `;
 
 const createRoutine = gql`
-    mutation createRoutine($templateId: String!, $exerciseTemplateIds: [String!]){
-        createRoutine(templateId: $templateId, exerciseTemplateIds: $exerciseTemplateIds){
+    mutation createRoutine($templateId: String!, $exerciseTemplateIds: [String!], $logged: Boolean!){
+        createRoutine(templateId: $templateId, exerciseTemplateIds: $exerciseTemplateIds, logged: $logged){
             _id
         }
     }
@@ -113,11 +115,18 @@ const cancelExercise = gql`
     }
 `
 
+const deleteExercise = gql`
+    mutation deleteExercise($_id: String!, $routineId: String!){
+        deleteExercise(_id: $_id, routineId: $routineId)
+    }
+`
+
 const routineQuery = gql`
   query routine($_id: String!) {
     routine(_id: $_id) {
       _id
       name
+      logged
       exercises {
         _id
         startTime
@@ -183,6 +192,8 @@ class Workout extends React.Component {
             routinesForDay: [],
             viewWorkout: false,
             addedSetId: null,
+            logDate: undefined,
+            logDuration: "1:30"
         }
         this.debounceIds = {};
     }
@@ -215,6 +226,21 @@ class Workout extends React.Component {
         } 
     }
 
+    componentDidUpdate = (prevProps, prevState) => {
+        const {routines} = this.props;
+        const {routineDates} = this.state;
+        // We a new routine is created. Update the routineDates and choose the selected date (logDate).
+        // Check that routineDates hasn't already been update via initial load
+        if (prevProps.routines && routines && prevProps.routines.length !== routines.length 
+            && routineDates.length > 0 && prevState.routineDates.length === routineDates.length){
+            
+            const {logDate} = this.state;
+            const _routineDates = routines.map(routine => moment(routine.startTime, "x").format("YYYY-MM-DD"));
+            this.onSelectDate(moment(logDate, "MM/DD/YY").format("YYYY-MM-DD"), [_routineDates[0], ..._routineDates]);
+            
+        }
+    }
+
     closeSelectRoutineModal = (e) => {
         e.preventDefault();
         this.setState({selectRoutineModal: false})
@@ -225,7 +251,7 @@ class Workout extends React.Component {
         this.setState({selectRoutineModal: true})
     }
 
-    selectRoutine = (routineTemplate) => (e) => {
+    selectRoutine = (routineTemplate, recordMethod) => (e) => {
         e.preventDefault();
         this.setState({routineTemplate});
         const exerciseTemplateIds = routineTemplate.exerciseTemplates
@@ -234,13 +260,15 @@ class Workout extends React.Component {
         this.props.createRoutine({
             variables: {
                 templateId: routineTemplate._id,
-                exerciseTemplateIds
+                exerciseTemplateIds,
+                logged: recordMethod === 'log'
             }
         }).then(({data}) => {
             this.setState({
                 routine: {
                     _id: data.createRoutine._id,
                     name: routineTemplate.name,
+                    logged: recordMethod === 'log'
                 },
                 selectRoutineModal: false
             })
@@ -251,7 +279,7 @@ class Workout extends React.Component {
     
     startExercise = (_id, previousExercise) => (e) => {
         e.preventDefault();
-        const prevloadValue = previousExercise.sets && previousExercise.sets.length !== 0 
+        const prevloadValue = previousExercise && previousExercise.sets && previousExercise.sets.length !== 0 
             ? previousExercise
             : DEFAULT_SETS
         const sets = prevloadValue.sets.map(set => ({
@@ -277,6 +305,29 @@ class Workout extends React.Component {
             }))
         }).catch((error) => {
             console.log('startExercise', error)
+        })
+    }
+
+    deleteExercise = (exerciseId, routineId) => (e) => {
+        const {exerciseId: value, ...activeExercises} = this.state.activeExercises;
+        if (this.debounceIds[exerciseId]){
+            clearTimeout(this.debounceIds[exerciseId]);
+            this.debounceIds[exerciseId] = null;
+        }
+        this.props.deleteExercise({
+            variables: {
+                _id: exerciseId,
+                routineId
+            }
+        }).then(({data}) => {
+            console.log('deleteExercise', data);
+            this.setState((prevState) => ({
+                activeExercises,
+                finishedExercises: prevState.finishedExercises
+                    .filter((_id) => _id !== exerciseId)
+            }))
+        }).catch((error) => {
+            console.log('deleteExericse', error)
         })
     }
 
@@ -338,11 +389,6 @@ class Workout extends React.Component {
         })
     }
 
-    updateSetByInput = (_id, field) => (e) => {
-        e.preventDefault();
-        e.persist();
-        this.updateSetByIncrement(_id, field, e.target.value)(e);
-    }
     updateSetByIncrement = (exerciseId, _id, field, value) => (e) => {
         this.setState((prevState) => ({
             activeExercises : {
@@ -391,27 +437,40 @@ class Workout extends React.Component {
 
     finishWorkout = (e = undefined) => {
         if(e) e.preventDefault();
-        let savedExercise = false;
-        const activeExerciseIds = Object.keys(this.state.activeExercises);
-        for(let exerciseId of activeExerciseIds){
-            if (this.debounceIds[exerciseId]){
-                clearTimeout(this.debounceIds[exerciseId]);
-                this.debounceIds[exerciseId] = null;
-                this.saveUpdatedSets(exerciseId, this.endExercise, this.finishWorkout);
-                savedExercise = true;
-                break;
-            }
-        }
-        if (!savedExercise){
+        // let savedExercise = false;
+        const exerciseId = Object.keys(this.state.activeExercises)[0];
+        if (exerciseId) {
+            this.finishExercise(exerciseId, this.finishWorkout)();
+        } else {
             this.saveFinishedWorkout();
         }
+        // for(let exerciseId of activeExerciseIds){
+        //     if (this.debounceIds[exerciseId]){
+        //         clearTimeout(this.debounceIds[exerciseId]);
+        //         this.debounceIds[exerciseId] = null;
+        //         this.saveUpdatedSets(exerciseId, this.endExercise, this.finishWorkout);
+        //         savedExercise = true;
+        //         break;
+        //     }
+        // }
     }
 
     saveFinishedWorkout = () => {
-        this.props.endRoutine({
-            variables: {
-                _id: this.state.routine._id
+        let variables = {
+            _id: this.state.routine._id,
+        }
+        const {logged} = this.state.routine;
+        const {logDate, logDuration} = this.state;
+        if (logged && logDate && logDuration) {
+            variables = {
+                ...variables,
+                logged,
+                date: logDate,
+                duration: logDuration
             }
+        }
+        this.props.endRoutine({
+            variables
         }).then(({data}) => {
             this.setState({
                 routine: null,
@@ -424,7 +483,7 @@ class Workout extends React.Component {
     }
 
     finishExercise = (exerciseId, refetch) => (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         if (this.debounceIds[exerciseId]){
             clearTimeout(this.debounceIds[exerciseId])
             this.debounceIds[exerciseId] = null;
@@ -434,7 +493,8 @@ class Workout extends React.Component {
         }
     }
 
-    cancelExercise = (exerciseId, refetch) => (e) => {
+    cancelExercise = (exerciseId, refetch, viewWorkout = false) => (e) => {
+        console.log('cancelExercise viewWorkout', viewWorkout);
         const {[exerciseId]: exercise, ...activeExercises} = this.state.activeExercises;
         this.props.cancelExercise({
             variables: {
@@ -442,15 +502,20 @@ class Workout extends React.Component {
                 setIds: exercise.sets.map((set) => set._id)
             }
         }).then(({data}) => {
-            this.setState({activeExercises})
-            refetch();
+            this.setState((prevState) => ({
+                activeExercises,
+                finishedExercises: viewWorkout
+                    ? prevState.finishedExercises.filter(_id => _id !== exerciseId)
+                    : prevState.finishedExercises
+            }))
+            if (refetch) refetch();
         }).catch((error) => {
             console.log('cancelExercise error', error)
         })
     }
 
     endExercise = (exerciseId, refetch) => {
-        const {[exerciseId]: value, ...activeExercises} = this.state.activeExercises;
+        const {[exerciseId]: exercise, ...activeExercises} = this.state.activeExercises;
         this.props.endExercise({
             variables: {
                 _id: exerciseId
@@ -458,9 +523,18 @@ class Workout extends React.Component {
         }).then(({data}) => {
             this.setState((prevState) => ({
                 finishedExercises: [...prevState.finishedExercises, exerciseId],
-                activeExercises
+                activeExercises,
+                // routine: {
+                //     ...prevState.routine,
+                //     exercises: prevState.routine.exercises.map((ex) => {
+                //         if (ex._id === exerciseId){
+                //             return exercise;
+                //         } 
+                //         return ex;
+                //     })
+                // }
             }))
-            refetch()
+            if (refetch) refetch();
         }).catch((error) => {
             console.log('endExercise', error)
         })
@@ -502,6 +576,21 @@ class Workout extends React.Component {
         })
     }
 
+    editExercise = (exercise, viewWorkout = false) => (e) => {
+        e.preventDefault();
+        this.setState((prevState) => ({
+            activeExercises: {
+                ...prevState.activeExercises,
+                [exercise._id]: {
+                    ...exercise
+                }
+            },
+            finishedExercises: viewWorkout
+                ? prevState.finishedExercises
+                : prevState.finishedExercises.filter((_id) => (_id !== exercise._id))
+        }))
+    }
+
     dateOfRoutine = (routineDate) => {
         let firstIndex = true
         for(let routine of this.state.routineDates){
@@ -515,6 +604,15 @@ class Workout extends React.Component {
         }
         
     }
+
+    onSelectLogDate = (date) => {
+        this.setState({logDate: moment(date).format("MM/DD/YY")})
+    }
+
+    onSelectLogDuration = (logDuration) => (e) => {
+        this.setState({logDuration})
+    }
+
     onSelectDate = (date, state = undefined) => {
         let _routineDates = state ? state : [...this.state.routineDates];
         _routineDates[0] = state ? date : moment(date, "x").format("YYYY-MM-DD");
@@ -523,11 +621,29 @@ class Workout extends React.Component {
             routinesForDay = this.props.routines.filter(routine => 
                 moment(routine.startTime, "x").format("YYYY-MM-DD") === _routineDates[0])
         } 
-        this.setState({routineDates: _routineDates, routinesForDay})
+        this.setState({
+            routineDates: _routineDates,
+            routinesForDay,
+            logDate: moment(_routineDates[0]).format("MM/DD/YY")
+        })
         
     }
     toggleView = (selectedView) => (e) => {
         this.setState({selectedView})
+    }
+
+    logTime = (e) => {
+
+        if(e) e.preventDefault();
+        const {logDate, logDuration} = this.state;
+        // console.log('date', routineDates[0])
+        // console.log('date moment', moment(routineDates[0]))
+        console.log('date moment format', moment(logDate, "MM/DD/YY").format("MM/DD/YY hh:mm"))
+        const [hours, minutes] = logDuration.split(":");
+        const endTime = moment(logDate, "MM/DD/YY").add(hours, "hours").add(minutes, "minutes");
+        // console.log('end moment', endTime);
+        console.log('end format', moment(endTime).format("MM/DD/YY hh:mm"));
+        // console.log('date value end value', moment(routineDates[0]).valueOf(), moment(endTime).valueOf());
     }
     render(){
         const {routine, activeExercises, finishedExercises, viewWorkout, selectRoutineModal, routinesForDay, addExerciseModal, selectedView, routineDates} = this.state;
@@ -588,38 +704,29 @@ class Workout extends React.Component {
                     </React.Fragment >
                 }
                 {viewWorkout && routine !== null && routine._id &&
-                    <React.Fragment>
-                        <div className="section-title">
-                            <h1 className="workout--h1">{routine.name} {getDuration(routine.startTime, routine.endTime)}</h1>
-                            <button onClick={this.cancelViewWorkout} className="button button--link-text">
-                                Return
-                            </button>
-                        </div>
-                        <Exercises
-                            exercises={routine.exercises.filter(exer => finishedExercises.includes(exer._id))}
-                            startExercise={this.startExercise}
-                            activeExercises={activeExercises}
-                            addSet={this.addSet}
-                            finishExercise={this.finishExercise}
-                            finishedExercises={this.state.finishedExercises}
-                            updateSetByIncrement={this.updateSetByIncrement}
-                            updateSetByInput={this.updateSetByInput}
-                            refetch={() => {}}
-                            editSet={this.editSet}
-                            deleteSet={this.deleteSet}
-                            startEdittingSet={this.startEdittingSet}
-                        />
-                        <form noValidate className="boxed-view__form">
-                            <button onClick={this.cancelViewWorkout} type="submit" className="button button--margin-top">Return</button>
-                        </form>
-                    </React.Fragment>
-
+                    <ViewWorkout
+                        routine={routine}
+                        cancelViewWorkout={this.cancelViewWorkout}
+                        activeExercises={activeExercises}
+                        startExercise={this.startExercise}
+                        addSet={this.addSet}
+                        finishExercise={this.finishExercise}
+                        finishedExercises={finishedExercises}
+                        updateSetByIncrement={this.updateSetByIncrement}
+                        refetch={() => {}}
+                        deleteSet={this.deleteSet}
+                        editExercise={this.editExercise}
+                        deleteExercise={this.deleteExercise}
+                        cancelViewWorkout={this.cancelViewWorkout}
+                    />
                 }
                 {!viewWorkout && routine !== null && routine._id &&
                     <Query query={routineQuery} variables={{_id: routine._id}}>
                         {({loading, error, data, refetch}) => {
                             if (loading) return <div>Loading</div>;
                             if (error) return <div>{error}</div>;
+                            const {logged} = data.routine;
+                            const {logDate, logDuration} = this.state;
                             return (
                                 <React.Fragment>
                                     <div className="section-title">
@@ -629,34 +736,40 @@ class Workout extends React.Component {
                                             Add Exercise
                                         </button>
                                     </div>
+                                    {logged &&
+                                        <WorkoutDate
+                                            date={logDate}
+                                            duration={logDuration}
+                                            onSelectDate={this.onSelectLogDate}
+                                            onSelectDuration={this.onSelectLogDuration}
+                                        />
+                                    }
                                     <hr/>
                                     <Exercises
+                                        date={routineDates[0]}
                                         exercises={data.routine.exercises}
                                         startExercise={this.startExercise}
                                         activeExercises={activeExercises}
+                                        logged={logged}
                                         addSet={this.addSet}
                                         addedSetId={this.state.addedSetId}
                                         finishExercise={this.finishExercise}
                                         finishedExercises={this.state.finishedExercises}
                                         cancelExercise={this.cancelExercise}
                                         updateSetByIncrement={this.updateSetByIncrement}
-                                        updateSetByInput={this.updateSetByInput}
                                         refetch={refetch}
-                                        editSet={this.editSet}
+                                        editExercise={this.editExercise}
                                         deleteSet={this.deleteSet}
-                                        startEdittingSet={this.startEdittingSet}
                                     />
-                                    
-                                        <form noValidate className="boxed-view__form">
-                                            <button
-                                                onClick={this.finishWorkout}
-                                                type="submit"
-                                                className={`button button--margin-top`}
-                                            >
-                                                Finish Workout
-                                            </button>
-                                        </form>
-                                    
+                                    <form noValidate className="boxed-view__form">
+                                        <button
+                                            onClick={this.finishWorkout}
+                                            type="submit"
+                                            className={`button button--margin-top`}
+                                        >
+                                            {logged ? "Log Workout" : "Finish Workout"}
+                                        </button>
+                                    </form>
                                     {addExerciseModal &&
                                         <AddExerciseTemplate 
                                             exerciseTemplates={exerciseTemplates}
@@ -681,39 +794,34 @@ class Workout extends React.Component {
 }
 
 export default compose(
-graphql(createSet, {
+    graphql(createSet, {
     name: "createSet"
 }), graphql(createRoutine, {
     name: "createRoutine",
     options: {
         refetchQueries: ['getMostRecentRoutine']
     }
-}), 
-graphql(startExercise, {
+}), graphql(startExercise, {
     name: "startExercise"
 }), graphql(endExercise, {
     name: "endExercise"
 }), graphql(cancelExercise, {
     name: 'cancelExercise'
-}),
-graphql(editSet, {
-    name: "editSet"
-}), graphql(deleteSet, {
+}),graphql(deleteSet, {
     name: "deleteSet"
-}),
-graphql(endRoutine, {
+}),graphql(endRoutine, {
     name: 'endRoutine',
     options: {
-        refetchQueries: ['getMostRecentRoutine' , 'Routines']
+        refetchQueries: ['Routines']
     }
-}),
-graphql(updateSets, {
+}),graphql(updateSets, {
     name: 'updateSets'
-}),
-graphql(addExercise, {
+}),graphql(addExercise, {
     name: "addExercise", 
     options: {
         refetchQueries: ['Routines']
     }
+}), graphql(deleteExercise, {
+    name: 'deleteExercise'
 })
 )(Workout);

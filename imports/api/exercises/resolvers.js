@@ -41,7 +41,7 @@ export default {
                 {$lookup: {from: "exercises", localField: "exerciseId", foreignField: "_id", as: "set_exercises"}}, 
                 {$replaceRoot : { newRoot : {$mergeObjects: [{ $arrayElemAt : ["$set_exercises", 0]}, "$$ROOT"]}}},
                 {$project: {set_exercises: 0}}, 
-                {$group :{_id: "$exerciseId", totalWeight: {$sum: "$weight"}, totalReps: {$sum: "$reps"}, topORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}},
+                {$group :{_id: "$exerciseId", totalWeight: {$sum: {$multiply: ["$weight", "$reps"]}}, totalReps: {$sum: "$reps"}, topORM: {$max: "$orm"}, templateId: {$first:"$templateId"},}},
                 {$project: {calcExTemps: 0, tagIds: 0, name: 0, createdBy: 0, routineTemplateIds: 0}}
             ])
             if (result.length === 0){
@@ -75,9 +75,20 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        deleteExercise(obj, {_id}, {userId}){
+        deleteExercise(obj, {_id, routineId}, {userId}){
             if(userId){
-                Exercises.remove({_id});
+                try {
+                    Sets.remove({exerciseId: _id});
+                    Routines.update({_id: routineId}, {
+                        $pull: {
+                            exerciseIds: _id
+                        }
+                    })
+                    Exercises.remove({_id});
+                } catch (e) {
+                    console.log(e);
+                    return false;
+                }
                 return true;
             }
             throw new Error('Unauthorized');
@@ -108,14 +119,19 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        endExercise(obj, {_id}, context){
-            const endTime = moment().valueOf().toString();
-            Exercises.update(_id, {
-                $set: {
-                    endTime
-                }
-            })
-            return Exercises.findOne(_id);
+        endExercise(obj, {_id}, {userId}){
+            if (userId){
+                const exercise = Exercises.findOne(_id);
+                if (exercise.endTime) return exercise;
+                const endTime = moment().valueOf().toString();
+                Exercises.update(_id, {
+                    $set: {
+                        endTime
+                    }
+                })
+                return Exercises.findOne(_id);
+            }
+            throw new Error('Unauthorized');
         },
         deleteSet(obj, {setId}, context){
             const set = Sets.findOne({_id: setId});

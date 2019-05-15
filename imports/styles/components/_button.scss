@@ -1,18 +1,43 @@
 .button {
+  position: relative;
   background-color: $button-bg;
   border: none;
   color: $button-color;
   cursor: pointer;
   border-radius: 5px;
+  overflow: hidden;
   font-size: $base-font-size;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
   line-height: 1.2;
   margin-bottom: $space;
   padding: $input-spacing;
   text-transform: uppercase;
   outline: none;
   box-shadow: $box-shadow;//2px 2px 2px 0 rgba(0, 0, 0, 0.3);
-  &:active {
-    box-shadow: none;
+  //transition: box-shadow 100ms ease-in-out;
+  animation:  150ms ease-in-out;
+  // animation-play-state: paused;
+  &:after {
+    position: absolute;
+    content: "";
+    left: 0;
+    top: -15%; 
+    bottom: -15%;
+    right: 0;
+    border-radius: 50%;
+    transform: scale(0);
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: transform 200ms ease-in-out; 
+  }
+  &.selected{
+    // background-color: transparent !important;
+    &:after {
+    transform: scale(1.2);
+    }
+  }
+  &.clicked {
+    box-shadow: $click-box-shadow;
   }
   &.button--margin-top{
     margin-top: $space;
@@ -23,6 +48,19 @@
       cursor: not-allowed;
     }
   }
+}
+
+@keyframes button-click {
+  0%, 100%{
+    box-shadow: $box-shadow;
+  }
+  50% {
+    box-shadow: $click-box-shadow;
+  }
+}
+
+.button--wide, .--wide {
+  padding: $space 2 * $space;
 }
 
 .button--icon {
@@ -36,11 +74,11 @@
   // box-shadow: $box-shadow;
   box-shadow: none;
   fill: $button-bg;
-  transition: transform 300ms ease-in-out;
-  &.clicked {
-    // box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3);
-    transform: rotate(180deg);
-  }
+  //transition: transform 300ms ease-in-out;
+  // &.clicked {
+  //   // box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.3);
+  //   transform: rotate(180deg);
+  // }
 }
 
 
@@ -57,11 +95,14 @@
    padding: .3rem .8rem;
 }
 
-.button--secondary {
+.button--secondary, .--secondary {
   background: $button-secondary-bg;
   //border: 1px solid $brand-primary;
   box-shadow: $box-shadow;
   color: $brand-primary;
+  &:after{
+    background-color: rgba(0, 0, 0, 0.1);
+  }
 }
 
 .button--round {
@@ -71,10 +112,10 @@
   flex-direction: row;
   padding: 0.5rem;
   box-shadow: $box-shadow;
-  transition: transform 300ms ease-in-out, box-shadow 300ms ease-in-out;
+  transition: box-shadow 100ms ease-in-out;
   &.clicked{
     box-shadow: $click-box-shadow;//0px 0px 0px 0px rgba(0, 0, 0, 0);
-    transform: scale(0.8);
+    //transform: scale(0.8);
   }
 }
 
@@ -117,4 +158,8 @@
   width: 15%;
   display: flex;
   justify-content: center;
+}
+
+.button--flat, .--flat{
+  box-shadow: none;
 }

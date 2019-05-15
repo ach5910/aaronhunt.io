@@ -5,8 +5,9 @@ import ExerciseTemplates from './ExerciseTemplates';
 import RoutineTemplates from './RoutineTemplates';
 import PrivateHeader from './PrivateHeader';
 import Workout from './Workout';
+import ProgressPage from './ProgressPage';
 import {
-  WORKOUT_PAGE, ROUTINES_PAGE, EXERCISES_PAGE
+  WORKOUT_PAGE, ROUTINES_PAGE, EXERCISES_PAGE, PROGRESS_PAGE
 } from '../../startup/client/constants';
 
 const getMostRecentRoutine = gql`
@@ -14,6 +15,7 @@ const getMostRecentRoutine = gql`
         getMostRecentRoutine{
             _id
             name
+            logged
             startTime
             endTime
             exercises{
@@ -79,6 +81,10 @@ class Dashboard extends React.Component{
           {page === EXERCISES_PAGE &&
             <ExerciseTemplates loading={loading} tags={tags} exerciseTemplates={exerciseTemplates}/>
           }
+          {page === PROGRESS_PAGE &&
+            <ProgressPage loading={loading} exerciseTemplates={exerciseTemplates}/>
+
+          }
         </div>
       </div>
     );
@@ -90,6 +96,19 @@ const exerciseTemplatesQuery = gql`
     exerciseTemplates {
         _id
         name
+        topExerciseStats {
+          topORM
+        }
+        exercises {
+          _id
+          startTime
+          endTime
+          exerciseStats {
+            topORM
+            totalWeight
+            totalReps
+          }
+        }
         tags{
           name
           _id
@@ -115,6 +134,7 @@ const routinesQuery = gql`
     routines {
       _id
       name
+      logged
       startTime
       endTime
       exercises {

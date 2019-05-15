@@ -13,8 +13,9 @@ export default {
         }
     },
     ExerciseTemplate: {
-        exercises: (templateId) => {
-            return Exercises.find({templateId}).fetch()
+        exercises: (exerciseTemplate) => {
+            return Exercises.find({templateId: exerciseTemplate._id,  endTime: {$type: "string"}}, {sort: {endTime: -1}}).fetch()
+             //return Exercises.find({templateId:}).fetch()
         },
         tags: (exerciseTemplate) => {
             // const exerciseTemplate = ExerciseTemplates.findOne(templateId);
@@ -26,7 +27,7 @@ export default {
                 {$project: {templateId: 1}},
                 {$lookup: {from: "sets", localField: "_id", foreignField: "exerciseId", as: "set_exercises"}},
                 {$unwind: "$set_exercises"},
-                {$group :{_id: "$set_exercises.exerciseId", tWeight: {$sum: "$set_exercises.weight"}, tReps: {$sum: "$set_exercises.reps"}, bestORM: {$max: "$set_exercises.orm"}, templateId: {$first:"$templateId"},}},
+                {$group :{_id: "$set_exercises.exerciseId", tWeight: {$sum: {$multiply: ["$set_exercises.weight", "$set_exercises.reps"]}}, tReps: {$sum: "$set_exercises.reps"}, bestORM: {$max: "$set_exercises.orm"}, templateId: {$first:"$templateId"},}},
                 {$group: {_id: "$templateId", totalWeight: {$max: "$tWeight"}, totalReps: {$max: "$tReps"}, topORM: {$max: "$bestORM"}}},
             ])
             // console.log('result', result)

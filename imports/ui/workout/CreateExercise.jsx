@@ -26,11 +26,6 @@ class CreateExercise extends React.Component{
         this.doublClickTimeOut = null;
     }
 
-    getORM = (activeExercise) => {
-        const orm = parseInt(activeExercise.weight) * (1 + (parseInt(activeExercise.reps) / 30))
-        return isNaN(orm) ? 0 : orm.toFixed(2);
-    }
-
     handleSelection = (setId) => {
         if (this.state.selectedSetId !== setId) {
             this.debounceSetItem(false);
@@ -107,15 +102,15 @@ class CreateExercise extends React.Component{
     // )
 
     render(){
-        const {exercise, refetch, activeExercise, cancelExercise, addedSetId, onChange, finishExercise} = this.props;
+        const {exercise, refetch, activeExercise, cancelExercise, addedSetId, onChange, finishExercise, logged, viewWorkout} = this.props;
         // const {setActive} = this.state;
-        const {topExerciseStats} = exercise.exerciseTemplate;
-        const {previousExercise} = exercise;
-        let exerciseStats = {totalWeight: 0, totalReps: 0, topORM: 0};
-        if (previousExercise !== null) {
-            exerciseStats = previousExercise.exerciseStats;
-        }
-        const {totalWeight, totalReps, topORM} = exercise.exerciseStats;
+        //const {topExerciseStats} = exercise.exerciseTemplate;
+        // const {previousExercise} = exercise;
+        //let exerciseStats = {totalWeight: 0, totalReps: 0, topORM: 0};
+        // if (previousExercise !== null) {
+        //     exerciseStats = previousExercise.exerciseStats;
+        // }
+        //const {totalWeight, totalReps, topORM} = exercise.exerciseStats;
         return (
             <div className='boxed-view__box boxed-view__box--vert'>
                 <div className='section-title'>
@@ -152,12 +147,15 @@ class CreateExercise extends React.Component{
                         />}
                 />
                 <div className="button__container space-evenly margin-top">
-                    <button onClick={cancelExercise(activeExercise._id, refetch)} className="button button--secondary">Cancel Exercise</button>
-                    <button onClick={finishExercise(activeExercise._id, refetch)} className="button">Finish Exercise</button>
+                    {viewWorkout
+                        ? <button onClick={cancelExercise} className="button button--secondary">Delete</button>
+                        : <button onClick={cancelExercise(activeExercise._id, refetch, viewWorkout)} className="button button--secondary">Cancel</button>
+                    }
+                    {!viewWorkout && !logged && <button onClick={finishExercise(activeExercise._id, refetch)} className="button">Finish Exercise</button>}
                 </div>
             </div>
         )
     }
 }
 
-export default CreateExercise;
+export default CreateExercise; 

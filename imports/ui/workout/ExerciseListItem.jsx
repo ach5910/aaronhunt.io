@@ -1,12 +1,16 @@
 import React from 'react';
 import SetTitles from './SetTitles';
 import SetList from './SetList';
-import moment from 'moment';
+import EditIcon from '../Components/EditIcon';
 import { getDuration } from '../../startup/client/utils';
+import ViewWorkout from './ViewWorkout';
 
-const ExerciseListItem = ({startExercise, exercise, done}) => {
+const ExerciseListItem = ({logged, startExercise, exercise, done, viewWorkout}) => {
     //const {totalWeight, totalReps, topORM} = exercise.exerciseTemplate.topExerciseStats;
-    let exerciseTime = getDuration(exercise.startTime, exercise.endTime);
+    let exerciseTime = "";
+    if (!logged){
+        exerciseTime = getDuration(exercise.startTime, exercise.endTime);
+    }
     // const h = dur.hours();
     // const m  = dur.minutes();
     // const s = dur.seconds()
@@ -16,7 +20,10 @@ const ExerciseListItem = ({startExercise, exercise, done}) => {
     // console.log('end start',end, start, moment(exercise.endTime, "x").diff(moment(exercise.startTime, "x")))
     return (
     <div className={`boxed-view__box boxed-view__box--${done ? 'vert' : 'horiz'}`}>
-        <h2 className="workout--h2" style={{marginBottom: "0px"}}>{exercise.name} {exerciseTime}</h2>
+        <div className='section-title'>
+            <h2 className="workout--h2" style={{marginBottom: "0px"}}>{exercise.name}{exerciseTime !== "" ? `:${exerciseTime}` : ""}</h2>
+            {done && <EditIcon clickHandler={startExercise(exercise, viewWorkout)} />}
+        </div>
         {/* <h2 className="workout--h2" style={{marginBottom: "0px"}}>Total Weight - {totalWeight}</h2>
         <h2 className="workout--h2" style={{marginBottom: "0px"}}>Total Reps - {totalReps}</h2>
         <h2 className="workout--h2" style={{marginBottom: "0px"}}>Top 1RM - {topORM}</h2> */}
@@ -27,7 +34,7 @@ const ExerciseListItem = ({startExercise, exercise, done}) => {
                 <SetList exercise={exercise}/>
             </React.Fragment>
             :
-            <button onClick={startExercise(exercise._id, exercise.previousExercise)} className="button button--margin">Start</button>
+            <button onClick={startExercise(exercise._id, exercise.previousExercise)} className="button button--margin">{logged ? "Log" : "Start"}</button>
         }
     </div>)
 }

@@ -107,8 +107,8 @@ class CreateRoutine extends React.Component {
         e.preventDefault();
         const newExerciseTemplates = [...this.state.exerciseTemplates];
         const exerciseTemplateToMove = newExerciseTemplates[idx];
-        newExercises[idx] = newExerciseTemplates[newIdx];
-        newExercises[newIdx] = exerciseTemplateToMove
+        newExerciseTemplates[idx] = newExerciseTemplates[newIdx];
+        newExerciseTemplates[newIdx] = exerciseTemplateToMove
         this.setState({exerciseTemplates: newExerciseTemplates})
     }
 

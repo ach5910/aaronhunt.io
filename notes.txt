@@ -38,7 +38,7 @@ Workout:
 	X DONE: Incorporate Calendar View / List View toggle for workouts
 	X DONE: Remove Calendar auto focus
 	X DONE: Center Calendar on Mobile
-	- The "Add Set" button needs to be moved. Current loc is dangerous on mobile
+	X DOME: The "Add Set" button needs to be moved. Current loc is dangerous on mobile
 	X DONE: Weight Input should be first tab index to auto select input box when add set is clicked
 	X DONE: Remove Number Inputs
 	X DONE: Implement Increment buttons
@@ -47,16 +47,48 @@ Workout:
 	X DONE: Implement increment counter radio group
 	X DONE: Create set deletion and addition animation
 	X DONE: Add autoprefixer
-	- Finished exercise should be loaded when returning to workouts view
-	- Text for "Finish Set" button is too big on mobile, label wraps multiple lines
+	X DONE: Add cancel Exercise button
+	X DONE: Allow for mutiple active workouts 
+	X DONE: Log or Track Exercise
+	X DONE: Edit an exericse
+	X DONE: Edit a completed workout
+	X DONE: Text for "Finish Set" button is too big on mobile, label wraps multiple lines
+	X INVALID Record set durations
+    X DONE: Add decimal values for weight
+    X DONE: Pull data with user id
+	- Separate Acitive, Finished and Inactive workout into separate view with a tab bar
+		- Redirect to Active when exercise is complete
+	X DONE: Handler chart for exercises that havent been used
+	- Finish making Workout Component more modular
+	X DONE: Create a delete exercise for Viewing workouts 
+	- Change toggle design
+	- Allow user to drag and drop sets
+	- Use hooks
+	- Tag groups? Primary Group(s), Primary Muscle(s), Target Area(s), Secondary Muscle(s)
+	- Implement Cardio Option
+	X DONE: Removed Date header from Calendar
+	- Disable scrolling on calendar
+	X DONE: Calculate weight volume for exerciseStats -> now Total Weight
+	- Ignore current workout when calculating topExericseStats (PR)
+	X DONE: Add date picker to Logging exercise
+	X DONE: Add duration input to Logging exercise
+	- Incrementor design?
+	- Data visualization
+		- Exercises
+			X DONE: Chart
+			- Piechart - Duration/Percentage
+		- Routines
+		- Muscle Group Tags
+	- Completed workout summary
+	- Change list format for exercises and routines
+	X DONE: Finished exercise should be loaded when returning to workouts view
 	- Modal should be fixed -- typing in the search box reorientates the modal position; see mobile
-	- Record set durations
 	- Determine how to surface records
     - Determine exercise and workout point system
-    - Add decimal values for weight
-    - Pull data with user id
     - List all workout
     - Visible Timer
+	- Subdomain
+	- Use React Router to create separate pages
 
 Achievments:
 	- ORM => best and prev

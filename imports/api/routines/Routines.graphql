@@ -5,6 +5,7 @@ type Routine {
     startTime: String!
     endTime: String
     exercises: [Exercise]
+    logged: Boolean
 }
 
 extend type Query {
@@ -14,9 +15,9 @@ extend type Query {
 }
 
 extend type Mutation {
-    createRoutine(templateId: String!, exerciseTemplateIds: [String]): Routine
+    createRoutine(templateId: String!, exerciseTemplateIds: [String], logged: Boolean!): Routine
     startRoutine(_id: String!): Routine
-    endRoutine(_id: String!): Routine
+    endRoutine(_id: String!, logged: Boolean, date: String, duration: String): Routine
     addExercise(_id: String!, exerciseTemplateId: String!): Routine
     removeExercise(_id: String, exerciseId: String!): Routine
 }

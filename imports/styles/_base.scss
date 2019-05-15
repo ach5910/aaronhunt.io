@@ -5,6 +5,8 @@
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700');
+
 html {
   font-size: 62.5%;
   overflow: hidden;
@@ -14,8 +16,8 @@ hr {
   margin-bottom: $space;
 }
 body {
-  
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
+  //font-family: Helvetica, Arial, sans-serif;
   font-size: $base-font-size;
   background-color: $background-gray;
   overflow-y: auto;
@@ -65,12 +67,81 @@ ul.workout--list {
   overflow-y: auto;
 }
 
-ul.workout--list {
-  list-style-type: none;
-  max-height: 320px;
-  overflow-y: auto;
+table {
+  width: 100%;
+  border: 1px solid $gray;
+  table-layout: fixed;
+  border-radius: 1rem;
+  background-color: white;
+  color: $brand-primary;
+  font-size: $base-font-size;
+  font-weight: 400;
+  border-collapse: collapse;
+  overflow: hidden;
 }
 
+thead {
+  background: $brand-primary;
+  color: white;
+  font-size: $medium-font-size;
+  font-weight: 500;
+  height: 5rem;
+}
+
+tr {
+  height: 4rem;
+}
+
+tbody tr:nth-child(odd){
+  background-color: $list-item-odd;
+}
+td, th {
+  padding-left: $space ;
+  text-align: left;
+}
+
+td, th, td *, th *{
+  text-align: left;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+thead th{
+  &:nth-child(1){
+    width: 30%;
+  }
+  &:nth-child(2){
+    width: 25%;
+    padding: 0;
+  }
+  &:nth-child(3){
+    width: 25%;
+  }
+  &:nth-child(4){
+    width: 20%;
+  }
+}
+ul.double-column {
+  @extend ul.workout--list;
+  width: 75%;
+  margin: 0 auto;
+  columns: 2;
+  li {
+    padding: 1rem 0;
+    display: flex;
+    justify-content: center;
+  }
+  button {
+    margin: 0;
+  }
+}
+// .selected {
+//   background-color: rgba(0, 0, 0, 0.2) !important;
+// }
+
+.no-margin {
+  margin: 0px;
+}
 .workout--list li {
   font-size: $medium-font-size;
   padding: $space 0px;

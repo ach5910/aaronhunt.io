@@ -37,7 +37,7 @@ export default {
         }
     },
     Mutation: {
-        createRoutine(obj, {templateId, exerciseTemplateIds = []}, {userId}){
+        createRoutine(obj, {templateId, exerciseTemplateIds = [], logged}, {userId}){
             if (userId){
                 const exerciseIds = [];
                 exerciseTemplateIds.forEach(exerciseTemplateId => {
@@ -52,7 +52,8 @@ export default {
                     templateId,
                     user: userId,
                     exerciseIds,
-                    startTime
+                    startTime,
+                    logged
                 })
                 return Routines.findOne(routineId);
             }
@@ -67,14 +68,34 @@ export default {
             })
             return Routines.findOne(_id);
         },
-        endRoutine(obj, {_id}, context){
-            const endTime = moment().valueOf().toString();
-            Routines.update(_id, {
-                $set: {
-                    endTime
+        endRoutine(obj, {_id, logged = false, date, duration}, {userId}){
+            if (userId){
+                if (logged){
+                    try {
+                        const startTime = moment(date, "MM/DD/YY").valueOf().toString();
+                        const [hours, minutes] = duration.split(":");
+                        const endTime = moment(date, "MM/DD/YY")
+                            .add(hours, "hours").add(minutes, "minutes").valueOf().toString();
+                        Routines.update(_id, {
+                            $set : {
+                                startTime,
+                                endTime
+                            }
+                        })
+                        return Routines.findOne(_id);
+                    } catch(e){
+                        console.log(e);
+                    }
                 }
-            })
-            return Routines.findOne(_id);
+                const endTime = moment().valueOf().toString();
+                Routines.update(_id, {
+                    $set: {
+                        endTime
+                    }
+                })
+                return Routines.findOne(_id);
+            }
+            throw new Error("Unauthorized");
         },
         addExercise(obj, {_id, exerciseTemplateId}, {userId}){
             if (userId){

@@ -5,3 +5,17 @@
     align-items: center;
     margin-bottom: 3 * $space;
 }
+
+.calendar-view-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: $box-shadow;
+    transition: all 200ms ease-in-out;
+    opacity: 0;
+    transform: scale(0);
+    &.active{
+        opacity: 1;
+        transform: scale(1);
+    }
+}

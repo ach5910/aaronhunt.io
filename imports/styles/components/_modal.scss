@@ -5,6 +5,7 @@
     opacity: 1;
   transform: scale(1,1);
   transition: all 300ms ease-in-out;
+  overflow: hidden;
   &.hidden {
     transform: scale(0, 0);
     opacity: 0;
@@ -15,10 +16,21 @@
     text-align: center;
 }
 
+.modal__content-container {
+  display: flex;
+  width: 200%;
+  transition: transform 300ms ease-in-out;
+  &.log, &.track {
+    transform: translate(-50%);
+  }
+}
+
 .modal__cancel-box {
     position: absolute;
     top: 0;
     right: 0;
-    transform: translate(30%, -40%);
     z-index: 10;
+    .icon {
+      margin: 0px;
+    }
 }
