@@ -168,3 +168,12 @@
         }
     }
 }
+
+.tr-input {
+    font-size: $large-font-size  * 2 !important;
+    height: $large-font-size * 8;
+    box-shadow: $box-shadow;
+    outline: none;
+    border: none;
+    margin: $space * 2 0 $space 0;
+}

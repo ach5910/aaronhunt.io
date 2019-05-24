@@ -14,28 +14,28 @@ const PrivateHeader = (props) => {
         <h1 className="workout--h1 header__title">{props.title}</h1>
         <div className="header__links">
           <button 
-            className="button button--link-text" 
+            className={`button button--link-text ${props.page === WORKOUT_PAGE ? "link-focused" : ""}`}
             onClick={() => {props.onPageChange(WORKOUT_PAGE)}}
             style={{marginRight: "10px"}}
           >
             Workouts
           </button>
           <button 
-            className="button button--link-text" 
+            className={`button button--link-text ${props.page === ROUTINES_PAGE ? "link-focused" : ""}`}
             onClick={() => {props.onPageChange(ROUTINES_PAGE)}}
             style={{marginRight: "10px"}}
           >
             Routines
           </button>
           <button 
-            className="button button--link-text" 
+            className={`button button--link-text ${props.page === EXERCISES_PAGE ? "link-focused" : ""}`}
             onClick={() => {props.onPageChange(EXERCISES_PAGE)}}
             style={{marginRight: "10px"}}
           >
             Exercises
           </button>
           <button 
-            className="button button--link-text" 
+            className={`button button--link-text ${props.page === PROGRESS_PAGE ? "link-focused" : ""}`}
             onClick={() => {props.onPageChange(PROGRESS_PAGE)}}
             style={{marginRight: "10px"}}
           >

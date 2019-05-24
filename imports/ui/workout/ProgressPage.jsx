@@ -59,10 +59,11 @@ export default class ProgressPage extends React.Component{
                         <SelectInput
                             label="Exercise"
                             placeholder="Select Exercise"
+                            className="exercise-container"
                             value={selected || ""}
-                            renderValue={(exerciseTemplate) => <SelectItem selected={exerciseTemplate && exerciseTemplate.name}/>}
+                            renderValue={(exerciseTemplate) => <SelectItem className="single-line-text" selected={exerciseTemplate && exerciseTemplate.name}/>}
                         >
-                            {exerciseTemplates.filter(exTemp => exTemp.exercises.length > 0).map((exerciseTemplate) => (
+                            {exerciseTemplates.filter(exTemp => exTemp.exercises.length > 1).map((exerciseTemplate) => (
                                 <SelectListItem 
                                     selected={selected && selected._id === exerciseTemplate._id}
                                     value={exerciseTemplate.name}
@@ -116,7 +117,7 @@ export default class ProgressPage extends React.Component{
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <Brush dataKey="name" height={50} stroke="#5a5c5e" travellerWidth={20} />
                                 <Tooltip 
-                                    formatter={(value, name, props) => [(value.toFixed(2)), "1RM"]}
+                                    formatter={(value, name, props) => [(value.toFixed(2)), progressStat === PROGRESS_STATS[0] ? "1RM" : "Total Weight"]}
                                     labelFormatter={(label) => moment(label).format('MM/DD')}
                                 />
                                 <Area type="monotone" dataKey={progressStat === PROGRESS_STATS[0] ? "topORM" : "totalWeight"} stroke="#5a5c5e" fillOpacity={1} fill="url(#colorUv)" />

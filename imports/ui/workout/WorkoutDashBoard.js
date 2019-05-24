@@ -62,7 +62,7 @@ class Dashboard extends React.Component{
     if (loading) return <div>Loading</div>
     return (
       <div className="backdrop">
-        <PrivateHeader {...this.props} onPageChange={this.onPageChange} title="Workout Dashboard"/>
+        <PrivateHeader {...this.props} page={page} onPageChange={this.onPageChange} title="Workout Dashboard"/>
         <div className="page-content">
           {page === WORKOUT_PAGE &&
             <Query query={getMostRecentRoutine}>

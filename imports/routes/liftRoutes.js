@@ -3,6 +3,7 @@ import React from 'react';
 import { Switch, Router, Route, Redirect } from 'react-router-dom';
 import Signup from '../ui/Signup';
 import Dashboard from '../ui/workout/WorkoutDashBoard';
+import Translator from '../ui/translator/Translator';
 import EmbeddedPlayer from '../ui/workout/EmbeddedPlayer';
 import NotFound from '../ui/NotFound';
 import Login from '../ui/Login';
@@ -43,6 +44,7 @@ export default class Routes extends React.Component{
           <Route path="/" exact render={() => this.onEnterPublicPage(Login)}/>
           <Route path="/signup" exact render={() => this.onEnterPublicPage(Signup)}/>
           <Route path="/dashboard" exact render={() => this.onEnterPrivatePage(Dashboard)}/>
+          <Route path="/yeliz" exact render={() => <Translator history={this.props.history}/>}/>
           <Route path="*" component={NotFound}/>
         </Switch>
       </Router>

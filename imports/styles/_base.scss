@@ -196,6 +196,26 @@ input[type=text]:disabled{
   color: $input-disbled-text-color;
 }
 
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  opacity: 1;
+  background: rgba(0,0,0,0.2);
+  -webkit-transition: all 0.7s ease-out;
+  transition: all 0.7s ease-out;
+  -webkit-transition-property: opacity, -webkit-transform;
+  transition-property: opacity, -webkit-transform;
+  transition-property: transform, opacity;
+  transition-property: transform, opacity, -webkit-transform;
+  -webkit-transform: scale(0);
+  transform: scale(0);
+  pointer-events: none
+}
+
 .pseudo-input{
   text-rendering: auto;
   color: initial;
@@ -216,4 +236,19 @@ input[type=text]:disabled{
   &.disabled{
     color: $input-disbled-text-color;
   }
+}
+
+.bg-tr{
+  background-color: #8e44ad !important;
+}
+
+.bg-wt {
+  background-color: white !important;
+}
+
+.c-wt {
+  color: white !important;
+}
+.c-tr {
+  color: #8e44ad !important;
 }

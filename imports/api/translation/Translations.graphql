@@ -1,0 +1,14 @@
+type Translation {
+    _id: String!
+    en: String!
+    tr: String!
+}
+
+extend type Query {
+    translations: [Translation]
+}
+
+extend type Mutation {
+    createTranslation(en: String!, tr: String!): Translation
+}
+

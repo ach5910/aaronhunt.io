@@ -1,0 +1,46 @@
+.tab-bar-container {
+    display: flex;
+    margin: -2.4rem -1.4rem 3rem;
+    padding: 0 1.4rem;
+    background-color: white;
+    border-bottom: 1px solid $header-bottom-border;
+}
+.tab-bar {
+    position: relative;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    height: 4rem;
+}
+
+.tab {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: $medium-font-size;
+    color: $brand-primary;
+    font-weight: 500;
+    width: 8rem;
+    height: 100%;
+    overflow: hidden;
+    
+}
+
+.indicator{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 8rem;
+    height: 0.2rem;
+    background-color: $brand-primary;
+    transition: transform 0.3s ease-in-out;
+}
+
+.tab-bar--right-justified{
+    display: flex;
+    flex-direction: row-reverse;
+    flex: 1 1 auto;
+    align-items: center;
+}

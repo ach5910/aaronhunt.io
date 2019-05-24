@@ -56,23 +56,32 @@ Workout:
 	X INVALID Record set durations
     X DONE: Add decimal values for weight
     X DONE: Pull data with user id
-	- Separate Acitive, Finished and Inactive workout into separate view with a tab bar
-		- Redirect to Active when exercise is complete
 	X DONE: Handler chart for exercises that havent been used
-	- Finish making Workout Component more modular
 	X DONE: Create a delete exercise for Viewing workouts 
-	- Change toggle design
-	- Allow user to drag and drop sets
-	- Use hooks
-	- Tag groups? Primary Group(s), Primary Muscle(s), Target Area(s), Secondary Muscle(s)
-	- Implement Cardio Option
 	X DONE: Removed Date header from Calendar
-	- Disable scrolling on calendar
 	X DONE: Calculate weight volume for exerciseStats -> now Total Weight
-	- Ignore current workout when calculating topExericseStats (PR)
 	X DONE: Add date picker to Logging exercise
 	X DONE: Add duration input to Logging exercise
-	- Incrementor design?
+	X DONE: Finished exercise should be loaded when returning to workouts view
+	X DONE: Don't let button height span mutiple lines
+	X DONE: Implement MUI ripple animation
+	X DONE: Change toggle design
+	X DONE: Select Menu jumpy on mobile
+	X DONE: Select Menu needs a max-height and overflow to scroll
+	X DONE: Select Menu doesn't close on touches outside the menu
+	X DONE: Select Menu should not word wrap - remain single line
+	X DONE: Chart tooltip label says 1RM when Total Weight is chosen
+	X DONE: Incrementor design?
+	- Weekly Goal
+	- Tag groups? Primary Group(s), Primary Muscle(s), Target Area(s), Secondary Muscle(s)
+	- Separate Acitive, Finished and Inactive workout into separate view with a tab bar
+		- Redirect to Active when exercise is complete
+	- Finish making Workout Component more modular
+	- Allow user to drag and drop sets
+	- Use hooks
+	- Implement Cardio Option
+	- Disable scrolling on calendar
+	- Ignore current workout when calculating topExericseStats (PR)
 	- Data visualization
 		- Exercises
 			X DONE: Chart
@@ -81,7 +90,6 @@ Workout:
 		- Muscle Group Tags
 	- Completed workout summary
 	- Change list format for exercises and routines
-	X DONE: Finished exercise should be loaded when returning to workouts view
 	- Modal should be fixed -- typing in the search box reorientates the modal position; see mobile
 	- Determine how to surface records
     - Determine exercise and workout point system

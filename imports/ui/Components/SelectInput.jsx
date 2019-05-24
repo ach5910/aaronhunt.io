@@ -52,6 +52,7 @@ export default class SelectInput extends React.Component {
     if (!this.props.disabled) {
       this.setState({showMenu: true}, () => {
         document.addEventListener("click", this.closeMenu);
+        document.addEventListener("touchstart", this.closeMenu);
       });
     }
   };
@@ -61,14 +62,16 @@ export default class SelectInput extends React.Component {
       if (!this.dropDownMenu.current.contains(event.target)) {
         this.setState({showMenu: false}, () => {
           document.removeEventListener("click", this.closeMenu);
+          document.removeEventListener("touchstart", this.closeMenu);
         });
         // If multiple selection is true, always scroll to the bottom of the selected list
         // to show the most recent selection made.
         this.inputContainer.current.scrollTop = this.inputContainer.current.scrollHeight;
       }
-    } else {
+    } else if (event.type !== "touchstart" || !this.dropDownMenu.current.contains(event.target)) {
       this.setState({showMenu: false}, () => {
         document.removeEventListener("click", this.closeMenu);
+        document.removeEventListener("touchstart", this.closeMenu);
       });
     }
   };
@@ -208,4 +211,4 @@ export const MenuItem = ({selected, value, onChange, className}) => (
  **      selected        Required Parameter. The rendered text of the selected item
  */
 
-export const SelectItem = ({selected}) => <span className="select__selected-item">{selected}</span>;
+export const SelectItem = ({selected, className = false}) => <div className={`select__selected-item ${className || ""}`}>{selected}</div>;

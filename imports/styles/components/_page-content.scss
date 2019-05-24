@@ -4,6 +4,17 @@
   padding: $space;
 }
 
+.page-content--flex {
+  margin: 0 auto;
+  max-width: $site-max-width;
+  padding: $space;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-content: center;
+  height: 100vh;
+}
+
 .page-content--modal {
   width: $site-max-width;
 }

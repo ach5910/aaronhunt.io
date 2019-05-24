@@ -1,7 +1,7 @@
 import React from 'react';
 import Cancel from '@material-ui/icons/Cancel';
 import { rabinKarp } from '../../startup/client/utils';
-import { ButtonSecondary } from '../Components/Button';
+import { ButtonSecondary, ButtonPrimary } from '../Components/Button';
 
 class SelectRoutine extends React.Component{
     constructor(props){
@@ -77,9 +77,12 @@ class SelectRoutine extends React.Component{
                                     </button> */}
                                 </div>
                                 <div className="boxed-view__grid-section">
-                                    <button onClick={this.updateRecordMethod('track')} className="button button--wide">
+                                    <ButtonPrimary handleClick={this.updateRecordMethod('track')}>
                                         Track
-                                    </button>
+                                    </ButtonPrimary>
+                                    {/* <button onClick={this.updateRecordMethod('track')} className="button button--wide">
+                                        Track
+                                    </button> */}
                                 </div>
                             </form>
                             <form noValidate className={`boxed-view__form form-two ${recordMethod}`} style={{zIndex: 8}}>

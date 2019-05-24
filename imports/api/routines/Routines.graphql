@@ -8,13 +8,13 @@ type Routine {
     logged: Boolean
 }
 
-extend type Query {
+type Query {
     routines: [Routine]
     routine(_id: String!): Routine
     getMostRecentRoutine: Routine
 }
 
-extend type Mutation {
+type Mutation {
     createRoutine(templateId: String!, exerciseTemplateIds: [String], logged: Boolean!): Routine
     startRoutine(_id: String!): Routine
     endRoutine(_id: String!, logged: Boolean, date: String, duration: String): Routine

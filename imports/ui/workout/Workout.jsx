@@ -9,11 +9,13 @@ import AddCircle from '@material-ui/icons/AddCircle';
 import AddExerciseTemplate from './AddExerciseTemplate';
 import Toggle from '../Components/Toggle';
 import CalendarView from './CalendarView';
+import AddIcon from '../Components/AddIcon';
 import moment from 'moment';
 
 import 'react-infinite-calendar/styles.css'; // Make sure to import the default stylesheet
 import { getDuration } from '../../startup/client/utils';
 import ViewWorkout from './ViewWorkout';
+import TabBar from '../Components/TabBar';
 import WorkoutDate from './WorkoutDate';
 
 const createSet = gql`
@@ -661,14 +663,27 @@ class Workout extends React.Component {
             <React.Fragment>
                 {routine === null &&
                     <React.Fragment>
+                        
+                        <TabBar 
+                            selectedView={selectedView}
+                            toggleView={this.toggleView}
+                        />
                         <div className='section-title'>
                             <h1 className="workout--h1">Workouts</h1>
-                            <button onClick={this.openSelectRoutineModal} className="button button--link-text">
-                                <AddCircle className="icon" />
+                            <AddIcon label="Add Workout" clickHandler={this.openSelectRoutineModal} />
+                            {/* <button onClick={this.openSelectRoutineModal} label="Add Workout" className="button">
                                 Add Workout
-                            </button>
+                            </button> */}
                         </div>
-                        <div className="toggle__container">
+                        {/* <div>
+                            View:
+                            <div className="toggle">
+                                <div className={`thumb ${selectedView === "List View" ? "toggled" : ""}`}>{selectedView.split(" ")[0]}</div>
+                                <div className="toggle-text--left" onClick={this.toggleView("Calendar View")}>Calendar</div>
+                                <div className="toggle-text--right" onClick={this.toggleView("List View")}>List</div>
+                            </div>
+                        </div> */}
+                        {/* <div className="toggle__container">
                             <Toggle
                                 name="workout-view" 
                                 label="Calendar View"
@@ -684,7 +699,7 @@ class Workout extends React.Component {
                                 selected={selectedView === "List View"}
                                 onChange={this.toggleView("List View")}
                             />
-                        </div>
+                        </div> */}
                         {selectedView === "Calendar View"
                             ?
                             <CalendarView 
@@ -698,9 +713,9 @@ class Workout extends React.Component {
                             :
                             <Routines viewWorkout={this.viewWorkout} routines={routines} />
                         }
-                        <form noValidate className="boxed-view__form">
+                        {/* <form noValidate className="boxed-view__form">
                             <button onClick={this.openSelectRoutineModal} className="button">Start new Workout</button>
-                        </form> 
+                        </form>  */}
                     </React.Fragment >
                 }
                 {viewWorkout && routine !== null && routine._id &&

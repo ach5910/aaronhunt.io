@@ -15,9 +15,10 @@ class AddIcon extends React.Component{
     }
     
     render(){
+        const {label} = this.props;
         return (
             <button onClick={this.handleClick} className={`button button--secondary button--round ${this.state.clickState}`}>
-                <div className="button--icon">
+                {/* <div className="button--icon"> */}
                     <div className={`button button--icon ${this.state.clickState}`}>
                         <svg
                             focusable="false"
@@ -29,8 +30,8 @@ class AddIcon extends React.Component{
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
                         </svg>
                     </div>
-                </div>
-                <div>Add Set</div>
+                {/* </div> */}
+                <div>{label}</div>
             </button>
         )
     }

@@ -41,6 +41,11 @@ export const getORM = (set) => {
     return isNaN(orm) ? 0 : orm.toFixed(2);
 }
 
+export const formatText = (text) => {
+  const formattedText = text.trim().replace(/ +(?= )/g,'').toLowerCase();
+  return formattedText;
+}
+
 export const rabinKarp = (pat, txt) => { 
     const M = pat.length; 
     const N = txt.length;

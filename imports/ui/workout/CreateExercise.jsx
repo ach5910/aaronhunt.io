@@ -115,7 +115,7 @@ class CreateExercise extends React.Component{
             <div className='boxed-view__box boxed-view__box--vert'>
                 <div className='section-title'>
                     <h2 className="workout--h2" style={{marginBottom: "0px"}}>{exercise.name}</h2>
-                    <AddIcon clickHandler={this.props.addSet(activeExercise._id)} />
+                    <AddIcon label="Add Set" clickHandler={this.props.addSet(activeExercise._id)} />
                 </div>
                 <SetTitles />
                 <EditSetList 
