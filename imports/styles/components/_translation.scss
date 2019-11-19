@@ -1,0 +1,40 @@
+.translation-list {
+    list-style-type: none;
+    overflow-y: auto;
+    // box-shadow: $box-shadow;
+    margin-bottom: $space;
+}
+
+.translation-container{
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    height: $large-font-size * 3;
+    span {
+        font-size: $base-font-size;
+        color: rgba(0, 0, 0, .8);
+        &:first-child {
+            font-size: $large-font-size;
+            color: black;
+        }
+
+    }
+}
+
+.translation {
+    flex: 1;
+    padding: $space;
+    font-size: $medium-font-size;
+    border: 1px solid $translator-primary;
+    flex-wrap: wrap;
+    &:first-child {
+        border-right: none;
+    }
+}
+
+.translation-title {
+    flex: 1;
+    color: $translator-primary;
+}

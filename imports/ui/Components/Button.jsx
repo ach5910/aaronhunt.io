@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ButtonSecondary = ({handleClick, children}) => {
+export const ButtonSecondary = ({handleClick, children, className, style, disabled}) => {
     
     const removeAnimation = (e) => {
         const {target} = e;
@@ -25,13 +25,13 @@ export const ButtonSecondary = ({handleClick, children}) => {
     }
 
     return (
-        <button onAnimationEnd={removeAnimation} onClick={onClick} className="button button--secondary button--wide">
+        <button onAnimationEnd={removeAnimation} onClick={onClick} className={`button button--secondary button--wide ${className || ""}`} disabled={disabled} style={style || {}}>
             {children}
         </button>
     )
 }
 
-export const ButtonPrimary = ({handleClick, children}) => {
+export const ButtonPrimary = ({handleClick, children, className, style, disabled}) => {
     
     const removeAnimation = (e) => {
         const {target} = e;
@@ -57,7 +57,7 @@ export const ButtonPrimary = ({handleClick, children}) => {
     }
 
     return (
-        <button onAnimationEnd={removeAnimation} onClick={onClick} className="button button--wide">
+        <button onAnimationEnd={removeAnimation} onClick={onClick} className={`button button--wide ${className || ""}`} disabled={disabled} style={style || {}}>
             {children}
         </button>
     )

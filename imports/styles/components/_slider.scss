@@ -1,0 +1,206 @@
+.slider {
+    width: 83%;
+    height: 62px;
+}
+   
+.slider__track-left{
+    height: 1px;
+    position: absolute;
+    bottom: 2px;
+    left: 0px;
+    z-index: 3;
+    background-color: $blue;
+    &.disabled{
+        background-color: $grey;
+    }
+}
+   
+.target-duration-input{
+    position: relative;
+    width: 300px;
+}
+   
+.slider__track-right{
+    height: 1px;
+    position: absolute;
+    bottom: 2px;
+    right: 0px;
+    z-index: 2;
+    background-color: white;
+    &.disabled{
+        background-color: $grey;
+    }
+}
+   
+.thumb{
+    position: absolute;
+    width: 16px;
+    background-color: $blue;
+    height: 16px;
+    border: 3px solid $background-grey;
+    border-radius: 50%;
+    z-index: 3;
+    bottom: -4px;
+    left: 143px;
+    &.disabled {
+        &.initialLoad{
+            display: none;
+        }
+    }
+}
+.slider__range {
+    -webkit-appearance: none;
+    background-color: white;
+    height: 1px;
+    outline: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 4;
+    width: 100%; /* Specific width is required for Firefox. */
+    background: transparent;
+    &.initialLoad{
+        background: $grey;
+        &::-webkit-slider-runnable-track {
+            height: 40px;
+            margin-bottom: 30px;
+            width: 100%;
+            cursor: pointer;
+            background: transparent;
+        }
+    }
+    
+    &::-webkit-slider-thumb{
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        z-index: 6;
+        border-radius: 50%;
+        background-color: transparent;
+        margin-top: -10px;
+        cursor: pointer;
+    }
+    &::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 15px;
+        cursor: pointer;
+        background: transparent;
+    }
+    /* All the same stuff for Firefox */
+    &::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border: 2px solid $grey;
+        border-radius: 50%;
+        background-color: $blue;
+        cursor: pointer;
+    }
+    &::-moz-focus-outer {
+        border: 0px;
+    }
+    
+    /* All the same stuff for IE */
+    &::-ms-thumb {
+        width: 14px;
+        height: 14px;
+        border: 2px solid $grey;
+        border-radius: 50%;
+        background-color: $blue;
+        cursor: pointer;
+    }
+    &::-ms-fill-lower {
+        background: white;
+        border-radius: 0.5px;
+    }
+
+    &::-ms-fill-upper {
+        background: white;
+        border-radius: 0.5px;
+    }
+}
+.slider__value{
+    user-select: none;
+    position: absolute;
+    display: flex;
+    width: 30px;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    top: 20px;
+    left: 0px;
+    &.disabled{
+        color: $grey;
+        &.initialLoad{
+            display: none;  
+        }
+    }
+}
+
+.auto-option{
+    position: absolute;
+    bottom: 2px;
+    right: 0px;
+    z-index: 8;
+    width: 12%;
+}
+// .radio__option{
+//   flex: 1 auto;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   &:hover{
+//     cursor: pointer;
+//     &:before {
+//       border-bottom: 2px solid $dark-grey;
+//     }
+//   }
+//   &:after{
+//     border-bottom: 2px solid white;
+//   }
+//   &:before{
+//     border-bottom: 2px solid $dark-grey;
+//   }
+//   &.radio__option-auto{
+//     &.hover{
+//         cursor: pointer;
+//         &:before{
+//             border-bottom: 2px solid
+//         }
+//     }
+//   }
+// }
+.radio__option-label {
+    &.radio__option-auto-label {
+        line-height: 2;
+        &:hover{
+            color: white;
+        }
+    }
+}
+
+
+// .radio__option-input{
+//   display: none;
+// }
+
+// .cumulative .radio__option-label{
+//   color: $blue;
+// }
+
+// .input--focused  .radio__option-label{
+//   color: white;
+// }
+
+// .auto{
+  
+// }
+
+.select-duration-hint{
+    display: none;
+    line-height: 2.5;
+    color: rgba($blue, 0.5);
+    &.initialLoad{
+    display: block;
+    }
+}

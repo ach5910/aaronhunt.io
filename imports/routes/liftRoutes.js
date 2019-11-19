@@ -7,6 +7,8 @@ import Translator from '../ui/translator/Translator';
 import EmbeddedPlayer from '../ui/workout/EmbeddedPlayer';
 import NotFound from '../ui/NotFound';
 import Login from '../ui/Login';
+import PlayerGround from '../ui/Components/playground/Playground';
+import Profile from '../ui/Profile/Profile';
 
 const unauthenticatedPages = ['/', '/signup'];
 const authenticatedPages = ['/dashboard'];
@@ -45,6 +47,7 @@ export default class Routes extends React.Component{
           <Route path="/signup" exact render={() => this.onEnterPublicPage(Signup)}/>
           <Route path="/dashboard" exact render={() => this.onEnterPrivatePage(Dashboard)}/>
           <Route path="/yeliz" exact render={() => <Translator history={this.props.history}/>}/>
+          <Route path="/home" exact render={() => <Profile history={this.props.history} />} />
           <Route path="*" component={NotFound}/>
         </Switch>
       </Router>

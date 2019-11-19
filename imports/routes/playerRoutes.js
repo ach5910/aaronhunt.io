@@ -15,6 +15,9 @@ const authenticatedPages = ['/dashboard'];
 export default class Routes extends React.Component{
   constructor(props){
     super(props);
+    state = {
+      domain: "http://localhost"
+    }
   }
 
   // componentDidMount = () => {
@@ -26,6 +29,8 @@ export default class Routes extends React.Component{
   //     this.onAuthChange(this.props.isAuthenticated);
   //   }
   // }
+
+  updateDomain = (domain) => this.setState({domain})
   
   onEnterPublicPage = () => {
     if (Meteor.userId()) {
@@ -52,7 +57,7 @@ export default class Routes extends React.Component{
   // };
 
   render(){
-    if (Meteor.userId() != "T2B4hnfHKARehAyWA" && Meteor.userId() != "3SAGFCw7tMrGkkkbh") return <div>Error</div>;
+    // if (Meteor.userId() != "T2B4hnfHKARehAyWA" && Meteor.userId() != "3SAGFCw7tMrGkkkbh") return <div>Error</div>;
     return (
       <Router history={this.props.history}>
         <Switch >

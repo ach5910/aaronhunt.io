@@ -1,0 +1,45 @@
+nav{
+    border-bottom: solid 3px $primary;
+}
+
+.nav-bar{
+    background-color: $surface-1;
+    padding: 1.2rem;
+    position: sticky;
+    top: 0px;
+    padding: 2*$space 0px;
+    z-index: 1;
+}
+
+.nav-links{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    
+    > li:first-child .nav-link{
+        margin-left: 0px;
+    }
+}
+
+.nav-link {
+    color: white;
+    font-size: 1.8rem;
+    // margin: 0px 1.5*$space;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+    
+    &.active{
+        color: $secondary;
+    }
+    &:hover{
+        color: $secondary-light;
+    }
+}
+
+@media #{$medium-and-down}{
+    .nav-link{
+        font-size: 1.8rem;
+    }
+}

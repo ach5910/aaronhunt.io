@@ -1,0 +1,26 @@
+.home, .projects, .contact {
+    width: 100%;
+    height: 100vh;
+}
+
+.about {
+    width: 100%;
+    height: auto;
+}
+
+
+.home-text{
+    z-index: 1;
+    text-align: center;
+    font: 500 4.4rem 'Ruda';
+}
+
+@media #{$medium-and-down}{
+    .home-text{
+      font-size: 3.3rem;
+    }
+}
+  
+.section.about > .row:first-child, .section.projects > *:first-child, .section.contact > *:first-child{
+    margin-top: 12rem;
+}

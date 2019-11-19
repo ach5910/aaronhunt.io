@@ -30,6 +30,8 @@ import ExerciseTemplatesSchema from '../../api/exerciseTemplates/ExerciseTemplat
 import SetsSchema from '../../api/sets/Sets.graphql';
 import TagsSchema from '../../api/tags/Tags.graphql';
 import TranslationsSchema from '../../api/translation/Translations.graphql';
+import {Email} from "meteor/email";
+import {Meteor} from "meteor/meteor";
 // import GoasssdflsScddllsshema from '../../api/goals/Goals.graphql';
 // import ResolutionsSchema from 'ssss../../api/resolutions/Resolutions.graphql';
 // import sssUsersSciihema from '../../api/users/Users.graphql';
@@ -70,5 +72,21 @@ const schema = makeExecutableSchema({
     typeDefs,
     resolvers
 });
+
+process.env.MAIL_URL = 'smtps://ach5910@gmail.com:Entourage420@smtp.gmail.com:465'
+Meteor.methods({
+    sendEmail(from, subject, text) {
+      // Make sure that all arguments are strings.
+    //   check([from, subject, text], [String]);
+  
+      // Let other method calls from the same client start running, without
+      // waiting for the email sending to complete.
+      this.unblock();
+  
+      Email.send({ to : "ach5910@gmail.com", from, subject, text });
+    }
+});
+  
+  // Client: Asynchronously send an email.
 
 createApolloServer({schema});

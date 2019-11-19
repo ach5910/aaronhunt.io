@@ -2,10 +2,34 @@ import React from 'react';
 
 const EmbeddedPlayer = () => (
     <div className="backdrop">
+        {/* <button 
+            style={{
+                position: "absolute",
+                left: "20px",
+                top: "20px",
+            }}  
+            onClick={() => {
+                const iframe = document.querySelector("iframe");
+                if (iframe.requestFullscreen) {
+                    iframe.requestFullscreen();
+                    console.log('fullscreen')
+                  } else if (iframe.webkitRequestFullscreen) {
+                    iframe.webkitRequestFullscreen();
+                    console.log('fullscreen')
+                  } else if (iframe.mozRequestFullScreen) {
+                    iframe.mozRequestFullScreen();
+                    console.log('fullscreen')
+                  } else if (iframe.msRequestFullscreen) {
+                    iframe.msRequestFullscreen();
+                    console.log('fullscreen')
+                  }
+            }}
+        >Fullscreen</button> */}
         <div className="page-content" style={{maxWidth: "90rem"}}>
             <h1 style={{fontSize: "4.4rem"}}>Centered inline player</h1>
             <div className="resp-container">
                 <iframe className="resp-iframe"
+                // src="http://localhost:8000/demo/video_player/fdas/?asset_id=jsports_e36ec6e0-b226-43b0-93e5-fd21a19101e3"/>
                 src="http://localhost:8000/demo/video_player/fdas/?asset_id=jsports_e36ec6e0-b226-43b0-93e5-fd21a19101e3"/>
                 {/* src='http://localhost:8000/demo/highlights/jsports/e36ec6e0-b226-43b0-93e5-fd21a19101e3/'/>  */}
             </div>
@@ -23,6 +47,7 @@ const EmbeddedPlayer = () => (
                     <div className="resp-container">
                         <iframe className="resp-iframe"
                         src="http://localhost:8000/demo/video_player/fdas/?asset_id=jsports_e36ec6e0-b226-43b0-93e5-fd21a19101e3"/>
+                        {/* src="http://10.0.0.3:8000/demo/video_player/fdas/?asset_id=jsports_e36ec6e0-b226-43b0-93e5-fd21a19101e3"/> */}
                     </div>
                 </div>
             </div>
@@ -33,3 +58,4 @@ const EmbeddedPlayer = () => (
 )
 
 export default EmbeddedPlayer;
+

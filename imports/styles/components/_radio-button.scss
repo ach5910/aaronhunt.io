@@ -1,0 +1,59 @@
+.radio__group {
+    display: flex;
+    width: 100%;
+    height: 46px;
+
+    .input__form-container{
+        margin: 0;
+        &.auto{
+            margin-left: 20px;
+        }
+    }
+    
+}
+
+.radio__option{
+    flex: 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover{
+        cursor: pointer;
+        &:before {
+            border-bottom: 2px solid $grey;
+        }
+    }
+    &:after{
+        border-bottom: 1px solid white;
+    }
+    &:before{
+        border-bottom: 1px solid $grey;
+    }
+}
+
+.input__underline.cumulative{
+    &:after{
+      transform: scale(1);
+    }
+}
+
+.radio__option-label {
+    color: $blue;
+    &:hover{
+        cursor: pointer;
+    }
+}
+
+.radio__option-input{
+    display: none;
+}
+
+.cumulative .radio__option-label{
+    color: $blue;
+}
+  
+.input--focused  .radio__option-label{
+    color: white;
+}
+
+

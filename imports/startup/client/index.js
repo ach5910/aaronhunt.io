@@ -9,12 +9,18 @@ import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import Routes from '../../routes/liftRoutes';
 import { createBrowserHistory } from 'history';
+import floatySpace from './canvas';
 // import App from '../../ui/App';
 const httpLink = new HttpLink({
-    uri: "http://10.0.0.3:3000/graphql"
-    //uri: Meteor.absoluteUrl('graphql')
+    // uri: "http://localhost:3000"
+    // uri: "http://10.0.0.3:3000/graphql"
+    // uri: "http://192.168.50.61:3000/graphql"
+    uri: Meteor.absoluteUrl('graphql')
 });
 
+window.addEventListener('DOMContentLoaded', (event) => {
+    floatySpace()
+});
 // const answers = Answers.find({}).fetch();
 // console.log(answers);
 const history = createBrowserHistory();

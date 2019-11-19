@@ -12,7 +12,7 @@ const DemoExample = () => (
                 <div className="resp-container">
                     <iframe 
                         className="resp-iframe"
-                        src="http://localhost:8000/demo/highlights/img/e4bf421e-717c-47d1-8f1b-92c4560e9b21/"
+                        src="http://localhost:8000/demo/video_player/fdas/?asset_id=img_e4bf421e-717c-47d1-8f1b-92c4560e9b21"
                         />
                 </div>
             </div>

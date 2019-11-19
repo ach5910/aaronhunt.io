@@ -6,7 +6,7 @@
 }
 
 @import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700');
-
+@import url('https://fonts.googleapis.com/css?family=Ruda:400,700,900&display=swap');
 html {
   font-size: 62.5%;
   overflow: hidden;
@@ -15,17 +15,92 @@ html {
 hr {
   margin-bottom: $space;
 }
+$bg-img: url('background-image.jpg');
 body {
   font-family: 'Roboto', sans-serif;
   //font-family: Helvetica, Arial, sans-serif;
-  font-size: $base-font-size;
-  background-color: $background-gray;
+  // font-size: $base-font-size;
+  font-size: 1.8rem;
+  background-color: $surface;
+  // background: $surface $bg-img;
+  // background-position:  center;
+  // background-repeat:  no-repeat;
+  // background-size:  cover;
+  color: white;
   overflow-y: auto;
   -webkit-overflow-scrolling:touch;
   height: 100%;
   touch-action: manipulation;
 }
 
+.padding-horiz{
+  padding: 0px 2*$space !important;
+}
+
+.padding-vert{
+  padding: 2*$space 0px !important;
+}
+
+.padding{
+  padding: 2*$space !important;
+}
+
+.footer {
+  position: relative;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: $space;
+}
+
+.no-padding{
+  padding: 0px !important; 
+}
+.title {
+  font: 300 2.6rem "Ruda";
+  color: $primary;
+  margin: $space;
+  text-align: center;
+}
+
+@media #{$medium-and-down}{
+  .title{
+      font-size: 2.2rem;
+  }
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100%;
+}
+
+.center-text{
+  text-align: center !important;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &--col{
+    flex-direction: column;
+    height: 100%;
+  }
+}
+
+.margin{
+  margin: 1.8rem 0px;
+}
+
+.anchor {
+  position: relative;
+  top: 0;
+  left: 0;
+}
 h1.workout--h1 {
   font-weight: 300;
   margin-bottom: $space;

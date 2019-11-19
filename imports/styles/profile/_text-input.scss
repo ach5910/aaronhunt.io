@@ -1,0 +1,11 @@
+input[type="text"].text__input, textarea.text__area{
+    background-color: $surface-4;
+    width: 100%;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    color: white;
+    padding: 1rem;
+    margin: 0px;
+    font-family: monospace;
+}

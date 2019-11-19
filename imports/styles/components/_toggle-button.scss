@@ -1,0 +1,59 @@
+.toggle-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    &.vert{
+        flex-direction: column-reverse;
+        justify-content: center;
+        margin-left: 10px;
+        .toggle-button__text{
+            margin-left: 0px;
+            margin-bottom: 10px;
+        }
+    }
+}
+.toggle-button__container {
+    position: relative;
+    height: 32px;
+    width: 50px;
+    background-color: $grey;
+    border-radius: 16px;
+    transition: background-color 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+    &.on{
+        background-color: $blue;
+    }
+    &.toggle-button--disabled{
+        background-color: $grey;
+    }
+}
+
+.toggle-button__text{
+    margin-left: 10px;
+    color: $grey;
+    transition: background-color 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+    &.on{
+        color: #FFFFFF;
+    }
+    &.toggle-button--disabled{
+        color: $grey;
+    }
+}
+.toggle-button__switch{
+    position: absolute;
+    cursor: pointer;
+    height: 32px;
+    width: 32px;
+    border-radius: 16px;
+    left: 0;
+    top: 0;
+    background-color: $blue;
+    transition: background-color 0.3s cubic-bezier(0.65, 0.05, 0.36, 1), left 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+    &.on{
+        background-color: #FFFFFF;
+        left: calc(100% - 32px);
+    }
+    &.toggle-button--disabled{
+        cursor: auto;
+        background-color: lighten($grey, 15%);
+    }
+}

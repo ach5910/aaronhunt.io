@@ -1,0 +1,159 @@
+.stepper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.step {
+    display: flex;
+    justify-content: flex-start;
+    width: 800px;
+    padding-left: 80px;
+    position: relative;
+    min-height: 80px;
+    // height: 100%;
+    flex-direction: column;
+    
+    height: 0px;
+    transition: height 0.3s ease-in;
+    overflow: hidden;
+}
+
+.step__line {
+    position: absolute;
+    left: 19.5px;
+    top: 0;
+    width: 1px;
+    // height: 80px;
+    height: 100%;
+    // background-color: $blue;
+    background-color: white;
+    // transition: height 0.3s linear;
+}
+
+.step__ball {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 0px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: $blue;
+    transform-origin: 50% 0%;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    transform: scale(1);
+    cursor: pointer;
+    &:hover {
+        transform: scale(1.08);
+        background-color: white;
+    }
+}
+
+.step.current{
+    transition: height .3s ease-in;
+    // justify-content: center;
+    // max-height: 600px;
+    // animation: expand 0.3s linear forwards;
+    .step__ball{
+        background-color: white;
+        &:hover{
+            transform: scale(1);
+        }
+    }
+
+    .step__line{
+        background-color: white;
+        height: 100%;
+    }
+
+    .step__message, .step__hint{
+        opacity: 1;
+    }
+
+    .step__form{
+        // height: 100%;
+        // animation: expand 0.3s linear forwards;
+        // transition:  height 300ms linear 100ms;
+        // overflow: visible;
+    }
+
+    .step__summary{
+        opacity: 0;
+    }
+}
+
+.step__period-form{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+}
+
+.step__summary {
+    position: absolute;
+    top: 10px;
+    left: 80px;
+    margin-left: 20px;
+    color: $blue;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.step__form-wrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.step__message{
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    height: 80px;
+    font-size: 1.7rem;
+    color: $accent-color;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.step__hint {
+    font-size: 1.7rem;
+    width: 40%;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.step__form {
+    display: flex;
+    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    // width: 100%;
+    // padding-bottom: 50px;
+    //max-height: 0px;
+    // height: min-content;
+    justify-content: space-around;
+    min-height: 160px;
+    // overflow: hidden;
+    //transition:  height 0.3s linear;
+    .input__form-container{
+        width: 300px
+    }
+    .target-duration-input .input__form-container{
+        width: 12%;
+        &.slider {
+            width: 83%;
+        }
+    }
+}
+
+@keyframes expand{
+    0%{
+        height: 0%;
+    }
+    100%{
+        height: 100%
+    }
+}

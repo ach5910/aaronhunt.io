@@ -1,5 +1,7 @@
 import moment from 'moment';
 
+export function noop(){}
+
 export function isEmptyValue(value) {
     if (value instanceof Set) {
       return value.size <= 0;
@@ -99,4 +101,74 @@ export const rabinKarp = (pat, txt) => {
         } 
     }
     return false;
+}
+
+export function getTransitionEvent(el){
+
+  const transitions = {
+    "transition"      : "transitionend",
+    "OTransition"     : "oTransitionEnd",
+    "MozTransition"   : "transitionend",
+    "WebkitTransition": "webkitTransitionEnd"
+  }
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (let t in transitions){
+    if (el.style[t] !== undefined){
+      return transitions[t];
+    }
+  }
+  return "transitionend"
+}
+
+export const getNumberArray = num => {
+  const arr = [];
+  for (let i = 1; i <= num; i++) {
+    arr.push(i);
+  }
+  return arr;
+};
+
+export function strPadLeft(string, pad, length) {
+  return (new Array(length + 1).join(pad) + string).slice(-length);
+}
+
+export const rippleClick = rippleColor('rgba(255, 255, 255, 0.3)');
+export const rippleClickDark = rippleColor('rgba(0, 0, 0, 0.3)');
+/**
+ * Creates a ripple animation effect for user clicks and touches
+ * 
+ * @param {func} cb The onClick function for the element
+ */
+function rippleColor(bg){
+    return function rippleCallback(cb, delay, className = ""){
+        return function rippleAnimate(e){
+            (e.preventDefault && e.preventDefault());
+            e.persist();
+            const {target} = e;
+            if (className){
+              target.classList.toggle(className)
+            }
+            if (delay && typeof delay == "number" && !Number.isNaN(delay)){
+                setTimeout(function rippleTimeout() {cb()}, delay)
+            } else {
+                cb()
+            }
+            const ripple = document.createElement("div");
+            ripple.classList.add('ripple');
+            const removeNode = (e) => {
+                if(e.persist) e.persist();
+                const {target} = e;
+                console.log(target)
+                if (className && target.parentElement){
+                  target.parentElement.classList.toggle(className)
+                }
+                target.remove();
+            }
+            target.appendChild(ripple);
+            ripple.addEventListener(getTransitionEvent(target), removeNode)
+            const {offsetX, offsetY} = e.nativeEvent;
+            ripple.setAttribute("style", `background-color: ${bg}; top: ${offsetY}px; left: ${offsetX}px; transform: scale(10); webkitTransform: scale(10); msTransform: scale(10); opacity: 0;`);
+        }
+    }
 }

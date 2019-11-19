@@ -1,0 +1,33 @@
+.icon {
+    width: 80px;
+    height: 80px;
+    fill: $primary;
+    cursor: pointer;
+}
+
+.icon__title {
+    font: 300 2.6rem "Ruda";
+    color: $primary;
+    margin: $space;
+}
+
+@media #{$medium-and-down}{
+    .icon__title{
+        font-size: 2.2rem;
+    }
+}
+
+.vision-card{
+    // margin: 2*$space;
+    padding: 2.2rem 0px;
+}
+
+.vision-desc{
+    text-align: center;
+}
+
+.vision-row{
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+}

@@ -1,0 +1,13 @@
+.header__title {
+    margin: 12rem 0px;
+    text-align: center;
+    font: 500 4.4rem 'Ruda';
+    text-decoration: underline;
+    color: $secondary;
+}
+
+@media #{$medium-and-down}{
+    .header__title{
+        font-size: 3.3rem;
+    }
+}

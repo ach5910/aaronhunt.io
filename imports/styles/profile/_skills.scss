@@ -1,0 +1,33 @@
+.skills{
+    // color: $secondary-light;
+    margin-left: 3*$space;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.skill {
+    margin-left: $space;
+}
+
+.skill-sets{
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    flex-wrap: wrap;
+    background-color: $surface-3;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-left: solid 2px $primary;
+}
+
+@media #{$medium-and-down}{
+    .skill-sets{
+        flex-direction: row;
+        justify-content: space-between;
+        border-top-right-radius: 0px;
+        border-bottom-left-radius: 5px;
+        border-left: none;
+        border-top: solid 2px $primary;
+    }
+}
