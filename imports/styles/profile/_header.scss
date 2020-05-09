@@ -1,9 +1,10 @@
 .header__title {
-    margin: 12rem 0px;
+    margin: 8.5rem 0px;
+    // font-weight: 700;
     text-align: center;
-    font: 500 4.4rem 'Ruda';
+    font: 700 4.4rem 'Ruda';
     text-decoration: underline;
-    color: $secondary;
+    color: $text-high-emphasis;
 }
 
 @media #{$medium-and-down}{

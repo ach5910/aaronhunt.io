@@ -1,9 +1,9 @@
 nav{
-    border-bottom: solid 3px $primary;
+    // border-bottom: solid 1px $primary;
 }
 
 .nav-bar{
-    background-color: $surface-1;
+    @include elevation(1);
     padding: 1.2rem;
     position: sticky;
     top: 0px;
@@ -23,7 +23,7 @@ nav{
 }
 
 .nav-link {
-    color: white;
+    color: $text-med-emphasis;
     font-size: 1.8rem;
     // margin: 0px 1.5*$space;
     text-decoration: none;

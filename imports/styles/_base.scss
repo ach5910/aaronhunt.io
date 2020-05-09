@@ -3,8 +3,16 @@
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  scrollbar-width: none;
 }
 
+::-webkit-scrollbar{
+  display: none;
+
+}
 @import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700');
 @import url('https://fonts.googleapis.com/css?family=Ruda:400,700,900&display=swap');
 html {
@@ -59,7 +67,7 @@ body {
 }
 .title {
   font: 300 2.6rem "Ruda";
-  color: $primary;
+  color: $text-high-emphasis;
   margin: $space;
   text-align: center;
 }
@@ -82,13 +90,43 @@ body {
   text-align: center !important;
 }
 
+
 .flex {
   display: flex;
   justify-content: center;
   align-items: center;
-  &--col{
-    flex-direction: column;
-    height: 100%;
+  &--center{
+      justify-content: center;
+  }
+  &--between{
+      justify-content: space-between;
+  }
+  &--evenly {
+      justify-content: space-evenly;
+  }
+  &--around {
+      justify-content: space-around;
+  }
+  &--col {
+      flex-direction: column;
+      height: 100%;
+  }
+  &--stretch {
+      > *{
+          flex: 1 0 auto;
+      }
+  }
+  &--rev {
+      flex-direction: row-reverse;
+  }
+  &--end {
+      justify-content: flex-end;
+  }
+  &--align-start{
+      align-items: start;
+  }
+  &--align-end{
+      align-items: end;
   }
 }
 

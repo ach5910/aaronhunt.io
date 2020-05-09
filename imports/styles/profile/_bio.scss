@@ -1,0 +1,9 @@
+.bio__description{
+    color: $text-med-emphasis;
+    text-align: center;
+    font-weight: 300;
+    &--important{
+        color: $primary;
+        text-decoration: none;
+    }
+}

@@ -1,0 +1,113 @@
+.gallery {
+    display: flex;
+    justify-content:  center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: $space;
+
+    .project-img__container {
+        width: 300px;
+        height: 300px;
+        position: relative;
+        .cover {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.7);
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            .cover-title {
+                position: absolute;
+                font-size: 2.2rem;
+                color: black;
+                left: 50%;
+                top: 50px;
+                transform: translate(-50%, 0%);
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out, transform 0.3s ease-in-out;
+            }
+
+            .cover-link {
+                position: absolute;
+                font-size: 2.2rem;
+                color: black;
+                left: 50%;
+                bottom: 50px;
+                transform: translate(-50%, 0%);
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out, transform 0.3s ease-in-out;
+                cursor: pointer;
+            }
+        }
+        &:hover {
+            .cover {
+                opacity: 1;
+                .cover-title {
+                    opacity: 1;
+                    transform: translate(-50%, 50px);
+                }
+                .cover-link {
+                    opacity: 1;
+                    transform: translate(-50%, -50px);
+                }
+            }
+        }
+    }
+    .project-img {
+        width: 300px;
+        height: 300px;
+    }
+}
+
+.project-content{
+    border-left: 1px solid $border-med-emphasis;
+    border-bottom: 1px solid $border-med-emphasis;
+    border-right: 1px solid $border-med-emphasis;
+    width: 100%;
+    height: 300px;
+    background: $elevation-3;
+}
+
+.project__img-container {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding-top: 56.25%;
+    background-color: $surface;
+    overflow: hidden;
+}
+
+.project__img{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.project__img-btn {
+    position: absolute;
+    bottom: 0px;
+    height: 60px;
+    width: 60px;
+    color: $text-high-emphasis;
+    display: flex;
+    justify-content:  center;
+    align-items: center;
+    flex-direction:  row;
+    cursor: pointer;
+    &--left {
+        left: 0px
+    }
+
+    &--right {
+        right: 0px;
+    }
+
+    > svg {
+        pointer-events: none;
+    }
+}

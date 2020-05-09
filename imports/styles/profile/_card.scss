@@ -1,4 +1,4 @@
 .card, .row.card{
-    background-color: $surface-1;
-    border-radius: 10px;
+    @include elevation(3);
+    border-radius: 8px;
 }

@@ -10,6 +10,8 @@ import IntuitiveIcon from './IntuitiveIcon';
 import DynamicIcon from './DynamicIcon';
 import { HOME, ABOUT, PROJECTS, CONTACT } from '../../startup/client/constants';
 import ContactSection from './ContactSection';
+import Chip from './Chip';
+import Projects from './Projects';
 
 let observer;
 let intersectCb = noop;
@@ -35,7 +37,7 @@ function createObserver(){
 }
 
 function handleIntersect(entries){
-    console.log('handleIntersect')
+    // console.log('handleIntersect')
     entries.forEach(entry => {
         // if (entry.isIntersecting)
         if (entry.isIntersecting){
@@ -95,7 +97,7 @@ const Profile = ({}) => {
         <React.Fragment>
             <section data-section={HOME} ref={(el) => {refCallback(el, HOME)}} className="section home anchor">
                 <div id="pt" className="canvas"></div>
-                <div className="flex flex--col">
+                <div className="flex flex--col" style={{height: "100vh"}}>
                     <div className="home-text">
                         Hello, I'm <span className="primary">Aaron Hunt</span>.
                         <br/>
@@ -155,11 +157,13 @@ const Profile = ({}) => {
                             <br/>
                             <br/>
                             <h2 className="title">Who is this guy?</h2>
-                            <p className="center-text">
-                                I'm the Front-End Developer for Thuuz Sport in Palo Alto, CA.
+                            <p className="bio__description">
+                                I'm the Front-End Developer for <a href="https://thuuz.com" target="_blank"  className="bio__description bio__description--important">Thuuz Sports</a> in Palo Alto, CA.
+                            </p>
+                            <p className="bio__description">
                                 I have serious passion for UI effects, animations and creating intuitive, dynamic user experiences.
                             </p>
-                            <p className="primary center-text">Let's make something special.</p>
+                            <a href="#" onClick={scrollToSection(CONTACT)}  className="bio__description bio__description--important">Let's make something special.</a>
                         </article>
                         <article className="col s12 offset-l2 l5 no-padding">
                             <div className="skill-sets padding">
@@ -183,10 +187,10 @@ const Profile = ({}) => {
                                         <li className="skills">React</li>
                                         <li className="skills">Apollo</li>
                                         <li className="skills">Meteor</li>
-                                        <li className="skills">Redux/Flux</li>
+                                        <li className="skills">Redux/Thunk</li>
                                         <li className="skills">React Router</li>
-                                        <li className="skills">Jest</li>
-                                        <li className="skills">Enzyme</li>
+                                        <li className="skills">Jest/Enzyme</li>
+                                        <li className="skills">Webpack</li>
                                     </ul>
                                 </div>
                                 <div className="skill-set">
@@ -204,7 +208,7 @@ const Profile = ({}) => {
                     </div>    
                 </section>
                 <section data-section={PROJECTS} ref={(el) => {refCallback(el, PROJECTS)}} className="section projects">
-                    <header className="header__title">Projects</header>
+                    <Projects/>
                 </section>
                 <ContactSection refCallback={refCallback}/>
             </div>

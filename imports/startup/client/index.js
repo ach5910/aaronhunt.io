@@ -10,6 +10,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import Routes from '../../routes/liftRoutes';
 import { createBrowserHistory } from 'history';
 import floatySpace from './canvas';
+import classNames from 'classnames';
 // import App from '../../ui/App';
 const httpLink = new HttpLink({
     // uri: "http://localhost:3000"
@@ -17,6 +18,8 @@ const httpLink = new HttpLink({
     // uri: "http://192.168.50.61:3000/graphql"
     uri: Meteor.absoluteUrl('graphql')
 });
+window.cn = classNames
+window.classNames = classNames
 
 window.addEventListener('DOMContentLoaded', (event) => {
     floatySpace()

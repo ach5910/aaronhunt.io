@@ -1,0 +1,46 @@
+.modal-container, .splash-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    pointer-events: all;
+    z-index: 3;
+    display: none;
+    &.open, &.closing{
+        display: block;
+    }
+}
+
+.modal {
+    position: absolute;
+    padding: $space;
+    text-align: center;
+    width: 75vw;
+    height: 75vh;
+    overflow-y: auto;
+    // background-color: $surface-1;
+    @include elevation(1);
+    left: 50%;
+    top: 50%;
+    // width: 75vw;
+    transform: translate(-50%, -50%);
+    // transition: transform 0.3s ease-in-out;
+    // > * {
+    //     margin-bottom: $space;
+    // }
+}
+
+.modal__x {
+    position: sticky;
+    z-index: 3;
+    left: calc(100%);
+    top: -2rem;
+    bottom: 100%;
+    font-size: 2rem;
+    color: $text-high-emphasis;
+    height: 2rem;
+    width: 2rem;
+    cursor: pointer;
+}
