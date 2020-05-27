@@ -119,7 +119,7 @@ const ContactSection = ({refCallback}) => {
                 </div>
                 <div className='row '>
                     <div className='col s12 m6 offset-m3 contact__button-container'>
-                        <button onClick={submitEmail} className='btn btn--outlined'>
+                        <button disabled={Object.values(form).some((field) => field === "")} onClick={submitEmail} className='btn btn--outlined'>
                             Submit
                         </button>
                     </div>

@@ -43,6 +43,17 @@ nav{
     }
 }
 
+// Support for unhighlighting previous selected links on touch screen devices
+@media (hover: none) {
+    .nav-link, .nav-link:hover {
+        color: $text-med-emphasis;
+    }
+
+    .nav-link.active {
+        color: $secondary;
+    }
+}
+
 @media #{$medium-and-up}{
     .nav-link{
         margin-right: $space*4;

@@ -38,7 +38,7 @@ const ProjectInfo = ({name, images, history,  sections}) => {
         initial: { opacity: 1, transform: 'translate3d(0%,0,0)' },
         from: { opacity: 0, transform: `translate3d(${dir.current * 100}%,0,0)` },
         enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
-        leave: { opacity: 0.3, transform: `translate3d(${-1 * dir.current * 50}%,0,0)` },
+        leave: { opacity: 0, transform: `translate3d(${-1 * dir.current * 50}%,0,0)` },
     })
 
     const {description, features, technology, ...rest} = sections;

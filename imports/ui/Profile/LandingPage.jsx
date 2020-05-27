@@ -7,14 +7,14 @@ import { rippleClickDark } from "../../startup/client/utils";
 const LandingPage = ({}) => {
 
     return(
-        <section className="section home anchor">
+        <section className="section home">
             <div  className="home-content" >
                 <div className="home-text">
                     Hello, I'm <span className="primary">Aaron Hunt</span>.
                     <br/>
                     Im a Frontend Engineer.
                 </div>
-                <button onClick={rippleClickDark(() => history.push("profile/"), 300, "clicked")} className="btn btn--outlined margin" style={{zIndex: 1}}>
+                <button onClick={rippleClickDark(() => history.push("profile/"), 300, "clicked")} className="btn btn--outlined margin" style={{zIndex: 1, pointerEvents: "all"}}>
                     View my work
                 </button>
             </div>

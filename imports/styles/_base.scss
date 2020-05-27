@@ -97,7 +97,7 @@ body {
   right: 0;
   bottom: 0;
   width: 100%;
-  padding: $space;
+  padding: $space $space $space*4; // Safari iOS fix 
   display: flex;
   justify-content:  center;
   align-items: center;
@@ -121,7 +121,7 @@ body {
       background-color: rgba(255, 255, 255, 0.0);
       transition: background-color 0.2s ease-in-out;
     }
-    &:hover {
+    &:hover, &:active {
       &:after {
         background-color: rgba(255, 255, 255, 0.3);
       }
@@ -139,6 +139,19 @@ body {
     color: $secondary-dark;
   }
 
+}
+
+@media (hover: none) {
+  .footer {
+    .footer__link {
+      &:after {
+        background-color: rgba(255, 255, 255, 0.0);
+      }
+      &:hover:after{
+        background-color: rgba(255, 255, 255, 0.0);
+      }
+    }
+  }
 }
 
 .link{
