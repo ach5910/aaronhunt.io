@@ -5,6 +5,7 @@ import { CONTACT } from '../../startup/client/constants';
 import Modal from './Modal';
 import { useRef } from 'react';
 import { useCallback } from 'react';
+import { stopAllPropagation, useStateObject } from '../../startup/client/utils';
 
 const NAME = "name";
 const EMAIL = "email";
@@ -22,17 +23,15 @@ const SUCCESS = [
 const initState = {[NAME]: "", [EMAIL]: "", [MESSAGE]: ""}
 const ContactSection = ({refCallback}) => {
     const [modal, setModal] = useState(false)
-    const [form, setInput] = useState(initState);
+    const [form, setInput] = useStateObject(initState);
     const modalContent = useRef(SUCCESS)
 
-    handleChange = (input) => (e) => {
-        e.preventDefault()
-        e.persist()
-        setInput((prevForm) => ({
-            ...prevForm,
+    handleChange = useCallback((input) => (e) => {
+        stopAllPropagation(e)
+        setInput({
             [input]: e.target.value
-        }))
-    }
+        })
+    }, [setInput])
 
     handleModal = useCallback(() => {
         setModal(false);

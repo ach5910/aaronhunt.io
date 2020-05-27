@@ -1,5 +1,5 @@
 import moment from "moment";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, useReducer} from "react";
 import ResizeObserver from 'resize-observer-polyfill';
 
 export function noop() {}
@@ -225,4 +225,15 @@ export function useMeasure() {
         if (ro.disconnect) ro.disconnect()
     }), [])
     return [{ ref }, bounds]
+}
+
+export function stopAllPropagation(e) {
+    if (!e) return;
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+    if (e.nativeEvent && e.nativeEvent.stopImmediatePropagation) e.nativeEvent.stopImmediatePropagation();
+}
+
+export function useStateObject(initState) {
+    return useReducer((state, newState) => ({...state, ...newState}), initState);
 }

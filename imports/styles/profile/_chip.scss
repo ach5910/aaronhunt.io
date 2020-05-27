@@ -1,5 +1,8 @@
 .chip {
     position: relative;
+    left: 0px;
+    top: 0px;
+    transform: translateZ(0px); // Safari hack to make the ripple effect respect the border-radius and overflow hidden styles
     display: flex;
     justify-content:  center;
     align-items: center;

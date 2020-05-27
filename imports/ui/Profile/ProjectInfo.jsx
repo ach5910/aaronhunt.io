@@ -23,7 +23,7 @@ const ProjectInfo = ({name, images, history,  sections}) => {
     useEffect(() => {
         if (!mounted.current){
             mounted.current = true;
-            document.body.scrollTop = 0;
+            document.getElementById("app").scrollTop = 0;
         }
     }, [])
 

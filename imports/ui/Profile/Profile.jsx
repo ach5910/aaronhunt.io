@@ -60,7 +60,7 @@ function handleIntersect(entries){
 }
 
 // window.addEventListener("load", createObserver, false)
-const scrollEl = document.scrollingElement || document.body;
+const scrollEl = document.scrollingElement || document.getElementById("app");
 
 
 const refs = {
@@ -94,7 +94,7 @@ const Profile = ({history}) => {
                 const {top} = refs[section].getBoundingClientRect();
                 const {height} = navRef.current.getBoundingClientRect();
                 anime({
-                    targets: document.body,
+                    targets: document.getElementById("app"),
                     scrollTop: Math.max(refs[section].offsetTop - height, 0),
                     duration: 500,
                     autoplay: true,

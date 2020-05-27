@@ -51,6 +51,14 @@ $tron: #FFF;
 }
 .center-nuclei {
    transform-origin: 50% 50%;
+   
+   &.nuclei-2 {
+      transform: rotate(60deg); // Safari fix: SVG transform need to be in css if transform origin is specified
+   }
+
+   &.nuclei-3 {
+      transform: rotate(120deg); // Safari fix: SVG transform need to be in css if transform origin is specified
+   }
 }
 .electron, .electron--back{
    fill: none;

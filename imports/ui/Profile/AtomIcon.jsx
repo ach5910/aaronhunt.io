@@ -14,7 +14,7 @@ const AtomIcon = ({style={}, className, bind}) => (
                 strokeDasharray="0, 217.32"
             />
         </g>
-        <g  className="center-nuclei" transform="rotate(60)">
+        <g  className="center-nuclei nuclei-2">
             <ellipse
                 className="electron--back electron--back-2 "
                 cx="50"
@@ -25,7 +25,7 @@ const AtomIcon = ({style={}, className, bind}) => (
                 strokeDasharray="0, 217.32"
             />
         </g>
-        <g  className="center-nuclei" transform="rotate(120)">
+        <g  className="center-nuclei nuclei-3">
             <ellipse
                 className="electron--back electron--back-3"
                 cx="50"
@@ -49,7 +49,7 @@ const AtomIcon = ({style={}, className, bind}) => (
             />
             <ellipse className="ring" strokeDasharray="176,44" cx="50" cy="50" rx="50" ry="14" />
         </g>
-        <g className="center-nuclei" transform="rotate(60)">
+        <g className="center-nuclei nuclei-2">
             <ellipse
                 className="electron electron-2"
                 cx="50"
@@ -61,7 +61,7 @@ const AtomIcon = ({style={}, className, bind}) => (
             />
             <ellipse className="ring" strokeDasharray="176,44" cx="50" cy="50" rx="50" ry="14" />
         </g>
-        <g className="center-nuclei" transform="rotate(120)" >
+        <g className="center-nuclei nuclei-3">
             <ellipse
                 className="electron electron-3"
                 cx="50"

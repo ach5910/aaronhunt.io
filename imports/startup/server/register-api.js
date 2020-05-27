@@ -76,7 +76,7 @@ const schema = makeExecutableSchema({
 
 process.env.MAIL_URL = 'smtps://ach5910@gmail.com:ft_putchar@smtp.gmail.com:465'
 // process.env.SENDGRID_API_KEY = "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";
-process.env.SENDGRID_API_KEY = "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"
+// process.env.SENDGRID_API_KEY = "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"
 Meteor.methods({
     sendEmail(from, subject, text) {
       sgMail.setApiKey(process.env.SENDGRID_API_KEY)

@@ -30,24 +30,28 @@
                 position: absolute;
                 font-size: 2.2rem;
                 color: black;
-                left: 50%;
+                left: 0%;
                 top: 50px;
-                transform: translate(-50%, 0%);
+                transform: translate(0%, 0%);
                 opacity: 0;
                 transition: opacity 0.2s ease-in-out, transform 0.3s ease-in-out;
+                width: 100%;
                 white-space: nowrap;
+                text-align: center;
             }
 
             .cover-link {
                 position: absolute;
                 font-size: 2.2rem;
                 color: black;
-                left: 50%;
+                left: 0%;
                 bottom: 50px;
-                transform: translate(-50%, 0%);
+                transform: translate(0%, 0%);
                 opacity: 0;
                 transition: opacity 0.2s ease-in-out, transform 0.3s ease-in-out;
                 cursor: pointer;
+                width: 100%; // Safari fix for jumping text
+                text-align: center; // Safari fix for jumping text
             }
             &--disabled {
                 background-color: rgba(255, 255, 255, 0.37);
@@ -61,11 +65,11 @@
                 font-weight: 700;
                 .cover-title {
                     opacity: 1;
-                    transform: translate(-50%, 50px);
+                    transform: translate(0%, 50px);
                 }
                 .cover-link {
                     opacity: 1;
-                    transform: translate(-50%, -50px);
+                    transform: translate(0%, -50px);
                     text-decoration: underline;
                 }
             }

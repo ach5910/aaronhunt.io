@@ -1,6 +1,7 @@
 import React from 'react';
 import {Meteor} from 'meteor/meteor';
 import { render } from 'react-dom';
+import "intersection-observer";
 // import Answers from '../../api/answers/answers;'
 import { ApolloLink, from } from 'apollo-link';
 import { ApolloProvider} from 'react-apollo';
