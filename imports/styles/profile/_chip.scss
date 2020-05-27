@@ -5,15 +5,15 @@
     align-items: center;
     padding: $space/2 $space;
     font-size: 1.4rem;
-    line-height: 2rem;
+    line-height: 1.6rem;
     letter-spacing: 0.25px;
     border-radius: $space;
     color: $text-high-emphasis;
     background-color: $surface;
     overflow: hidden;
     cursor: pointer;
-    margin-right: $space;
-    margin-bottom: $space;
+    margin-right: $space/2;
+    margin-bottom: $space/2;
     &:before {
         position: absolute;
         left: 0px;

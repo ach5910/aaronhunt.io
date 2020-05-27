@@ -1,0 +1,29 @@
+.tab-bar {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    background-color: $surface;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction:  row;
+    margin: $space*2 0px;
+}
+
+.tab {
+    padding: $space/2 $space;
+    flex: 1 1 auto;
+    color: $text-high-emphasis;
+    font-size: 1.8rem;
+    font-weight: 400;
+    background-color: transparent;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    cursor: pointer;
+    &--selected {
+        color: $primary;
+    }
+    &:hover{
+        color: $primary-light;
+        background-color: rgba(255,255, 255, 0.2);
+    }
+}

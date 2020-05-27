@@ -4,120 +4,98 @@ import Chip from './Chip';
 import Modal from './Modal';
 import GalleryProject from './GalleryProject';
 import { useCallback } from 'react';
-import { rippleClick, noop } from '../../startup/client/utils';
+import { rippleClick, noop, useMeasure, useMedia } from '../../startup/client/utils';
 import ProjectInfo from './ProjectInfo';
+import { history } from '../../startup/client';
+import { PORTFOLIO_PROJECTS } from '../../routes/liftRoutes';
+import { useTransition } from 'react-spring';
+import { useRef } from 'react';
 
-const PROJECTS = {
-    "Partner Portal" : {
-        name: "Partner Portal",
-        description: "A dashboard for broadcast stream owner to create, manage and publish highlights generated from by the Thuuz Smart Reels platform.",
-        features: "Highlight rule creation, production effects, publish destination, live highlight feed, custom highlight creation, meta data editing and highlight preview",
-        technology: "ReactJs, Redux, Thunk, Webpack, SCSS, JwPlayer, Bitmovin Video Player, Django Jest, WebDriverIO, Mocha, Chai.",
-        "notable support": "Oauth support for social platforms (Twitter, Facebook, Google) to auto-publish highlights. Material UI components were migrated to custom components. Custom video player UI. Media upload support for production settings.",
-        images: ["/portal_dimensions.png", "/portal_main.png",  "/portal_export.png"]
-    },
-    "Embedded Player" : {
-        name: "Embedded Player",
-        description: "An embeddable video player that allows users to create and watch custom highlights.",
-        features: "Default highlight, game selection, custom highlights, live mode, Catch-up to Live, multi event highlight.",
-        technology: "ReactJs, Redux, Thunk, Webpack, SCSS, JwPlayer, Bitmovin Video Player, Django Jest, WebDriverIO, Mocha, Chai.",
-        "notable support": "Responsive design and mobile support. Embedded via iframe. Auto sizes for 16:9 aspect ratio.",
-        images: ["/embedded_devices.png", "/embedded_multi.png","/embedded_menu.png", "/embedded_filter.png", "/embedded_live.png", "/embedded_portrait.png"],
-        url: "https://www.thuuz.com/partners/video_player/al-arabiya/documentation/"
-    },
-    "Trash" : {
-        name: "Trash",
-        description: "A turn based game that promotes collusion and manipulation.",
-        features: "Progressive Web App, service worker work caching requests, installable as mobile app that's available on device homescreen, SMS updates, offline accessible, messaging page, live updates via web socket, training areana for mini-games, game store for power-ups, stats page for data visualization.",
-        technology: "ReactJs, GraphQl, Apollo, Meteor, NGinx, Pm2 Meteor, MongoDB, Redis PubSub, Twilio Messaging, SCSS.",
-        "notable support": "Live messaging and game updates. Direct play",
-        images: ["/trash_project.png", "/trash_layers.png", "/trash_menu.png", "/trash_offline.png", "/trash_stats.png",]
-    },
-    "Workout Tracker" : {
-        name: "Workout Tracker",
-        description: "A personal tracker to log workouts and exercises.",
-        features: "Exercise creation, routine creation. Supports tracking(live) and logging(record/plan) a workout. Auto-fills exercises based on previous values. Calendar view. Progression stats and visualizations.",
-        technology: "ReactJs, GraphQl, Apollo, Meteor, MeteorUp, MongoDB, Nginx.",
-        "notable support": "First website built. Mobile support. Backend work. ",
-        images: ["/portal_main.png"]
-    },
-    "Highlight Editing" : {
-        name: "Highlight Editing",
-        description: "Custom video editing support and components for clips and highlights. This suite has been ported to multiple projects and allows video editing with a standard player.",
-        features: "Add segment padding, update start/end offsets, global and local scopes update, preview, window sliding. Highlight editing, segment breakdown, highlight preview, clip insertion, clip visibility control. Clip creation, metadata form.",
-        technology: "ReactJs, SCSS, JwPlayer, Bitmovin Video Player, Django, Jest, WebDriverIO, Mocha, Chai.",
-        "notable support": "Custom slider component, playback control, expanding a play, support for keyboard short cuts",
-        images: ["/portal_main.png"]
-    },
-    "": {}
-}
-
+const tags = [
+    "Redux",
+    "React Router",
+    "GraphQl",
+    "Node",
+    "MongoDB",
+    "Meteor",
+    "Mobile",
+    "Desktop",
+]
 const Projects = ({}) => {
     const [chips, setChip] = useState([]);
-    const [modal, setModal] = useState(false)
-    const [project, setProject] = useState("");
+    const projects = useRef(Object.values(PORTFOLIO_PROJECTS));
+    // Hook2: Measure the width of the container element
+    const [bind, { width }] = useMeasure()
+    const columns = useMedia(['(min-width: 993px)', '(min-width: 601px)'], [2, 1], 1)
 
     handleChip = (chip) => () => {
-        const filter = chips.filter(name => name != chip);
-        if (filter.length == chips.length){
-            setChip([...filter, chip])
-        } else {
-            setChip(filter);
-        }
+        let _filter = chips.filter(name => name != chip);
+        if (_filter.length == chips.length){
+            _filter = [..._filter, chip]
+        } 
+        projects.current = projects.current
+            .map((p) => ({
+                ...p,
+                disabled: _filter.length > 0 &&  !_filter.every(f => p.tags.includes(f)) //p.tags.every(t => !_filter.includes(t))
+            }))
+            .sort((a, b) => {
+                if (a.disabled !== b.disabled){
+                    if (a.disabled){
+                        return 1
+                    }
+                    return -1
+                }
+                return 0;
+            })
+        setChip(_filter);
     }
 
-    const handleProject = useCallback((_project) => {
-        setProject(_project);
-        setModal(true);
-    }, [setProject, setModal]);
+    let heights = (new Array(columns).fill(0)) // Each column gets a height starting with zero
+    let gridItems = projects.current.map((child, i) => {
+        const column = heights.indexOf(Math.min(...heights)) // Basic masonry-grid placing, puts tile into the smallest column using Math.min
+        const xy = [(width / columns) * column, (heights[column] += child.height + 16) - child.height] // X = container width / number of columns * column index, Y = it's just the height of the current column
+        return { ...child, xy, width: width / columns, height: child.height}
+    })
+    // Hook5: Turn the static grid values into animated transitions, any addition, removal or change will be animated
+    const transitions = useTransition(gridItems, item => item.name, {
+        from: ({ xy, width, height }) => ({ xy, width, height, opacity: 0 }),
+        enter: ({ xy, width, height }) => ({ xy, width, height, opacity: 1 }),
+        update: ({ xy, width, height }) => ({ xy, width, height }),
+        leave: { height: 0, opacity: 0 },
+        config: { mass: 5, tension: 500, friction: 100 },
+        trail: 25
+    })
 
-    const handleModal = useCallback(() => {
-        setModal(false);
-        setProject("");
-    }, [setProject, setModal]);
+    const handleProject = useCallback((_project) => {
+        history.push(`/profile/project/${_project}`)
+        // setProject(_project);
+        // setModal(true);
+    }, [history]);
 
     return(
         <>
             <header className="header__title">Projects</header>
-            <div className='row '>
-                <div className='col s10 offset-s1 l6 offset-l3'>
+            <div className='row no-margin'>
+                <div className='col s12  l8 offset-l2'>
                     <div className="flex " style={{width: "100%", flexWrap: "wrap"}}>
-                        <Chip onClick={handleChip("GraphQl")} selected={chips.includes("GraphQl")}>
-                            GraphQl
-                        </Chip>
-                        <Chip onClick={handleChip("React")} selected={chips.includes("React")}>
-                            React
-                        </Chip>
-                        <Chip onClick={handleChip("Node")} selected={chips.includes("Node")}>
-                            Node
-                        </Chip>
-                        <Chip  onClick={handleChip("MongoDB")} selected={chips.includes("MongoDB")}>
-                            MongoDB
-                        </Chip>
-                        <Chip onClick={handleChip("Redux")} selected={chips.includes("Redux")}>
-                            Redux
-                        </Chip>
-                        <Chip onClick={handleChip("Mobile")} selected={chips.includes("Mobile")}>
-                            Mobile
-                        </Chip>
+                        {tags.map((tag) => (
+                            <Chip key={`project__tags tag--${tag}`} onClick={handleChip(tag)} selected={chips.includes(tag)}>
+                                {tag}
+                            </Chip>
+                        ))}
                     </div>
                 </div>
             </div>
             <div className='row '>
-                <div className='col s10 offset-s1'>
-                    <div className="gallery">
-                        <GalleryProject name="Partner Portal" image="/portal_project.png" handleClick={handleProject} />
-                        <GalleryProject name="Embedded Player" image="/embedded_project2.png" handleClick={handleProject} />
-                        <GalleryProject name="Trash" image="/trash_project.png" handleClick={handleProject} />
-                        <GalleryProject name="Workout Tracker" handleClick={handleProject} />
-                        <GalleryProject name="Highlight Editing" handleClick={handleProject} />
-                        <GalleryProject name="Partner Portal" handleClick={handleProject} />
+                <div className='col s10 offset-s1 no-padding'>
+                    <div  {...bind} className="gallery" style={{ height: `${Math.max(...heights)}px` }}>
+                        {transitions
+                            .map(({item: {name, thumbnail, disabled}, props}) => (
+                            <GalleryProject style={props} disabled={disabled} key={`project__list project--${name}`} name={name} image={thumbnail} handleClick={handleProject} />
+                        ))}
                     </div>
                 </div>
             </div>
-            <Modal open={modal} handleClose={handleModal}>
-                {modal && <ProjectInfo {...PROJECTS[project]} />}
-            </Modal>
         </>
     )
 }

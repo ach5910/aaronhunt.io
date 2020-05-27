@@ -1,0 +1,162 @@
+
+$tron: #FFF;
+:root {
+    --stroke: #{$text-high-emphasis}; 
+}
+.nucleus {
+   // fill: #fff;
+   fill: rgba(255,255,255, 0.2);
+   fill: $secondary-dark;
+   stroke-width: 4px;
+   stroke: rgba(255,255,255, 0.4);
+   stroke: var(--stroke);
+}
+
+
+.atom {
+   padding: 5%;
+	// height: 200px;
+	// width: 200px;
+   // background-color: $tron;
+   overflow: visible;
+  transform:  rotate(120deg);
+  pointer-events: none;
+  * {
+      pointer-events: none;
+  }
+   // animation: final 3.75s ease-in-out forwards;
+}
+
+
+@keyframes final {
+   0%{
+      transform: scale(0.8) rotate(120deg);
+   }
+//    22.85%{
+//         transform: scale(1.1) rotate(120deg);
+//    }
+   45.7% {
+    transform: scale(0.9) rotate(120deg); 
+    transform: scale(1.1) rotate(120deg);
+   }
+//    68.55% {
+//     transform: scale(1.05) rotate(120deg);
+//    }
+//    80% {
+//     transform: rotate(720deg);
+//    }
+   94%, 100% {
+      transform:  scale(1) rotate(120deg);
+   }
+}
+.center-nuclei {
+   transform-origin: 50% 50%;
+}
+.electron, .electron--back{
+   fill: none;
+   stroke: transparent;
+   stroke-width: 12px;
+   transform: translate3d(0px, 0px, 0px);
+   will-change: opacity;
+   
+}
+
+.electron--back {
+   stroke: var(--stroke);
+   animation-name: back;
+   stroke-dashoffset: 76.02;
+}
+
+.electron-2, .electron--back-2{
+   animation-delay: -0.5s;
+   animation-iteration-count: 2.9;
+   stroke-dashoffset: 195.558
+}
+.electron-3,.electron--back-3{
+   animation-delay: -1.375s;
+   animation-iteration-count: 3.45;
+}
+
+.electron--back-3{
+   stroke-dashoffset: 97.794;
+}
+.ring {
+   stroke: var(--stroke);
+   fill: none;
+   stroke-width: 4px;
+   stroke-dashoffset: 35;
+}
+
+.atom.animate {
+    --stroke:  white;
+    animation: final 1s ease-in-out forwards;
+    .nucleus {
+        // fill: white;
+        stroke: white;
+        // stroke-width: 2px;
+    }
+    .ring{
+        // stroke-width: 2px;;
+    }
+    .electron, .electron--back{
+        // animation: revolve 1s linear 2.35 forwards;
+        animation: revolve 1s linear infinite forwards;
+        
+    }
+     
+    .electron--back {
+        animation-name: back;
+    }
+    
+    .electron-2, .electron--back-2{
+        animation-delay: -0.35s;
+        // animation-iteration-count: 2.9;
+    }
+    .electron-3,.electron--back-3{
+        animation-delay: -1.8s;
+        // animation-iteration-count: 3.45;
+    }
+}
+
+@keyframes revolve {
+   0%, 50%{
+      stroke-dashoffset: 108.7;
+      // opacity: 0;
+      stroke: transparent;
+   }
+   50.01%{
+      // opacity: 1;
+      stroke: var(--stroke);
+      stroke-dashoffset: 108.7;
+   }
+   99.99%{
+      stroke-dashoffset: 217.3;
+      // opacity:1;
+      stroke: var(--stroke);
+   }
+   100%{
+      stroke-dashoffset: 217.3;
+      // opacity: 0;
+      stroke: var(--stroke);
+   }
+}
+
+@keyframes back {
+   0%{
+      stroke-dashoffset: 0;
+      stroke: var(--stroke);
+   }
+   50% {
+      stroke-dashoffset: 108.66;
+      stroke: var(--stroke);
+   }
+   50.01%, 99.99%{
+
+      stroke: transparent;
+   }
+   100%{
+      stroke-dashoffset: 108.7;
+      stroke: transparent;
+   }
+}
+

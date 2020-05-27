@@ -50,3 +50,30 @@
     //   transition: transform 200ms ease-in-out; 
     // }
 }
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    margin-top: $space*2;
+    > button{
+        margin: 0px 30px;
+    }
+    > button:first-child{
+        margin-left: 0px;
+    }
+    > button:last-child{
+        margin-right: 0px;
+    }
+    &--margin-top {
+        margin-top: $space*2;
+    }
+    &--expand{
+        height: auto;
+        flex: 1 1 auto;
+        justify-content: flex-end;
+        align-items: center;
+        flex-direction: column;
+    }
+}

@@ -1,3 +1,9 @@
+.input {
+    display: flex;
+    justify-content:  flex-start;
+    align-items: flex-start;
+    flex-direction:  column;
+}
 input[type="text"].text__input, textarea.text__area{
     background-color: $surface-4;
     width: 100%;
@@ -8,4 +14,18 @@ input[type="text"].text__input, textarea.text__area{
     padding: 1rem;
     margin: 0px;
     font-family: monospace;
+    &::placeholder{
+        color: $text-disabled;
+    }
+    &:focus + .text__label {
+        color: $text-high-emphasis;
+    }
+}
+
+.text__label{
+    font-size: 1.4rem;
+    color: $text-med-emphasis;
+    text-transform: uppercase;
+    letter-spacing: 0.25px;
+    order: -1;
 }

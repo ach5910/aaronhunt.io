@@ -2,7 +2,13 @@
     width: 100%;
     min-height: 100vh;
 }
-
+// .home {
+//     position: absolute;
+//     left: 0px;
+//     right: 0px;
+//     top: 0px;
+//     bottom:0px;
+// }
 .about {
     width: 100%;
     height: auto;
@@ -21,6 +27,32 @@
     }
 }
   
-.section.about > .row:first-child, .section.projects > *:first-child, .section.contact > *:first-child{
-    margin-top: 12rem;
+.section.about > *:first-child, .section.projects > *:first-child, .section.contact > *:first-child{
+    // margin-top: 12rem;
+}
+
+.section.home {
+    padding: 0px;
+    margin: 0px;
+}
+
+.home-content, .loading-content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    flex-direction:  column;
+}
+
+.splash-content {
+    position: absolute;
+    z-index: 3;
+    left: 0px;
+    top: 0px;
+    height: 100vh;
+    width: 100vw;
+    background-color: $surface;
 }

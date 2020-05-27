@@ -12,6 +12,13 @@ import { HOME, ABOUT, PROJECTS, CONTACT } from '../../startup/client/constants';
 import ContactSection from './ContactSection';
 import Chip from './Chip';
 import Projects from './Projects';
+import { history } from '../../startup/client';
+import LinkedInIcon from './LinkedInIcon';
+import GithubIcon from './GithubIcon';
+import CodePenIcon from './CodePenIcon';
+import EmailIcon from './EmailIcon';
+import AtomIcon from './AtomIcon';
+import { useTransition, a } from 'react-spring';
 
 let observer;
 let intersectCb = noop;
@@ -62,8 +69,16 @@ const refs = {
     [PROJECTS]: null,
     [CONTACT]: null,
 }
-const Profile = ({}) => {
-    const [section, setSection] = useState(HOME);
+const Profile = ({history}) => {
+    const [section, setSection] = useState(history.actionABOUT);
+    const navRef = useRef(null);
+    const [loading, setLoading] = useState(history.action != "REPLACE");
+    const transition = useTransition(loading, null, {
+        from: { opacity: 1, transform: "scale(1)"},
+        enter: { opacity: 1, transform: "scale(1)"},
+        leave: { opacity: 0, transform: "scale(0.5)"},
+    })
+
     const refCallback = useCallback((el, section) => {
         if (el) {
             if (!refs[section] && observer){
@@ -73,18 +88,14 @@ const Profile = ({}) => {
         }
     })
 
-    useEffect(() => {
-        createObserver()
-        intersectCb = setSection;
-    },[])
-
     function scrollToSection(section){
         return function scrollToSectionEvent(e){
             if (refs[section]){
                 const {top} = refs[section].getBoundingClientRect();
+                const {height} = navRef.current.getBoundingClientRect();
                 anime({
                     targets: document.body,
-                    scrollTop: refs[section].offsetTop,
+                    scrollTop: Math.max(refs[section].offsetTop - height, 0),
                     duration: 500,
                     autoplay: true,
                     easing: 'easeInOutQuad',
@@ -93,24 +104,33 @@ const Profile = ({}) => {
             }
         }
     }
+
+    useEffect(() => {
+        createObserver();
+        intersectCb = setSection;
+        if (history.action == "REPLACE"){
+            scrollToSection(PROJECTS)()
+        }
+    },[])
     return(
         <React.Fragment>
-            <section data-section={HOME} ref={(el) => {refCallback(el, HOME)}} className="section home anchor">
-                <div id="pt" className="canvas"></div>
-                <div className="flex flex--col" style={{height: "100vh"}}>
-                    <div className="home-text">
-                        Hello, I'm <span className="primary">Aaron Hunt</span>.
-                        <br/>
-                        Im a Frontend Engineer.
+            {transition.map(({item, props}) => (
+                item &&
+                <a.div className="splash-content" style={props}>
+                    <div className="loading-content">
+                        <AtomIcon bind={{onAnimationEnd: () => { setTimeout(() => {
+                            setLoading(false)
+                        }, 200)}}} style={{height: "20rem", zIndex: 3}} className="animate"/>
                     </div>
-                    <button onClick={rippleClickDark(scrollToSection(ABOUT), 300, "clicked")} className="btn btn--outlined margin" style={{zIndex: 1}}>
-                        View my work
-                    </button>
-                </div>
-            </section>
-            <nav className="row nav-bar">
+                </a.div>
+            ))}
+            <nav ref={navRef} className="row nav-bar no-margin">
                 <ul className="nav-links col s12 m6  offset-m2">
-                    <li><a href="#" onClick={scrollToSection(HOME)} className={classNames("nav-link", {active: section == HOME })}>{HOME}</a></li>
+                    <li>
+                        <a href="#" onClick={() => history.replace("/")} className={classNames("nav-link", "nav-link--title")}>
+                            <AtomIcon style={{height: "5.0rem"}} />
+                        </a>
+                    </li>
                     <li><a href="#" onClick={scrollToSection(ABOUT)} className={classNames("nav-link", {active: section == ABOUT })}>{ABOUT}</a></li>
                     <li><a href="#" onClick={scrollToSection(PROJECTS)} className={classNames("nav-link", {active: section == PROJECTS })}>{PROJECTS}</a></li>
                     <li><a href="#" onClick={scrollToSection(CONTACT)} className={classNames("nav-link", {active: section == CONTACT })}>{CONTACT}</a></li>
@@ -150,7 +170,7 @@ const Profile = ({}) => {
                         </div>
                     </div>
                     <div className="row card">
-                        <article className="col s12 l4 offset-l1 flex flex--col padding">
+                        <article className="col s12 l6  flex flex--col padding">
                             <div className="image">
                                 <img src="https://s.cdpn.io/profiles/user/2662279/512.jpg?1555384482"/>
                             </div>
@@ -164,12 +184,12 @@ const Profile = ({}) => {
                                 I have serious passion for UI effects, animations and creating intuitive, dynamic user experiences.
                             </p>
                             <a href="#" onClick={scrollToSection(CONTACT)}  className="bio__description bio__description--important">Let's make something special.</a>
+                            <a className="link margin" href="/AaronHunt-Resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
                         </article>
-                        <article className="col s12 offset-l2 l5 no-padding">
+                        <article className="col s12 offset-l1 l5 no-padding">
                             <div className="skill-sets padding">
                                 <div className="skill-set">
                                     <header className="skill title">Languages</header>
-                                    {/* <p className="skills">Javascript, Node, HTML, CSS, SCSS/SASS, Python, C</p> */}
                                     <ul>
                                         <li className="skills">Javascript</li>
                                         <li className="skills">Node</li>
@@ -182,7 +202,6 @@ const Profile = ({}) => {
                                 </div>
                                 <div className="skill-set">
                                     <header className="skill title">Frameworks</header>
-                                    {/* <p className="skills">React, Apollo, Meteor, Redux/Flux, React Router, Jest, Enzyme</p> */}
                                     <ul>
                                         <li className="skills">React</li>
                                         <li className="skills">Apollo</li>
@@ -209,17 +228,35 @@ const Profile = ({}) => {
                 </section>
                 <section data-section={PROJECTS} ref={(el) => {refCallback(el, PROJECTS)}} className="section projects">
                     <Projects/>
+                    <p className="center-text text-med-emphasis">
+                        Check out my&nbsp;
+                        <a href="https://codepen.io/ach5910" target="_blank" rel="noopener noreferrer"className="link">
+                            CodePen
+                        </a>
+                        &nbsp;for small projects and CSS fun.</p>
                 </section>
                 <ContactSection refCallback={refCallback}/>
             </div>
-            {/* <div className="container">
-            <div className="row" style={{height: "75vh"}}>
-                <aside className="col s3 offset-s2 surface-1">Aside 1</aside>
-                <section className="col s3  surface-3 primary">Section</section>
-                <aside className="col s3 suface-1 secondary">Aside 3</aside>
-            </div>
-            </div> */}
-            <footer className="footer surface-1">Footer</footer>
+            <footer className="footer surface-1">
+                <div className="footer__row">
+                    <a href="https://www.linkedin.com/in/aaron-hunt-b44a58140" target="_blank" rel="noopener noreferrer"className="footer__link anchor">
+                        <LinkedInIcon/>
+                    </a>
+                    <a href="https://github.com/ach5910" target="_blank" rel="noopener noreferrer"className="footer__link anchor">
+                        <GithubIcon />
+                    </a>
+                    <a href="https://codepen.io/ach5910" target="_blank" rel="noopener noreferrer"className="footer__link anchor">
+                        <CodePenIcon />
+                    </a>
+                    <a href="mailto:ach5910@gmail.com" target="_blank" rel="noopener noreferrer"className="footer__link anchor">
+                        <EmailIcon />
+                    </a>
+                </div>
+                <div className="footer__row">
+                    <div className="footer__name">Aaron Hunt</div>
+                    <div className="footer__year">©2019</div>
+                </div>
+            </footer>
         </React.Fragment>
     )
 }

@@ -20,6 +20,9 @@
 .vision-card{
     // margin: 2*$space;
     padding: 2.2rem 0px;
+    > .icon {
+        cursor: default;
+    }
 }
 
 .vision-desc{

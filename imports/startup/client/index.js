@@ -20,13 +20,41 @@ const httpLink = new HttpLink({
 });
 window.cn = classNames
 window.classNames = classNames
-
+export const history = createBrowserHistory();
 window.addEventListener('DOMContentLoaded', (event) => {
-    floatySpace()
+    let floaty = false;
+    function checkFloaty(){
+        if (!floaty){
+            floaty = true;
+            floatySpace()
+        }
+    }
+    function toggleFloaty(loc){
+        if (loc.pathname == "/"){
+            console.log('list floaty');
+            checkFloaty();
+            document.getElementById("pt").style.display = "block"
+        } else {
+            console.log('list not floaty')
+            floatySpace.destroy();
+            floaty = false;
+            document.getElementById("pt").style.display = "none"
+        }
+    }
+    // if (history.location.pathname == "/"){
+    //     checkFloaty()
+    // }
+    toggleFloaty(history.location);
+    history.listen((loc) => {
+        toggleFloaty(loc)
+    })
+    // document.getElementById("pt").style.display = "none";
 });
 // const answers = Answers.find({}).fetch();
 // console.log(answers);
-const history = createBrowserHistory();
+
+window.h = history;
+// history.listen((p) => {console.log('p',p)} )
 const cache = new InMemoryCache();
 
 const authLink = new ApolloLink((operation, forward) => {

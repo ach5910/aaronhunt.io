@@ -3,22 +3,23 @@ import { CanvasSpace, Const, Line, Pt, Group} from 'pts';
 
 
 
-
+let space;
 
 export default function floatySpace() {
-    var colors = [
+    console.log('called');
+    const colors = [
       "#BB86F3", "#03da85", "#efb7ff", "#8858C8", "#00a757", "#63ffb5"
     ];
   
   //   var run = Pts.quickStart( "#pt", "#252934" ); 
   
-    var space = new CanvasSpace("#pt").setup({bgcolor: "#121212", resize: true, retina: true});
-    var form = space.getForm();
+    space = new CanvasSpace("#pt").setup({bgcolor: "#121212", resize: true, retina: true});
+    const form = space.getForm();
   
     // Elements
-    var pts;
-    var line;
-    var windowSize;
+    let pts;
+    let line;
+    let windowSize;
 
     // Canvas
     function setWindowSize(){
@@ -33,11 +34,11 @@ export default function floatySpace() {
     }
 
     function setUpPoints(space){
-        var count = Math.min(Math.max(window.innerHeight,window.innerWidth) * 0.1, 100)
+        let count = Math.min(Math.max(window.innerHeight,window.innerWidth) * 0.1, 100)
         line = Line.fromAngle([space.size.x,0], Math.PI/6, space.size.magnitude());
         pts = [];
-        for (var i=0; i<count; i++) {
-            var p = new Pt( Math.random()* space.size.x, Math.random()* space.size.y);
+        for (let i=0; i<count; i++) {
+            let p = new Pt( Math.random()* space.size.x, Math.random()* space.size.y);
             p.rotate2D( i*Math.PI/count, space.center);
             p.brightness = 0.1
             pts.push( p );
@@ -53,17 +54,18 @@ export default function floatySpace() {
             },
             animate: (time, fps, space) => {
     
-                for (var i=0; i<pts.length; i++) {
+                for (let i=0; i<pts.length; i++) {
                     // rotate the points slowly
-                    var pt = pts[i];
+                    let pt = pts[i];
             
                     pt.rotate2D( Const.one_degree / 30, space.center);
                     form.stroke( false ).fill( colors[i % 6] ).point(pt, 1);
                     // get line from pt to the mouse line
-                    var ln = new Group(pt, Line.perpendicularFromPt(line, pt));
+                    const ln = new Group(pt, Line.perpendicularFromPt(line, pt));
                     // opacity of line derived from distance to the line
                     //   var opacity = Math.min( 0.8, 1 - Math.abs( Line.distanceFromPt(ln, pt)) / r);
-                    var distFromMouse = Math.abs(Line.distanceFromPt(ln, space.pointer))
+                    window._sp = space;
+                    const distFromMouse = Math.abs(Line.distanceFromPt(ln, space.pointer))
             
                     if (distFromMouse < 50) {
                         if (pts[i].brightness < 0.3) pts[i].brightness += 0.015
@@ -71,23 +73,31 @@ export default function floatySpace() {
                         if (pts[i].brightness > 0.1) pts[i].brightness -= 0.01
                     }
             
-                    var color = "rgba(255,255,255," + pts[i].brightness +")"
+                    const color = "rgba(255,255,255," + pts[i].brightness +")"
                     form.stroke(color).fill( true ).line(ln);
                 }
             },
             resize: (size, evt) => {
                 if (window.innerWidth != windowSize[0] || window.innerHeight != windowSize[1]){
+                    // pts = [];
+                    // space.bindMouse(false);
+                    // space.bindMouse(true)
                     redraw()
                 }
                 //   this.start(undefined, {center: [size.x/2, size.y/e], size})
             }
   
         })
-        space.bindMouse().play();
+        space.bindMouse().bindTouch().play();
     }
     // space.play();
 }
-  
+
+floatySpace.destroy = () => {
+    if (space && space.removeAll) space.removeAll();
+    const el = this.document.getElementById("pt_canvas");
+    if (el && el.remove) el.remove();
+}
   // floatySpace();
   
   // window.resize = function(){

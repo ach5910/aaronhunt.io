@@ -32,6 +32,7 @@ import TagsSchema from '../../api/tags/Tags.graphql';
 import TranslationsSchema from '../../api/translation/Translations.graphql';
 import {Email} from "meteor/email";
 import {Meteor} from "meteor/meteor";
+import sgMail from '@sendgrid/mail';
 // import GoasssdflsScddllsshema from '../../api/goals/Goals.graphql';
 // import ResolutionsSchema from 'ssss../../api/resolutions/Resolutions.graphql';
 // import sssUsersSciihema from '../../api/users/Users.graphql';
@@ -73,18 +74,21 @@ const schema = makeExecutableSchema({
     resolvers
 });
 
-process.env.MAIL_URL = 'smtps://ach5910@gmail.com:Entourage420@smtp.gmail.com:465'
+process.env.MAIL_URL = 'smtps://ach5910@gmail.com:ft_putchar@smtp.gmail.com:465'
+// process.env.SENDGRID_API_KEY = "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";
+process.env.SENDGRID_API_KEY = "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"
 Meteor.methods({
     sendEmail(from, subject, text) {
-      // Make sure that all arguments are strings.
-    //   check([from, subject, text], [String]);
-  
-      // Let other method calls from the same client start running, without
-      // waiting for the email sending to complete.
-      this.unblock();
-  
-      Email.send({ to : "ach5910@gmail.com", from, subject, text });
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+      const msg = {
+        to: "ach5910@gmail.com",
+        from: "jobs@aaronhunt.io",
+        subject: subject,
+        text: text,
+      };
+      return sgMail.send(msg)
     }
+    
 });
   
   // Client: Asynchronously send an email.

@@ -255,6 +255,11 @@ $elevation-themes:
     
 }
 
+@mixin size($size:0px){
+    width: $size;
+    height: $size;
+}
+
 $secondary-color: $secondary;
 // 2. Badges
 // ==========================================================================

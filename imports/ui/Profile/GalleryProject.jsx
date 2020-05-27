@@ -1,26 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {a, interpolate} from 'react-spring';
 
-const _image = "https://s.cdpn.io/profiles/user/2662279/512.jpg?1555384482";
-const _name = "Partner Portal";
 
-const GalleryProject = ({image=_image, name=_name, handleClick}) => {
+const GalleryProject = ({image, name, disabled, handleClick, style: {xy, ...rest}}) => {
     handleOpen = () => {
         console.log('click')
         handleClick(name)
     }
     return(
-        <div className="project-img__container">
+        <a.div style={{ transform: xy.interpolate((x, y) => `translate3d(${x}px,${y}px,0)`), ...rest }} className="project-img__container">
             <img className="project-img" src={image}/>
-            <div className="cover">
+            <div className={cn("cover", {"cover--disabled": disabled})}>
                 <div className="cover-title">
                     {name}
                 </div>
                 <div onClick={handleOpen} className="cover-link">
-                    Click Here
+                    View More
                 </div>
             </div>
-        </div>
+        </a.div>
     )
 }
 

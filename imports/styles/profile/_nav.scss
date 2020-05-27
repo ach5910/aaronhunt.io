@@ -7,14 +7,14 @@ nav{
     padding: 1.2rem;
     position: sticky;
     top: 0px;
-    padding: 2*$space 0px;
+    padding: $space 0px;
     z-index: 1;
 }
 
 .nav-links{
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     list-style: none;
     
     > li:first-child .nav-link{
@@ -23,10 +23,12 @@ nav{
 }
 
 .nav-link {
+    display: inline-block;
     color: $text-med-emphasis;
     font-size: 1.8rem;
     // margin: 0px 1.5*$space;
     text-decoration: none;
+    margin-right: $space*2;
     cursor: pointer;
     transition: color 0.2s ease-in-out;
     
@@ -36,10 +38,14 @@ nav{
     &:hover{
         color: $secondary-light;
     }
+    &--title {
+        color: $text-high-emphasis;
+    }
 }
 
-@media #{$medium-and-down}{
+@media #{$medium-and-up}{
     .nav-link{
+        margin-right: $space*4;
         font-size: 1.8rem;
     }
 }
