@@ -184,7 +184,7 @@ const Profile = ({history}) => {
                                 I have serious passion for UI effects, animations and creating intuitive, dynamic user experiences.
                             </p>
                             <a href="#" onClick={scrollToSection(CONTACT)}  className="bio__description bio__description--important">Let's make something special.</a>
-                            <a className="link margin" href="/AaronHunt-Resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
+                            <a className="link margin" href="/AaronHunt_FrontEndEngineer_Resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
                         </article>
                         <article className="col s12 offset-l1 l5 no-padding">
                             <div className="skill-sets padding">
