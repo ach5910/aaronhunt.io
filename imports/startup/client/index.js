@@ -12,6 +12,7 @@ import Routes from '../../routes/liftRoutes';
 import { createBrowserHistory } from 'history';
 import floatySpace from './canvas';
 import classNames from 'classnames';
+import analytics from '../../analytics';
 // import App from '../../ui/App';
 const httpLink = new HttpLink({
     // uri: "http://localhost:3000"
@@ -20,7 +21,8 @@ const httpLink = new HttpLink({
     uri: Meteor.absoluteUrl('graphql')
 });
 window.cn = classNames
-window.classNames = classNames
+window.classNames = classNames;
+analytics.init();
 export const history = createBrowserHistory();
 window.addEventListener('DOMContentLoaded', (event) => {
     let floaty = false;
@@ -31,12 +33,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     function toggleFloaty(loc){
+        analytics.page(loc.pathname)
         if (loc.pathname == "/"){
-            console.log('list floaty');
             checkFloaty();
             document.getElementById("pt").style.display = "block"
         } else {
-            console.log('list not floaty')
             floatySpace.destroy();
             floaty = false;
             document.getElementById("pt").style.display = "none"

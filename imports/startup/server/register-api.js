@@ -1,19 +1,19 @@
-import { createApolloServer} from 'meteor/apollo';
-import { makeExecutableSchema } from 'graphql-tools';
+import {createApolloServer} from "meteor/apollo";
+import {makeExecutableSchema} from "graphql-tools";
 
-import merge from 'lodash/merge';
+import merge from "lodash/merge";
 // import QuestionResolvers from '../../api/questions/resolvers';
 // import AnswerResolvers from '../../api/answers/resolvers';
 // import TestOutlineResolvers from '../../api/testOutlines/resovlers';
 // import UserQuestionResolvers from '../../api/userQuestions/resolvers';
 // import UserTestResolvers from '../../api/userTests/resolvers';
-import RoutineResolvers from '../../api/routines/resolvers';
-import RoutineTemplateResolvers from '../../api/routineTemplates/resolvers';
-import ExerciseResolvers from '../../api/exercises/resolvers';
-import ExerciseTemplateResolvers from '../../api/exerciseTemplates/resolvers';
-import SetResolvers from '../../api/sets/resolvers';
-import TagResolvers from '../../api/tags/resolvers';
-import TranslationResolvers from '../../api/translation/resolvers';
+import RoutineResolvers from "../../api/routines/resolvers";
+import RoutineTemplateResolvers from "../../api/routineTemplates/resolvers";
+import ExerciseResolvers from "../../api/exercises/resolvers";
+import ExerciseTemplateResolvers from "../../api/exerciseTemplates/resolvers";
+import SetResolvers from "../../api/sets/resolvers";
+import TagResolvers from "../../api/tags/resolvers";
+import TranslationResolvers from "../../api/translation/resolvers";
 // import GoalResolvers from '../../api/goals/resolvers';
 // import ResolutionResolvers from '../../api/resolutions/resolvers';
 // impordt UserResolvers from '../../api/users/resolvers';
@@ -23,16 +23,17 @@ import TranslationResolvers from '../../api/translation/resolvers';
 // import TestOutlinesSchema from '../../api/testOutlines/TestOutlines.graphql';
 // import UserQuestionsSchema from '../../api/userQuestions/UserQuestions.graphql';
 // import UserTestsSchema from '../../api/userTests/UserTests.graphql';
-import RoutinesSchema from '../../api/routines/Routines.graphql';
-import RoutineTemplatesSchema from '../../api/routineTemplates/RoutineTemplates.graphql';
-import ExercisesSchema from '../../api/exercises/Exercises.graphql';
-import ExerciseTemplatesSchema from '../../api/exerciseTemplates/ExerciseTemplates.graphql';
-import SetsSchema from '../../api/sets/Sets.graphql';
-import TagsSchema from '../../api/tags/Tags.graphql';
-import TranslationsSchema from '../../api/translation/Translations.graphql';
+import RoutinesSchema from "../../api/routines/Routines.graphql";
+import RoutineTemplatesSchema from "../../api/routineTemplates/RoutineTemplates.graphql";
+import ExercisesSchema from "../../api/exercises/Exercises.graphql";
+import ExerciseTemplatesSchema from "../../api/exerciseTemplates/ExerciseTemplates.graphql";
+import SetsSchema from "../../api/sets/Sets.graphql";
+import TagsSchema from "../../api/tags/Tags.graphql";
+import TranslationsSchema from "../../api/translation/Translations.graphql";
 import {Email} from "meteor/email";
 import {Meteor} from "meteor/meteor";
-import sgMail from '@sendgrid/mail';
+import twilio from "twilio";
+// import sgMail from '@sendgrid/mail';
 // import GoasssdflsScddllsshema from '../../api/goals/Goals.graphql';
 // import ResolutionsSchema from 'ssss../../api/resolutions/Resolutions.graphql';
 // import sssUsersSciihema from '../../api/users/Users.graphql';
@@ -51,7 +52,7 @@ const typeDefs = [
     ExerciseTemplatesSchema,
     SetsSchema,
     TagsSchema,
-    TranslationsSchema
+    TranslationsSchema,
 ];
 
 const resolvers = merge(
@@ -71,26 +72,27 @@ const resolvers = merge(
 
 const schema = makeExecutableSchema({
     typeDefs,
-    resolvers
+    resolvers,
 });
 
-process.env.MAIL_URL = 'smtps://ach5910@gmail.com:ft_putchar@smtp.gmail.com:465'
-// process.env.SENDGRID_API_KEY = "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";
-// process.env.SENDGRID_API_KEY = "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"
+
 Meteor.methods({
     sendEmail(from, subject, text) {
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-      const msg = {
-        to: "ach5910@gmail.com",
-        from: "jobs@aaronhunt.io",
-        subject: subject,
-        text: text,
-      };
-      return sgMail.send(msg)
-    }
-    
+        client.messages
+            .create({
+                body: `From:${from} \n${subject} \n\n${text}`,
+                from: process.env.TWILIO_NUMBER,
+                to: process.env.PERSONAL_NUMBER,
+            })
+            .then((message) => {
+              console.log('message success')
+            })
+            .catch((err) => {
+                console.log("error", err);
+            });
+    },
 });
-  
-  // Client: Asynchronously send an email.
+
+// Client: Asynchronously send an email.
 
 createApolloServer({schema});

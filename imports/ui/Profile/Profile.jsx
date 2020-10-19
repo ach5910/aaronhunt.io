@@ -178,7 +178,7 @@ const Profile = ({history}) => {
                             <br/>
                             <h2 className="title">Who is this guy?</h2>
                             <p className="bio__description">
-                                I'm the Front-End Developer for <a href="https://thuuz.com" target="_blank"  className="bio__description bio__description--important">Thuuz Sports</a> in Palo Alto, CA.
+                                I'm the Front-End Developer in San Francisco, CA.
                             </p>
                             <p className="bio__description">
                                 I have serious passion for UI effects, animations and creating intuitive, dynamic user experiences.

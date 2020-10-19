@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import AtomIcon from './AtomIcon';
 
 
-const ProjectInfo = ({name, images, history,  sections}) => {
+const ProjectInfo = ({name, images, history,  sections, url}) => {
     const [img, setImg] = useState(0);
     const mounted = useRef(false);
     const [loading, setLoading] = useState(history.action != "REPLACE");
@@ -77,6 +77,11 @@ const ProjectInfo = ({name, images, history,  sections}) => {
                     <div className='row '>
                         <div className='col s12 '>
                             <p className="project__description">{description}</p>
+                        </div>
+                    </div>
+                    <div className='row '>
+                        <div className='col s12 '>
+                            {url && <a href={url} target="_blank" rel="noopener noreferrer"className="link">Link</a>}
                         </div>
                     </div>
                     <h2 className="project__section">Features</h2>

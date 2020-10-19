@@ -39,6 +39,7 @@ export const PORTFOLIO_PROJECTS = {
           "Bundler":  "Webpack",
           "Video Playback": "JwPlayer, Bitmovin",
           "Backend Framework": "Django",
+          "CI/CD":  "Terraform, AWS CodePipeline, AWS CodeBuild, AWS CodeDeploy, AWS S3",
           "Frontend Testing":  "Jest, Enzyme, WebDriverIO, Mocha, Chai",
         },
         notes: [
@@ -95,6 +96,7 @@ export const PORTFOLIO_PROJECTS = {
           "Bundler": "Webpack",
           "Video Playback": "JwPlayer, Bitmovin",
           "Backend Framework": "Django",
+          "CI/CD":  "Terraform, AWS CodePipeline, AWS CodeBuild, AWS CodeDeploy, AWS S3",
           "Frontend Testing":  "Jest, Enzyme, WebDriverIO, Mocha, Chai",
         },
         notes: [
@@ -106,7 +108,7 @@ export const PORTFOLIO_PROJECTS = {
         "personal contributions":[
           "Initialized/created the new project.", 
           "Determined the frontend technology stack based on the project's requirements.",
-          "Migrated existing functionality internal projects using Angular I to React.",
+          "Migrated existing functionality from an internal project using Angular I to React.",
           "Leveraged PubSub design pattern to create/maintain the app's state machine.",
           "Developed Beta version in 2 under weeks to meet client requirements.",
           "Implemented layout support to force landscape orientation on mobile devices.",
@@ -133,6 +135,60 @@ export const PORTFOLIO_PROJECTS = {
       images: ["/embedded_devices.png", "/embedded_multi.png","/embedded_menu.png", "/embedded_filter.png", "/embedded_live.png", "/embedded_portrait.png"],
       url: "https://www.thuuz.com/partners/video_player/al-arabiya/documentation/",
       thumbnail: "/embedded_project2.png",
+      height: 300,
+      disabled: false,
+  },
+  "QA Editor" : {
+    name: "QA Editor",
+      sections: {
+        description: "An internal tool used to QA auto-generated clips and their meta-data for live sports created by the company's core AI technology.",
+        features: {
+          "Video Editing": "Adjusting the in and out points of individual clip.",
+          "Meta-data Editing": "Adjusting the play-types and the excitement score's associated with a clip. This effects how plays are selected for the core the highlight generation technology.",
+          "Play Confirmation": "Allows a play and it's data to be verified after it's been reviewed.",
+          "Play Creation": "New plays can be created manually by specifying the video's in and out points and it's meta-data which includes it's ID, excitement scores, play-types, game details and the outcome.",
+          "Replay Creation":"New plays can be created using an existing play as a template to populate the form.",
+          "Play Change Logs":"Manual change's to a play are recorded and listed in the play's view. Each log records the user the made the change, the field being modified, the old and new value, the date modified and an additional field indicating the reason for the change.",
+          "Highlight Preview": "Allows the QA team to preview auto-generated highlights based on the available plays. Theses highlights will change throughout the game as plays are being created and updated.",
+        },
+        technology: {
+          "Client": "ReactJs, Redux, Thunk, SCSS",
+          "Bundler": "Webpack",
+          "Video Playback": "Bitmovin",
+          "Backend": "Django, DynamoDB",
+          "CI/CD":  "Terraform, AWS CodePipeline, AWS CodeBuild, AWS CodeDeploy, AWS S3",
+          "Frontend Testing":  "Jest, Testing Library",
+        },
+        notes: [
+          "Leverages local storage to persist and hydrate the Redux store between a user's sessions.",
+          "Custom Keyboard shortcuts for video seeking, offset editing, scrolling the list of plays, saving changes and canceling changes.",
+          "Supports filtering plays by play-type, segment type and unconfirmed plays.",
+          "Supports sorting plays by excitement, time and play ID.",
+          "Supports searching for plays based on their ID.",
+        ],
+        "personal contributions":[
+          "Sole contributor for frontend development.",
+          "Initialized/created the new project.", 
+          "Determined the frontend technology stack based on the project's requirements.",
+          "Migrated existing functionality from an internal project using Angular I to React.",
+          "Reworked legacy APIs with backend team to support concurrent updates.",
+          "Lead frontend efforts to develop solutions based on the requests/requirements specified by the product team.",
+          "Collaborated with the design team to achieved the desired UI/UX for new features.",
+          "Provided development timelines for potential features and outlined the required tasks.",
+        ],
+        "personal accomplishments": [
+          "Second project migrated from Angular I to React.",
+          "Collaborated with backend team to resolve concurrent updates.",
+          "Implemented custom Redux middleware functions to resolve local and global changes made to plays.",
+          "Integrated support for the QA team to post Slack notifications to engineering channels in the case of an error.",
+        ]
+      },
+      tags: [
+        "Redux",
+        "Desktop"
+      ],
+      images: ["/qa_main.png", "/qa_full.png","/qa_replay.png", "/qa_new.png", "/qa_highlight.png", "/qa_highlight2.png"],
+      thumbnail: "/qa_project.png",
       height: 300,
       disabled: false,
   },
@@ -263,6 +319,44 @@ export const PORTFOLIO_PROJECTS = {
       images: ["/workout_devices.png", "/workout_add.png", "/workout_update.png", "/workout_create_exercise.png", "/workout_create_routine.png"],
       thumbnail: "/workout_project.png",
       height: 300,
+      disabled: false,
+  },
+  "Bembo" : {
+    name: "Bembo",
+      sections: {
+        description: "A module for creating dynamic class names following the BEM methodology.",
+        features: {
+          "React Compatible": "This package was intended to be used with ReactJs.",
+          "Auto toString Conversion": "The created bem objects resolve their toString conversion to the expect class name string so that they can support React's className prop or can be concatenated with other strings directly.",
+          "Chaining": "All bem objects return another bem object so that they can be chained easily with elements and modifiers.",
+          "Elements": "Element names can be chained to the base block object passing strings as params.",
+          "Modifiers":"Modifiers can be chained to the base block or element passing in strings as params or and with the keys being the modifiers and their value representing their truthiness.",
+          "Simple/Light Weight":"The entire module is written in one small file and has no dependencies.",
+        },
+        technology: {
+          "Base": "JavaScript",
+          "Compiler": "Babel",
+          "Testing": "Jest",
+        },
+        notes: [
+          "Simple an easy to use following similar usage of the popular classnames package.",
+          "Allows React Components to be easier to read.",
+
+        ],
+        "personal contributions":[
+          "Sole contributor for frontend development.",
+        ],
+        "personal accomplishments": [
+          "First open-sourced npm package.",
+          "Built entirely in vanilla JavaScript.",
+          "No outside dependencies.",
+        ]
+      },
+      tags: [],
+      images: ["/bembo.png", "/bembo2.png"],
+      thumbnail: "/bembo.png",
+      height: 300,
+      url: "https://www.npmjs.com/package/bembo",
       disabled: false,
   },
 }
